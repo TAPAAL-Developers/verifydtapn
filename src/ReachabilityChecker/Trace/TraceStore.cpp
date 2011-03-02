@@ -147,7 +147,7 @@ namespace VerifyTAPN{
 
 	void TraceStore::RunCTUToObtainDelays(rapidxml::xml_document<>& doc, std::vector<double>& delays) const
 	{
-		char temp[] = "/tmp/verifytapn_trace_XXXXXX";
+		/*char temp[] = "/tmp/verifytapn_trace_XXXXXX";
 		int fd = mkstemp(temp);
 		if(fd == -1){
 			std::cerr << "Could not generate temp file for CTU.";
@@ -172,7 +172,7 @@ namespace VerifyTAPN{
 			ParseDelays(output, delays);
 		}
 		close(fd);
-		unlink(temp);
+		unlink(temp);*/
 	}
 
 	void TraceStore::RunCTU(const std::string& tempFile, std::string& output) const
