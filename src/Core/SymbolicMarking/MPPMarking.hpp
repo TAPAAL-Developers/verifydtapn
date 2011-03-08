@@ -28,7 +28,6 @@ namespace VerifyTAPN {
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;
-		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual unsigned int GetClockIndex(unsigned int token) const;
 
 		virtual SymbolicMarking* Clone() const;

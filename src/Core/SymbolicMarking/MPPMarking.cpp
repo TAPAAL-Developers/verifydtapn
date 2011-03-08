@@ -51,10 +51,6 @@ namespace VerifyTAPN {
 		return id;
 	}
 
-	void MPPMarking::AddTokens(const std::list<int>& placeIndices) {
-		// TODO Awaiting reply from Morten about whether this is necessary to implement, or if DiscreteMarking is supposed to handle that
-	}
-
 	unsigned int MPPMarking::GetClockIndex(unsigned int token) const {
 		// TODO Possible off-by-one error here, check this
 		return token;
