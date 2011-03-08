@@ -2,10 +2,16 @@
 #define MPPMARKINGFACTORY_HPP_
 
 #include "MarkingFactory.hpp"
+#include "MPPMarking.hpp"
 
 namespace VerifyTAPN {
 	class MPPMarkingFactory: public MarkingFactory {
+	private:
+		static id_type nextId;
 	public:
+		MPPMarkingFactory() { };
+		virtual ~MPPMarkingFactory() {};
+
 		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const;
 		virtual SymbolicMarking* Clone(const SymbolicMarking& marking) const;
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const;

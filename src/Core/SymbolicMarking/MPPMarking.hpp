@@ -1,13 +1,36 @@
 #ifndef MPPMARKING_HPP_
 #define MPPMARKING_HPP_
 
+#include <set>
+
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
+#include "TokenMapping.hpp"
+#include "MarkingFactory.hpp"
+
+#include "MPVector.hpp"
 
 namespace VerifyTAPN {
 
-	class MPPMarking: public SymbolicMarking, public StoredMarking {
+	class MPPMarking: public DiscreteMarking, public StoredMarking {
+		friend class MPPMarkingFactory;
+	private:
+		static MarkingFactory *factory;
+
+		std::set<MPVector> V, W;
+
+		id_type id;
+
+		void initZero();
 	public:
+		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { initZero(); };
+		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W) { };
+		virtual ~MPPMarking() { };
+
+		virtual id_type UniqueId() const;
+		virtual void AddTokens(const std::list<int>& placeIndices);
+		virtual unsigned int GetClockIndex(unsigned int token) const;
+
 		virtual SymbolicMarking* Clone() const;
 		virtual void Reset(int token);
 		virtual bool IsEmpty() const;
