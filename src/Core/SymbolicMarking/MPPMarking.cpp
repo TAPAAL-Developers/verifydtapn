@@ -21,8 +21,7 @@ namespace VerifyTAPN {
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
 	}
 
-	bool MPPMarking::PotentiallySatisfies(int token,
-			const TAPN::TimeInterval &interval) const {
+	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
 		return false;
 	}
 
