@@ -7,6 +7,7 @@
 namespace VerifyTAPN {
 
 	class MPPMarking: public SymbolicMarking, public StoredMarking {
+	public:
 		virtual SymbolicMarking* Clone() const;
 		virtual void Reset(int token);
 		virtual bool IsEmpty() const;

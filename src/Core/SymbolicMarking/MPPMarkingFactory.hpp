@@ -5,6 +5,7 @@
 
 namespace VerifyTAPN {
 	class MPPMarkingFactory: public MarkingFactory {
+	public:
 		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const;
 		virtual SymbolicMarking* Clone(const SymbolicMarking& marking) const;
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const;
