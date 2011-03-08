@@ -1,5 +1,4 @@
 #include "MPPMarkingFactory.hpp"
-#include <cstdlib>
 
 namespace VerifyTAPN {
 
