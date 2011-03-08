@@ -46,7 +46,7 @@ MPVector::~MPVector() {
 	}
 }
 
-const bool MPVector::operator==(const MPVector& mpv) {
+const bool MPVector::operator==(const MPVector& mpv) const {
 	if (n != mpv.n) {
 		return false;
 	}
@@ -58,7 +58,7 @@ const bool MPVector::operator==(const MPVector& mpv) {
 	return true;
 }
 
-const bool MPVector::operator!=(const MPVector& mpv) {
+const bool MPVector::operator!=(const MPVector& mpv) const {
 	return !(*this == mpv);
 }
 
@@ -76,7 +76,7 @@ MPVector& MPVector::operator+=(const MPVector& mpv) {
 	return *this;
 }
 
-const MPVector MPVector::operator+(const MPVector& mpv) {
+const MPVector MPVector::operator+(const MPVector& mpv) const {
 
 	return MPVector(*this) += mpv;
 }
@@ -107,6 +107,20 @@ void MPVector::Set(const int idx, const int v) {
 	}
 
 	val[idx] = v;
+}
+
+const bool MPVector::operator <(const MPVector & mpv) const
+{
+	if (n != mpv.n) {
+		throw invdimex;
+	}
+
+	for (int i = 0; i < n; ++i) {
+		if (val[i] < mpv.val[i]) {
+			return true;
+		}
+	}
+	return false;
 }
 
 int MPVector::GetDim() const {
