@@ -15,7 +15,7 @@ class InvalidDimException: public std::exception {
 	virtual const char* what() const throw () {
 		return "Invalid dimensions";
 	}
-} invdimex;
+};
 
 const int NegInf = INT_MIN;
 
@@ -27,6 +27,8 @@ public:
 	MPVector();
 	MPVector(int dim);
 	MPVector(const MPVector& mpv);
+	const MPVector& operator=(const MPVector& mpv);
+
 	~MPVector();
 
 	const bool operator==(const MPVector& mpv);
@@ -35,8 +37,9 @@ public:
 	const MPVector operator+(const MPVector& mpv);
 	MPVector Max(const MPVector& mpv);
 
-	inline int Get(const int idx) const;
-	inline void Set(const int idx, const int v);
+	int Get(const int idx) const;
+	void Set(const int idx, const int v);
+	int GetDim() const;
 };
 
 #endif /* MPVECTOR_HPP_ */

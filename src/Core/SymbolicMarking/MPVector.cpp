@@ -1,23 +1,49 @@
 #include "MPVector.hpp"
 
+InvalidDimException invdimex;
+
 MPVector::MPVector() {
 	n = 0;
-	val = new int[n];
+	val = NULL;
 }
 
 MPVector::MPVector(int dim) {
+	if (dim == 0) {
+		throw invdimex;
+	}
 	n = dim;
 	val = new int[n];
 }
 
 MPVector::MPVector(const MPVector& mpv) {
 	n = mpv.n;
-	val = new int[n];
-	memcpy(val, mpv.val, sizeof(int) * n);
+	if (n == 0) {
+		val = NULL;
+	} else {
+		val = new int[n];
+		memcpy(val, mpv.val, sizeof(int) * n);
+	}
+}
+
+const MPVector & MPVector::operator =(const MPVector & mpv)
+{
+	if(val) {
+		delete[] val;
+	}
+	n = mpv.n;
+	if (n == 0) {
+		val = NULL;
+	} else {
+		val = new int[n];
+		memcpy(val, mpv.val, sizeof(int) * n);
+	}
+	return *this;
 }
 
 MPVector::~MPVector() {
-	delete[] val;
+	if(val) {
+		delete[] val;
+	}
 }
 
 const bool MPVector::operator==(const MPVector& mpv) {
@@ -37,15 +63,14 @@ const bool MPVector::operator!=(const MPVector& mpv) {
 }
 
 MPVector& MPVector::operator+=(const MPVector& mpv) {
-	if(n!=mpv.n) {
+	if (n != mpv.n) {
 		throw invdimex;
 	}
-	for(int i=0; i<0; ++i) {
-		if(val[i] == NegInf || mpv.val[i] == NegInf) {
+	for (int i = 0; i < n; ++i) {
+		if (val[i] == NegInf || mpv.val[i] == NegInf) {
 			val[i] = NegInf;
-		}
-		else {
-			val[i]+=mpv.val[i];
+		} else {
+			val[i] += mpv.val[i];
 		}
 	}
 	return *this;
@@ -53,23 +78,23 @@ MPVector& MPVector::operator+=(const MPVector& mpv) {
 
 const MPVector MPVector::operator+(const MPVector& mpv) {
 
-	return MPVector(*this)+=mpv;
+	return MPVector(*this) += mpv;
 }
 
 MPVector MPVector::Max(const MPVector& mpv) {
-	if(n!=mpv.n) {
+	if (n != mpv.n) {
 		throw invdimex;
 	}
 
 	MPVector retVal(n);
-	for(int i=0; i<n; ++i) {
+	for (int i = 0; i < n; ++i) {
 		retVal.Set(i, max(val[i],mpv.val[i]));
 	}
 	return retVal;
 }
 
 int MPVector::Get(const int idx) const {
-	if(idx < 0 || idx >= n) {
+	if (idx < 0 || idx >= n) {
 		throw invdimex;
 	}
 
@@ -77,9 +102,13 @@ int MPVector::Get(const int idx) const {
 }
 
 void MPVector::Set(const int idx, const int v) {
-	if(idx < 0 || idx >= n) {
+	if (idx < 0 || idx >= n) {
 		throw invdimex;
 	}
 
-	val[idx]=v;
+	val[idx] = v;
+}
+
+int MPVector::GetDim() const {
+	return n;
 }
