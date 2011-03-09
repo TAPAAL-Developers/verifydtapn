@@ -23,7 +23,7 @@ namespace VerifyTAPN {
 
 		void initZero();
 	public:
-		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { initZero(); };
+		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W) { };
 		virtual ~MPPMarking() { };
 
