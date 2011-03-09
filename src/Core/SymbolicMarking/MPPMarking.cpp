@@ -160,6 +160,7 @@ namespace VerifyTAPN {
 
 	bool MPPMarking::ContainsPoint(const MPVector& v) const {
 		//TODO Implement this
+		return false;
 	}
 
 	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {
