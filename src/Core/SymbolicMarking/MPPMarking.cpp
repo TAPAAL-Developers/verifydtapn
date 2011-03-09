@@ -85,20 +85,21 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::PolyToCone() {
-		MPVecSet newV;
+		MPVecSet newW;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			MPVector v = *it;
 			v.Set(ConeIdx, 0);
-			newV.insert(v);
+			newW.insert(v);
 		}
-		newV.insert(W.begin(), W.end());
-		W.clear();
-		V = newV;
+		newW.insert(W.begin(), W.end());
+		V.clear();
+		W = newW;
+		isCone = true;
 	}
 
 	void MPPMarking::ConeToPoly() {
 		MPVecSet newV, newW;
-		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector v = *it;
 			if (v.Get(ConeIdx) == NegInf)
 				newW.insert(v);
@@ -110,5 +111,6 @@ namespace VerifyTAPN {
 		}
 		V = newV;
 		W = newW;
+		isCone = false;
 	}
 }
