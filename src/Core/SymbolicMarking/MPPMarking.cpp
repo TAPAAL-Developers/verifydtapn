@@ -113,4 +113,22 @@ namespace VerifyTAPN {
 		W = newW;
 		isCone = false;
 	}
+
+	bool MPPMarking::Contains(const MPPMarking& mpp) {
+		MPPMarking G = MPPMarking(*this);
+		MPPMarking Gprime = MPPMarking(mpp);
+
+		G.PolyToCone();
+		Gprime.PolyToCone();
+
+		for (MPVecIter it = Gprime.W.begin(); it != Gprime.W.end(); ++it)
+			if (!G.ContainsPoint(*it))
+				return false;
+
+		return true;
+	}
+
+	bool MPPMarking::ContainsPoint(const MPVector& v) {
+		//TODO Implement this
+	}
 }
