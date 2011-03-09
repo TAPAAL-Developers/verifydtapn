@@ -42,7 +42,23 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
-		// TODO Implement this
+		int clock = mapping.GetMapping(token);
+		bool lowerSat=false, upperSat=false;
+		for(MPVecIter it = V.begin(); it != V.end(); ++it) {
+			lowerSat = lowerSat || it->Get(clock)>interval.GetLowerBound();
+			upperSat = upperSat || it->Get(clock)<interval.GetUpperBound();
+
+			if(upperSat&&lowerSat)
+				return true;
+		}
+
+		if(!upperSat)
+			return false;
+
+		for(MPVecIter it = W.begin(); it != W.end(); ++it) {
+			if (it->Get(clock)!=NegInf)
+				return true;
+		}
 		return false;
 	}
 
