@@ -43,20 +43,20 @@ namespace VerifyTAPN {
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
 		int clock = mapping.GetMapping(token);
-		bool lowerSat=false, upperSat=false;
-		for(MPVecIter it = V.begin(); it != V.end(); ++it) {
-			lowerSat = lowerSat || it->Get(clock)>interval.GetLowerBound();
-			upperSat = upperSat || it->Get(clock)<interval.GetUpperBound();
+		bool lowerSat = false, upperSat = false;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			lowerSat = lowerSat || it->Get(clock) > interval.GetLowerBound();
+			upperSat = upperSat || it->Get(clock) < interval.GetUpperBound();
 
-			if(upperSat&&lowerSat)
+			if (upperSat && lowerSat)
 				return true;
 		}
 
-		if(!upperSat)
+		if (!upperSat)
 			return false;
 
-		for(MPVecIter it = W.begin(); it != W.end(); ++it) {
-			if (it->Get(clock)!=NegInf)
+		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+			if (it->Get(clock) != NegInf)
 				return true;
 		}
 		return false;
@@ -67,19 +67,19 @@ namespace VerifyTAPN {
 	}
 
 	relation MPPMarking::Relation(const StoredMarking &other) const {
-		const MPPMarking &mpp = static_cast<const MPPMarking&>(other);
-		bool sub=false, sup=false;
+		const MPPMarking &mpp = static_cast<const MPPMarking&> (other);
+		bool sub = false, sup = false;
 
-		if(Contains(mpp))
-			sup=true;
-		if(mpp.Contains(*this))
-			sub=true;
+		if (Contains(mpp))
+			sup = true;
+		if (mpp.Contains(*this))
+			sub = true;
 
-		if(sub&sup)
+		if (sub && sup)
 			return EQUAL;
-		if(sub)
+		if (sub)
 			return SUBSET;
-		if(sup)
+		if (sup)
 			return SUPERSET;
 
 		return DIFFERENT;
