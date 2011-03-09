@@ -55,7 +55,7 @@ namespace VerifyTAPN {
 		return DIFFERENT;
 	}
 
-	void MPPMarking::initZero() {
+	void MPPMarking::InitZero() {
 		V.clear();
 		W.clear();
 		// TODO Check if this is the right size

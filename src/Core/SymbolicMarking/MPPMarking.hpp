@@ -24,7 +24,7 @@ namespace VerifyTAPN {
 		TokenMapping mapping;
 		id_type id;
 
-		void initZero();
+		void InitZero();
 		void InitMapping();
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { InitMapping(); };
