@@ -156,7 +156,20 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {
-		//TODO Implement this
+		MPVecSet Gleq, Ggt;
+		for (MPVecIter it = W.begin(); it != W.end; ++it) {
+			MPVector g = *it;
+			if (a+g <= b+g)
+				Gleq.insert(g);
+			else
+				Ggt.insert(g);
+		}
+		W = Gleq;
+		for (MPVecIter g = Gleq.begin(); g != Gleq.end(); ++g) {
+			for (MPVecIter h = Ggt.begin(); h != Ggt.end(); ++g) {
+				W.insert(Max(a+(*h)+(*g), b+(*g)+(*h)));
+			}
+		}
 	}
 
 	void MPPMarking::Cleanup() {

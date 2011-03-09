@@ -31,8 +31,8 @@ namespace VerifyTAPN {
 		void ConeToPoly();
 		bool isCone;
 
-		bool Contains(const MPPMarking& mpp);
-		bool ContainsPoint(const MPVector& v);
+		bool Contains(const MPPMarking& mpp) const;
+		bool ContainsPoint(const MPVector& v) const;
 		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
 	public:

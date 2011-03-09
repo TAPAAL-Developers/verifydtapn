@@ -44,4 +44,6 @@ public:
 	int GetDim() const;
 };
 
+MPVector Max(const MPVector& lhs, const MPVector& rhs);
+
 #endif /* MPVECTOR_HPP_ */

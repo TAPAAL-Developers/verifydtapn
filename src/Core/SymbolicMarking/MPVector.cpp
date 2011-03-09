@@ -127,3 +127,7 @@ const bool MPVector::operator <(const MPVector & mpv) const
 int MPVector::GetDim() const {
 	return n;
 }
+
+MPVector Max(const MPVector& lhs, const MPVector& rhs) {
+	return lhs.Max(rhs);
+}
