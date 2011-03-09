@@ -110,7 +110,7 @@ void MPVector::Set(const int idx, const int v) {
 	val[idx] = v;
 }
 
-const bool MPVector::operator <(const MPVector & mpv) const
+const bool MPVector::operator<(const MPVector & mpv) const
 {
 	if (n != mpv.n) {
 		throw invdimex;
@@ -122,6 +122,18 @@ const bool MPVector::operator <(const MPVector & mpv) const
 		}
 	}
 	return false;
+}
+
+const bool MPVector::operator<=(const MPVector & mpv) const {
+	return !(*this > mpv);
+}
+
+const bool MPVector::operator>=(const MPVector & mpv) const {
+	return !(*this < mpv);
+}
+
+const bool MPVector::operator>(const MPVector & mpv) const {
+	return mpv < *this;
 }
 
 int MPVector::GetDim() const {
