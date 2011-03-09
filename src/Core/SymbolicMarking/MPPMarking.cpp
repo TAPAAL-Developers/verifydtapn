@@ -20,8 +20,7 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::IsEmpty() const {
-		// TODO Implement this
-		return false;
+		return V.empty();
 	}
 
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
