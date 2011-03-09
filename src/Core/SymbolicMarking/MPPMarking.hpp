@@ -38,7 +38,7 @@ namespace VerifyTAPN {
 		void Cleanup();
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size()+1; };
-		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), isCone(false), clocks(mpp.clocks) { };
+		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;

@@ -172,17 +172,19 @@ namespace VerifyTAPN {
 	bool MPPMarking::ContainsPoint(const MPVector& v) const {
 		int count = W.size();
 		int* y = new int[count];
-		for (MPVecIter it = W.begin(), i = 0; it != W.end(); ++it, i++) {
-			for (int j = 1; j <= n; j++) {
+		int i = 0;
+		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++) {
+			for (size_t j = 1; j <= clocks; j++) {
 				y[i] = min(y[i], v.Get(j) - it->Get(j));
 			}
 		}
 
 		MPVector z(clocks, NegInf);
-		for (MPVecIter it = W.begin(), i = 0; it != W.end(); ++it, i++)
+		i = 0;
+		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++)
 			z = Max(z, y[i] + (*it));
 		delete y;
-		return x == z;
+		return v == z;
 	}
 
 	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {

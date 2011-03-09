@@ -40,7 +40,7 @@ public:
 	const bool operator!=(const MPVector& mpv) const;
 	MPVector& operator+=(const MPVector& mpv);
 	const MPVector operator+(const MPVector& mpv) const;
-	MPVector& operator+=(const int v) const;
+	MPVector& operator+=(const int v);
 	const MPVector operator+(const int v) const;
 	const bool operator<(const MPVector& mpv) const;
 	const bool operator<=(const MPVector& mpv) const;
