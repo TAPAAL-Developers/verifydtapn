@@ -16,6 +16,7 @@ MPVector::MPVector(int dim, int defVal) {
 	for (int i = 0; i < n; i++)
 		val[i] = defVal;
 	val[ConeIdx] = NegInf;
+	val[ZeroIdx] = 0;
 }
 
 MPVector::MPVector(const MPVector& mpv) {
