@@ -38,7 +38,22 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
-		// TODO Implement this
+		PolyToCone();
+		int clock = mapping.GetMapping(token);
+		// TODO Check if this is the right size
+		MPVector a = MPVector(dp.size(), NegInf);
+		MPVector b = a;
+		a.Set(clock, 0);
+		b.Set(ZeroIdx, interval.GetUpperBound());
+		IntersectHalfspace(a,b);
+
+		a = MPVector(dp.size(), NegInf);
+		b = a;
+		a.Set(ZeroIdx, -interval.GetLowerBound());
+		b.Set(clock, 0);
+		IntersectHalfspace(a,b);
+
+		ConeToPoly();
 	}
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {

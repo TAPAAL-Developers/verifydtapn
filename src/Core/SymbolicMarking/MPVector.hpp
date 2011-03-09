@@ -19,6 +19,7 @@ class InvalidDimException: public std::exception {
 
 const int NegInf = INT_MIN;
 const int ConeIdx = 0;
+const int ZeroIdx = 1;
 
 class MPVector {
 	int n;
@@ -26,7 +27,7 @@ class MPVector {
 
 public:
 	MPVector();
-	MPVector(int dim);
+	MPVector(int dim, int defVal = 0);
 	MPVector(const MPVector& mpv);
 	const MPVector& operator=(const MPVector& mpv);
 

@@ -7,12 +7,14 @@ MPVector::MPVector() {
 	val = NULL;
 }
 
-MPVector::MPVector(int dim) {
+MPVector::MPVector(int dim, int defVal) {
 	if (dim == 0) {
 		throw invdimex;
 	}
-	n = dim+1; //Add one to leave room for simpler poly/cone conversion
+	n = dim+2; //Add 2 to leave room for simpler poly/cone conversion and zero clock
 	val = new int[n];
+	for (int i = 0; i < n; i++)
+		val[i] = defVal;
 	val[ConeIdx] = NegInf;
 }
 
