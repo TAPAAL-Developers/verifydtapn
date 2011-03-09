@@ -9,15 +9,16 @@ namespace VerifyTAPN {
 
 	void MPPMarking::Reset(int token) {
 		// TODO If possible, find a way to avoid replacing the entire sets
+		int clock = mapping.GetMapping(token);
 		MPVecSet newV, newW;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			MPVector v = *it;
-			v.Set(token, 0);
+			v.Set(clock, 0);
 			newV.insert(v);
 		}
 		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector w = *it;
-			w.Set(token, NegInf);
+			w.Set(clock, NegInf);
 			newW.insert(w);
 		}
 		V = newV;
@@ -66,7 +67,20 @@ namespace VerifyTAPN {
 	}
 
 	unsigned int MPPMarking::GetClockIndex(unsigned int token) const {
-		// TODO Possible off-by-one error here, check this
-		return token;
+		return mapping.GetMapping(token);
+	}
+
+	void MPPMarking::InitMapping() {
+		std::vector<int> pVector = dp.GetTokenPlacementVector();
+		std::vector<unsigned int> map;
+		int i = 0;
+
+		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
+		{
+			map.push_back(i+1);
+			i++;
+		}
+
+		mapping = TokenMapping(map);
 	}
 }

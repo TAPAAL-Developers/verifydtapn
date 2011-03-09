@@ -21,13 +21,14 @@ namespace VerifyTAPN {
 		static MarkingFactory *factory;
 
 		MPVecSet V, W;
-
+		TokenMapping mapping;
 		id_type id;
 
 		void initZero();
+		void InitMapping();
 	public:
-		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { };
-		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W) { };
+		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { InitMapping(); };
+		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping) { };
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;
