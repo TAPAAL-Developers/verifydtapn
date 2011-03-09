@@ -186,7 +186,7 @@ namespace VerifyTAPN {
 		i = 0;
 		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++)
 			z = Max(z, y[i] + (*it));
-		delete y;
+		delete[] y;
 		return v == z;
 	}
 
