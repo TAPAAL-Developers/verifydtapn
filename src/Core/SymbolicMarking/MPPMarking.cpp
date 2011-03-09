@@ -205,6 +205,17 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Cleanup() {
-			//TODO Implement this
+		PolyToCone();
+		MPPMarking copy(*this);
+
+		for(MPVecIter it = W.begin(); it!=W.end(); ++it) {
+			copy.W.erase(*it);
+			if(!copy.ContainsPoint(*it)) {
+				copy.W.insert(*it);
+			}
+		}
+
+		W=copy.W;
+		ConeToPoly();
 	}
 }
