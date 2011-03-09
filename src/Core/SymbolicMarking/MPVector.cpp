@@ -11,7 +11,7 @@ MPVector::MPVector(int dim) {
 	if (dim == 0) {
 		throw invdimex;
 	}
-	n = dim;
+	n = dim+1; //Add one to leave room for simpler poly/cone conversion
 	val = new int[n];
 }
 
