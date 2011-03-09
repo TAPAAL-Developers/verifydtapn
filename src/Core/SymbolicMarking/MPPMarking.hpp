@@ -12,12 +12,15 @@
 
 namespace VerifyTAPN {
 
+	typedef std::set<MPVector> MPVecSet;
+	typedef MPVecSet::iterator MPVecIter;
+
 	class MPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class MPPMarkingFactory;
 	private:
 		static MarkingFactory *factory;
 
-		std::set<MPVector> V, W;
+		MPVecSet V, W;
 
 		id_type id;
 

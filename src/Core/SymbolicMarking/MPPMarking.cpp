@@ -8,7 +8,20 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Reset(int token) {
-		// TODO Implement this
+		// TODO If possible, find a way to avoid replacing the entire sets
+		MPVecSet newV, newW;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			MPVector v = *it;
+			v.Set(token, 0);
+			newV.insert(v);
+		}
+		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+			MPVector w = *it;
+			w.Set(token, NegInf);
+			newW.insert(w);
+		}
+		V = newV;
+		W = newW;
 	}
 
 	void MPPMarking::Delay() {
