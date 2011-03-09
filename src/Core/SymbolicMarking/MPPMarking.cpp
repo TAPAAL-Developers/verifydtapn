@@ -68,14 +68,21 @@ namespace VerifyTAPN {
 
 	relation MPPMarking::Relation(const StoredMarking &other) const {
 		const MPPMarking &mpp = static_cast<const MPPMarking&>(other);
-		relation retVal = DIFFERENT;
+		bool sub=false, sup=false;
 
-		if (Contains(mpp))
-			retVal |= SUPERSET;
-		if (mpp.Contains(*this))
-			retVal |= SUBSET;
+		if(Contains(mpp))
+			sup=true;
+		if(mpp.Contains(*this))
+			sub=true;
 
-		return retVal;
+		if(sub&sup)
+			return EQUAL;
+		if(sub)
+			return SUBSET;
+		if(sup)
+			return SUPERSET;
+
+		return DIFFERENT;
 	}
 
 	void MPPMarking::InitZero() {
