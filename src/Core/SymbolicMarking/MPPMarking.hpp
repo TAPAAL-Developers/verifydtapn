@@ -26,6 +26,7 @@ namespace VerifyTAPN {
 
 		void InitZero();
 		void InitMapping();
+		void PolyToCone();
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping) { };

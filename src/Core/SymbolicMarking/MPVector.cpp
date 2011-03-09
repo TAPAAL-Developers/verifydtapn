@@ -13,6 +13,7 @@ MPVector::MPVector(int dim) {
 	}
 	n = dim+1; //Add one to leave room for simpler poly/cone conversion
 	val = new int[n];
+	val[0] = NegInf;
 }
 
 MPVector::MPVector(const MPVector& mpv) {
