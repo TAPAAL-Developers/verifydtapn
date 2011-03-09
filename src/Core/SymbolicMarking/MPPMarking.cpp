@@ -23,10 +23,12 @@ namespace VerifyTAPN {
 		}
 		V = newV;
 		W = newW;
+		Cleanup();
 	}
 
 	void MPPMarking::Delay() {
 		W.insert(V.begin(), V.end());
+		Cleanup();
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
@@ -54,6 +56,7 @@ namespace VerifyTAPN {
 		IntersectHalfspace(a,b);
 
 		ConeToPoly();
+		Cleanup();
 	}
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
