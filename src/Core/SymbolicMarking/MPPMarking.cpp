@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Delay() {
-		// TODO Implement this
+		W.insert(V.begin(), V.end());
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
