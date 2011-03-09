@@ -155,7 +155,7 @@ namespace VerifyTAPN {
 		//TODO Implement this
 	}
 
-	void MPPMarking::IntersectHalfspace() {
+	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {
 		//TODO Implement this
 	}
 

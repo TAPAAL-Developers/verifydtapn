@@ -33,7 +33,7 @@ namespace VerifyTAPN {
 
 		bool Contains(const MPPMarking& mpp);
 		bool ContainsPoint(const MPVector& v);
-		void IntersectHalfspace();
+		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); };
