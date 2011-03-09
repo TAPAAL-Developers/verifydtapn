@@ -82,7 +82,7 @@ const MPVector MPVector::operator+(const MPVector& mpv) const {
 	return MPVector(*this) += mpv;
 }
 
-MPVector MPVector::Max(const MPVector& mpv) {
+MPVector MPVector::Max(const MPVector& mpv) const {
 	if (n != mpv.n) {
 		throw invdimex;
 	}
@@ -140,6 +140,6 @@ int MPVector::GetDim() const {
 	return n;
 }
 
-MPVector Max(const MPVector& lhs, const MPVector& rhs) {
+MPVector Max(const MPVector& lhs, const MPVector& rhs) const {
 	return lhs.Max(rhs);
 }

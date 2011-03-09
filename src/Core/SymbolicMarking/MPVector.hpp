@@ -40,13 +40,13 @@ public:
 	const bool operator<=(const MPVector& mpv) const;
 	const bool operator>=(const MPVector& mpv) const;
 	const bool operator>(const MPVector& mpv) const;
-	MPVector Max(const MPVector& mpv);
+	MPVector Max(const MPVector& mpv) const;
 
 	int Get(const int idx) const;
 	void Set(const int idx, const int v);
 	int GetDim() const;
 };
 
-MPVector Max(const MPVector& lhs, const MPVector& rhs);
+MPVector Max(const MPVector& lhs, const MPVector& rhs) const;
 
 #endif /* MPVECTOR_HPP_ */
