@@ -140,6 +140,6 @@ int MPVector::GetDim() const {
 	return n;
 }
 
-MPVector Max(const MPVector& lhs, const MPVector& rhs) const {
+MPVector Max(const MPVector& lhs, const MPVector& rhs) {
 	return lhs.Max(rhs);
 }
