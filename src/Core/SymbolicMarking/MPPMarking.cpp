@@ -43,6 +43,8 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::initZero() {
+		V.clear();
+		W.clear();
 		// TODO Check if this is the right size
 		V.insert(MPVector(dp.size()));
 	}
