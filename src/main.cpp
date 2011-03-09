@@ -9,6 +9,7 @@
 #include "dbm/print.h"
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
+#include "Core/SymbolicMarking/MPPMarkingFactory.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -22,7 +23,11 @@ namespace VerifyTAPN{
 
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
-	MarkingFactory* factory = new UppaalDBMMarkingFactory();
+	MarkingFactory* factory = NULL;
+	if (options.UseMaxPlus())
+		factory = new MPPMarkingFactory();
+	else
+		factory = new UppaalDBMMarkingFactory();
 
 	TAPNXmlParser modelParser(factory);
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());

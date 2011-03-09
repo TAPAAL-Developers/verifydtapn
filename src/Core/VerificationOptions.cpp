@@ -57,6 +57,7 @@ namespace VerifyTAPN {
 				("symmetry,s", "Use symmetry reduction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
+				("max-plus,m", "Use max-plus polyhedra instead of DBMs")
 		;
 
 		boost::program_options::positional_options_description p;
@@ -137,11 +138,20 @@ namespace VerifyTAPN {
 			error = true;
 		}
 
+		bool maxplus = false;
+		if(vm.count("max-plus")) {
+			std::cout << "Using max-plus polyhedra\n";
+			maxplus = true;
+		} else {
+			std::cout << "Using DBMs\n";
+			maxplus = false;
+		}
+
 		if(error) {
 			std::cout << desc << "\n";
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir, maxplus);
 	}
 }

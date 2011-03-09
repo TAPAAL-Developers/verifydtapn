@@ -21,7 +21,8 @@ namespace VerifyTAPN {
 				Trace trace,
 				bool useUntimedPlaces,
 				bool useGlobalMaxConstants,
-				const std::string& workingdir
+				const std::string& workingdir,
+				bool useMaxPlus
 			) :
 				inputFile(inputFile),
 				queryFile(queryFile),
@@ -31,7 +32,8 @@ namespace VerifyTAPN {
 				trace(trace),
 				useUntimedPlaces(useUntimedPlaces),
 				useGlobalMaxConstants(useGlobalMaxConstants),
-				workingdir(workingdir)
+				workingdir(workingdir),
+				useMaxPlus(useMaxPlus)
 			{};
 
 		public: // static
@@ -47,6 +49,7 @@ namespace VerifyTAPN {
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const std::string& GetWorkingDirPath() const { return workingdir; }
 			inline const SearchType GetSearchType() const { return searchType; }
+			inline const bool UseMaxPlus() const { return useMaxPlus; }
 		private:
 			std::string inputFile;
 			std::string queryFile;
@@ -57,6 +60,7 @@ namespace VerifyTAPN {
 			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
 			std::string workingdir;
+			bool useMaxPlus;
 	};
 
 }
