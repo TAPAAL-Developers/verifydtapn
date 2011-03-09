@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <limits.h>
 
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
@@ -37,6 +40,8 @@ public:
 	const bool operator!=(const MPVector& mpv) const;
 	MPVector& operator+=(const MPVector& mpv);
 	const MPVector operator+(const MPVector& mpv) const;
+	MPVector& operator+=(const int v) const;
+	const MPVector operator+(const int v) const;
 	const bool operator<(const MPVector& mpv) const;
 	const bool operator<=(const MPVector& mpv) const;
 	const bool operator>=(const MPVector& mpv) const;
@@ -49,5 +54,6 @@ public:
 };
 
 MPVector Max(const MPVector& lhs, const MPVector& rhs);
+const MPVector operator+(const int v, const MPVector& mpv);
 
 #endif /* MPVECTOR_HPP_ */

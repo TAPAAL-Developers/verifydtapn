@@ -23,6 +23,7 @@ namespace VerifyTAPN {
 		MPVecSet V, W;
 		TokenMapping mapping;
 		id_type id;
+		size_t clocks;
 
 		void InitZero();
 		void InitMapping();
@@ -36,8 +37,8 @@ namespace VerifyTAPN {
 		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
 	public:
-		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); };
-		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), isCone(false) { };
+		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size()+1; };
+		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), isCone(false), clocks(mpp.clocks) { };
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;

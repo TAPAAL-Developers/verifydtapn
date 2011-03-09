@@ -11,7 +11,7 @@ MPVector::MPVector(int dim, int defVal) {
 	if (dim == 0) {
 		throw invdimex;
 	}
-	n = dim+2; //Add 2 to leave room for simpler poly/cone conversion and zero clock
+	n = dim+1; //Add 1 to leave room for simpler poly/cone conversion
 	val = new int[n];
 	for (int i = 0; i < n; i++)
 		val[i] = defVal;
@@ -81,8 +81,22 @@ MPVector& MPVector::operator+=(const MPVector& mpv) {
 }
 
 const MPVector MPVector::operator+(const MPVector& mpv) const {
-
 	return MPVector(*this) += mpv;
+}
+
+MPVector& MPVector::operator+=(const int v) {
+	for (int i = 0; i < n; ++i) {
+		if (val[i] == NegInf || v == NegInf) {
+			val[i] = NegInf;
+		} else {
+			val[i] += v;
+		}
+	}
+	return *this;
+}
+
+const MPVector MPVector::operator+(const int v) const {
+	return MPVector(*this) += v;
 }
 
 MPVector MPVector::Max(const MPVector& mpv) const {
@@ -145,4 +159,8 @@ int MPVector::GetDim() const {
 
 MPVector Max(const MPVector& lhs, const MPVector& rhs) {
 	return lhs.Max(rhs);
+}
+
+const MPVector operator+(const int v, const MPVector& mpv) {
+	return mpv + v;
 }
