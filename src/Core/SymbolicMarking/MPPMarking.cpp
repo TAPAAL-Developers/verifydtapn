@@ -83,4 +83,32 @@ namespace VerifyTAPN {
 
 		mapping = TokenMapping(map);
 	}
+
+	void MPPMarking::PolyToCone() {
+		MPVecSet newV;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			MPVector v = *it;
+			v.Set(ConeIdx, 0);
+			newV.insert(v);
+		}
+		newV.insert(W.begin(), W.end());
+		W.clear();
+		V = newV;
+	}
+
+	void MPPMarking::ConeToPoly() {
+		MPVecSet newV, newW;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			MPVector v = *it;
+			if (v.Get(ConeIdx) == NegInf)
+				newW.insert(v);
+			else {
+				v+=-v.Get(ConeIdx);
+				v.Set(ConeIdx, NegInf);
+				newV.insert(v);
+			}
+		}
+		V = newV;
+		W = newW;
+	}
 }
