@@ -137,7 +137,7 @@ namespace VerifyTAPN {
 		isCone = false;
 	}
 
-	bool MPPMarking::Contains(const MPPMarking& mpp) {
+	bool MPPMarking::Contains(const MPPMarking& mpp) const {
 		MPPMarking G = MPPMarking(*this);
 		MPPMarking Gprime = MPPMarking(mpp);
 
@@ -151,7 +151,7 @@ namespace VerifyTAPN {
 		return true;
 	}
 
-	bool MPPMarking::ContainsPoint(const MPVector& v) {
+	bool MPPMarking::ContainsPoint(const MPVector& v) const {
 		//TODO Implement this
 	}
 
