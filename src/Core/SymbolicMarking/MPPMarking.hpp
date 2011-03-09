@@ -26,11 +26,15 @@ namespace VerifyTAPN {
 
 		void InitZero();
 		void InitMapping();
+
 		void PolyToCone();
 		void ConeToPoly();
+		bool isCone;
+
 		bool Contains(const MPPMarking& mpp);
 		bool ContainsPoint(const MPVector& v);
-		bool isCone;
+		void IntersectHalfspace();
+		void Cleanup();
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), isCone(false) { };
