@@ -36,6 +36,7 @@ namespace VerifyTAPN {
 		bool ContainsPoint(const MPVector& v) const;
 		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
+		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 	public:
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size()+1; };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };

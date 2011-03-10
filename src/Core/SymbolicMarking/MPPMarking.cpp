@@ -221,4 +221,27 @@ namespace VerifyTAPN {
 		W=copy.W;
 		ConeToPoly();
 	}
+
+	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
+		for(size_t i=0; i<clocks; ++i) {
+			if(i!=idx) {
+				int minL = INT_MAX;
+				int minH = INT_MAX;
+				int maxL = NegInf;
+				int maxH = NegInf;
+				for(MPVecIter it=L.begin(); it!=L.end(); ++it) {
+					minL = min(minL, it->Get(i));
+					maxL = max(maxL, it->Get(i));
+				}
+				for(MPVecIter it=H.begin(); it!=H.end(); ++it) {
+					minH = min(minH, it->Get(i));
+					maxH = max(maxH, it->Get(i));
+				}
+				if(minL<minH || maxL<maxH) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }
