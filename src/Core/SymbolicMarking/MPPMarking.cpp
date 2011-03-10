@@ -32,7 +32,70 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
-		// TODO Implement this
+		for (size_t i = 1; i <= clocks; i++) {
+			int k = maxConstants[i-1];
+			if (k == -INF) {
+				//FIXME Reset algorithm must be repeated here because we have a clock, not a token
+				//Refactor so we have internal methods working on clocks, which are just called to when we have a token
+				MPVecSet newV, newW;
+				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+					MPVector v = *it;
+					v.Set(i, 0);
+					newV.insert(v);
+				}
+				for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+					MPVector w = *it;
+					w.Set(i, NegInf);
+					newW.insert(w);
+				}
+				V = newV;
+				W = newW;
+				MPVector g = MPVector(clocks, NegInf);
+				g.Set(i, 0);
+				W.insert(g);
+				continue;
+			}
+			MPVecSet T, U;
+			for (MPVecIter v = V.begin(); v != V.end(); ++v) {
+				if (v->Get(i) <= k)
+					T.insert(*v);
+				else
+					U.insert(*v);
+			}
+			if (U.empty())
+				continue;
+			bool hori = true;
+			if (DiagonalFree(T,U,i)) {
+				MPVecSet newV;
+				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+					MPVector v = *it;
+					if (v.Get(i) > k)
+						v.Set(i, k+1);
+					newV.insert(v);
+				}
+				V = newV;
+			} else {
+				for (size_t j = 1; j <= clocks; j++) {
+					if (i != j) {
+						for (MPVecIter u = U.begin(); u != U.end(); ++u) {
+							if (u->Get(i) > k || u->Get(j) > maxConstants[j-1]) {
+								MPVector ex = MPVector(clocks, NegInf);
+								ex.Set(i, u->Get(i));
+								ex.Set(j, u->Get(j));
+								W.insert(ex);
+							}
+							if (u->Get(i) < u->Get(j) + k)
+								hori = false;
+						}
+					}
+				}
+			}
+			if (hori) {
+				MPVector ex = MPVector(clocks, NegInf);
+				ex.Set(i, 0);
+				W.insert(ex);
+			}
+		}
 	}
 
 	bool MPPMarking::IsEmpty() const {
