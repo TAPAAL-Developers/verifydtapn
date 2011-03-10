@@ -35,6 +35,8 @@ namespace VerifyTAPN {
 		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
+
+		void Print();
 	public:
 		static MarkingFactory *factory;
 

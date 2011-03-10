@@ -6,6 +6,7 @@
 #include <exception>
 #include <stdint.h>
 #include <limits.h>
+#include <iostream>
 
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
@@ -51,6 +52,15 @@ public:
 	int Get(const int idx) const;
 	void Set(const int idx, const int v);
 	int GetDim() const;
+	friend std::ostream &operator<<(std::ostream &out, const MPVector &value) {
+		out << "(";
+		for (int i = 0; i < value.n; i++) {
+			if (i!=0) out << ",";
+			out << value.val[i];
+		}
+		out << ")";
+		return out;
+	}
 };
 
 MPVector Max(const MPVector& lhs, const MPVector& rhs);

@@ -1,15 +1,36 @@
 #include "MPPMarking.hpp"
+#include <iostream>
+
+#define DEBUG
+
+#ifdef DEBUG
+#define LOG(x) x
+#else
+#define LOG(x)
+#endif
 
 namespace VerifyTAPN {
 	MarkingFactory* MPPMarking::factory = NULL;
+
+	void MPPMarking::Print() {
+		std::cout << "V: ";
+		for (MPVecIter it = V.begin(); it != V.end(); ++it)
+			std::cout << *it;
+		std::cout << "\n";
+		std::cout << "W: ";
+		for (MPVecIter it = W.begin(); it != W.end(); ++it)
+			std::cout << *it;
+		std::cout << "\n";
+	}
 
 	SymbolicMarking *MPPMarking::Clone() const {
 		return factory->Clone(*this);
 	}
 
 	void MPPMarking::Reset(int token) {
+		LOG(std::cout << "Reset(" << token << ")\n");
 		// TODO If possible, find a way to avoid replacing the entire sets
-		int clock = mapping.GetMapping(token);
+		int clock = GetClockIndex(token);
 		MPVecSet newV, newW;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			MPVector v = *it;
@@ -23,15 +44,19 @@ namespace VerifyTAPN {
 		}
 		V = newV;
 		W = newW;
+		LOG(Print();)
 		Cleanup();
 	}
 
 	void MPPMarking::Delay() {
+		LOG(std::cout << "Delay()\n");
 		W.insert(V.begin(), V.end());
+		LOG(Print();)
 		Cleanup();
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
+		LOG(std::cout << "Extrapolate(...)\n");
 		for (size_t i = 1; i <= clocks; i++) {
 			int k = maxConstants[i-1];
 			if (k == -INF) {
@@ -96,6 +121,7 @@ namespace VerifyTAPN {
 				W.insert(ex);
 			}
 		}
+		LOG(Print();)
 	}
 
 	bool MPPMarking::IsEmpty() const {
@@ -103,8 +129,9 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
+		LOG(std::cout << "Constrain(" << token << ", " << interval.GetLowerBound() << ".." << interval.GetUpperBound() << ")\n");
 		PolyToCone();
-		int clock = mapping.GetMapping(token);
+		int clock = GetClockIndex(token);
 		// TODO Check if this is the right size
 		MPVector a = MPVector(clocks, NegInf);
 		MPVector b = a;
@@ -119,11 +146,12 @@ namespace VerifyTAPN {
 		IntersectHalfspace(a,b);
 
 		ConeToPoly();
+		LOG(Print();)
 		Cleanup();
 	}
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
-		int clock = mapping.GetMapping(token);
+		int clock = GetClockIndex(token);
 		bool lowerSat = false, upperSat = false;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			lowerSat = lowerSat || it->Get(clock) > interval.GetLowerBound();
@@ -163,10 +191,12 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::InitZero() {
+		LOG(std::cout << "InitZero()\n");
 		V.clear();
 		W.clear();
 		// TODO Check if this is the right size
 		V.insert(MPVector(clocks));
+		LOG(Print();)
 	}
 
 	id_type MPPMarking::UniqueId() const {
@@ -174,7 +204,9 @@ namespace VerifyTAPN {
 	}
 
 	unsigned int MPPMarking::GetClockIndex(unsigned int token) const {
-		return mapping.GetMapping(token);
+		unsigned int retVal = mapping.GetMapping(token);
+		LOG(std::cout << "Mapping token " << token << " to index " << retVal << "\n");
+		return retVal;
 	}
 
 	void MPPMarking::InitMapping() {
@@ -274,6 +306,7 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Cleanup() {
+		LOG(std::cout << "Cleanup()\n");
 		PolyToCone();
 		MPPMarking copy(*this);
 
@@ -286,6 +319,7 @@ namespace VerifyTAPN {
 
 		W=copy.W;
 		ConeToPoly();
+		LOG(Print();)
 	}
 
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
