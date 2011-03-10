@@ -238,6 +238,9 @@ namespace VerifyTAPN {
 	bool MPPMarking::ContainsPoint(const MPVector& v) const {
 		int count = W.size();
 		int* y = new int[count];
+		for (int i = 0; i < count; i++)
+			y[i] = 0;
+
 		int i = 0;
 		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++) {
 			for (size_t j = 1; j <= clocks; j++) {
