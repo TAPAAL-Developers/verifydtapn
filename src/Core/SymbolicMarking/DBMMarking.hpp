@@ -11,9 +11,8 @@ namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
-	private:
-		static MarkingFactory* factory;
 	public:
+		static MarkingFactory* factory;
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };

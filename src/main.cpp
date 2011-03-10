@@ -24,10 +24,14 @@ namespace VerifyTAPN{
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 	MarkingFactory* factory = NULL;
-	if (options.UseMaxPlus())
+	if (options.UseMaxPlus()) {
 		factory = new MPPMarkingFactory();
-	else
+		MPPMarking::factory = factory;
+	}
+	else {
 		factory = new UppaalDBMMarkingFactory();
+		DBMMarking::factory = factory;
+	}
 
 	TAPNXmlParser modelParser(factory);
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());

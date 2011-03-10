@@ -18,8 +18,6 @@ namespace VerifyTAPN {
 	class MPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class MPPMarkingFactory;
 	private:
-		static MarkingFactory *factory;
-
 		MPVecSet V, W;
 		TokenMapping mapping;
 		id_type id;
@@ -38,6 +36,8 @@ namespace VerifyTAPN {
 		void Cleanup();
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 	public:
+		static MarkingFactory *factory;
+
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size()+1; };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };
 		virtual ~MPPMarking() { };
