@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
 	if (options.UseMaxPlus()) {
 		factory = new MPPMarkingFactory();
 		MPPMarking::factory = factory;
+		MPPMarking::debug = options.UseDebugOutput();
 	}
 	else {
 		factory = new UppaalDBMMarkingFactory();

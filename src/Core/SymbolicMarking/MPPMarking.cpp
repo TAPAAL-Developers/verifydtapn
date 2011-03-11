@@ -1,16 +1,15 @@
 #include "MPPMarking.hpp"
 #include <iostream>
 
-#define DEBUG
-
 #ifdef DEBUG
-#define LOG(x) x;
+#define LOG(x) if (debug) x;
 #else
 #define LOG(x)
 #endif
 
 namespace VerifyTAPN {
 	MarkingFactory* MPPMarking::factory = NULL;
+	bool MPPMarking::debug = false;
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
