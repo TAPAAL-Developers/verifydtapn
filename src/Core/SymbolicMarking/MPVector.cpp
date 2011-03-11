@@ -66,22 +66,15 @@ const bool MPVector::operator!=(const MPVector& mpv) const {
 	return !(*this == mpv);
 }
 
-MPVector& MPVector::operator+=(const MPVector& mpv) {
-	if (n != mpv.n) {
+int MPVector::operator+(const MPVector& mpv) const {
+	int resVal = NegInf;
+	if (n != mpv.n)
 		throw invdimex;
-	}
-	for (int i = 0; i < n; ++i) {
-		if (val[i] == NegInf || mpv.val[i] == NegInf) {
-			val[i] = NegInf;
-		} else {
-			val[i] += mpv.val[i];
-		}
-	}
-	return *this;
-}
 
-const MPVector MPVector::operator+(const MPVector& mpv) const {
-	return MPVector(*this) += mpv;
+	for (int i = ZeroIdx; i < n; ++i)
+		resVal = max(resVal, val[i]+mpv.val[i]);
+
+	return resVal;
 }
 
 MPVector& MPVector::operator+=(const int v) {
