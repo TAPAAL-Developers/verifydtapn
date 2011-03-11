@@ -4,7 +4,7 @@
 #define DEBUG
 
 #ifdef DEBUG
-#define LOG(x) x
+#define LOG(x) x;
 #else
 #define LOG(x)
 #endif
@@ -141,11 +141,8 @@ namespace VerifyTAPN {
 		LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
 		LOG(Print();)
 
-		a = MPVector(clocks, NegInf);
-		b = a;
-		a.Set(ZeroIdx, -interval.GetLowerBound());
-		b.Set(clock, 0);
-		IntersectHalfspace(a,b);
+		b.Set(ZeroIdx, interval.GetLowerBound());
+		IntersectHalfspace(b,a);
 
 		ConeToPoly();
 		LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
@@ -295,15 +292,22 @@ namespace VerifyTAPN {
 		MPVecSet Gleq, Ggt;
 		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector g = *it;
-			if (a+g <= b+g)
+			LOG(std::cout << "a+g = " << a+g << ", b+g = " << b+g << "\n";)
+			if (a+g <= b+g) {
 				Gleq.insert(g);
-			else
+				LOG(std::cout << "Adding " << g << " to G<=\n";)
+			}
+			else {
 				Ggt.insert(g);
+				LOG(std::cout << "Adding " << g << " to G>\n";)
+			}
 		}
 		W = Gleq;
 		for (MPVecIter g = Gleq.begin(); g != Gleq.end(); ++g) {
 			for (MPVecIter h = Ggt.begin(); h != Ggt.end(); ++g) {
-				W.insert(Max(a+(*h)+(*g), b+(*g)+(*h)));
+				MPVector p = Max(a+(*h)+(*g), b+(*g)+(*h));
+				LOG(std::cout << "Adding " << p << " to W\n";)
+				W.insert(p);
 			}
 		}
 	}

@@ -56,7 +56,10 @@ public:
 		out << "(";
 		for (int i = 0; i < value.n; i++) {
 			if (i!=0) out << ",";
-			out << value.val[i];
+			if (value.val[i] == NegInf)
+				out << "-INF";
+			else
+				out << value.val[i];
 		}
 		out << ")";
 		return out;
