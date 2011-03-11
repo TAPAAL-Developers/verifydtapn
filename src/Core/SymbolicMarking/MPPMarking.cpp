@@ -316,7 +316,7 @@ namespace VerifyTAPN {
 		}
 		W = Gleq;
 		for (MPVecIter g = Gleq.begin(); g != Gleq.end(); ++g) {
-			for (MPVecIter h = Ggt.begin(); h != Ggt.end(); ++g) {
+			for (MPVecIter h = Ggt.begin(); h != Ggt.end(); ++h) {
 				MPVector p1 = a+(*h)+(*g);
 				MPVector p2 = b+(*g)+(*h);
 				MPVector p = Max(p1, p2);
