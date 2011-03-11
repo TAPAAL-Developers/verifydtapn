@@ -138,6 +138,8 @@ namespace VerifyTAPN {
 		a.Set(clock, 0);
 		b.Set(ZeroIdx, interval.GetUpperBound());
 		IntersectHalfspace(a,b);
+		LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
+		LOG(Print();)
 
 		a = MPVector(clocks, NegInf);
 		b = a;
@@ -146,6 +148,7 @@ namespace VerifyTAPN {
 		IntersectHalfspace(a,b);
 
 		ConeToPoly();
+		LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
 		LOG(Print();)
 		Cleanup();
 	}
