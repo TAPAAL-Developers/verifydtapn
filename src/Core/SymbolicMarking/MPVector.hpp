@@ -31,7 +31,7 @@ class MPVector {
 
 public:
 	MPVector();
-	MPVector(int dim, int defVal = 0);
+	explicit MPVector(int dim, int defVal = 0);
 	MPVector(const MPVector& mpv);
 	const MPVector& operator=(const MPVector& mpv);
 

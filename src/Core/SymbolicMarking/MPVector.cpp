@@ -16,7 +16,7 @@ MPVector::MPVector(int dim, int defVal) {
 	for (int i = 0; i < n; i++)
 		val[i] = defVal;
 	val[ConeIdx] = NegInf;
-	val[ZeroIdx] = 0;
+	//val[ZeroIdx] = 0;
 }
 
 MPVector::MPVector(const MPVector& mpv) {
@@ -71,8 +71,9 @@ int MPVector::operator+(const MPVector& mpv) const {
 	if (n != mpv.n)
 		throw invdimex;
 
-	for (int i = ZeroIdx; i < n; ++i)
-		resVal = max(resVal, val[i]+mpv.val[i]);
+	for (int i = 0; i < n; ++i)
+		if (val[i]!=NegInf && mpv.val[i]!=NegInf)
+			resVal = max(resVal, val[i]+mpv.val[i]);
 
 	return resVal;
 }
@@ -97,7 +98,7 @@ MPVector MPVector::Max(const MPVector& mpv) const {
 		throw invdimex;
 	}
 
-	MPVector retVal(n);
+	MPVector retVal(*this);
 	for (int i = 0; i < n; ++i) {
 		retVal.Set(i, max(val[i],mpv.val[i]));
 	}
