@@ -227,7 +227,7 @@ namespace VerifyTAPN {
 
 		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
 		{
-			map.push_back(i+1);
+			map.push_back(i+2);
 			i++;
 		}
 
