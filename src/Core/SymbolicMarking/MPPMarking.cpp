@@ -1,7 +1,7 @@
 #include "MPPMarking.hpp"
 #include <iostream>
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #define LOG(x) x;
