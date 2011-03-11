@@ -177,16 +177,27 @@ namespace VerifyTAPN {
 
 	relation MPPMarking::Relation(const StoredMarking &other) const {
 		const MPPMarking &mpp = static_cast<const MPPMarking&> (other);
+		LOG(std::cout << "Relation()\nthis:\n";)
+		LOG(Print();)
+		LOG(std::cout << "mpp:\n";)
+		LOG(mpp.Print();)
 		bool sup = Contains(mpp);
 		bool sub = mpp.Contains(*this);
 
-		if (sub && sup)
+		if (sub && sup) {
+			LOG(std::cout << "Equal\n")
 			return EQUAL;
-		if (sub)
+		}
+		if (sub) {
+			LOG(std::cout << "Subset\n")
 			return SUBSET;
-		if (sup)
+		}
+		if (sup) {
+			LOG(std::cout << "Superset\n")
 			return SUPERSET;
+		}
 
+		LOG(std::cout << "Different\n")
 		return DIFFERENT;
 	}
 
@@ -254,11 +265,6 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::Contains(const MPPMarking& mpp) const {
-		LOG(std::cout << "Contains()\nthis:\n";)
-		LOG(Print();)
-		LOG(std::cout << "mpp:\n";)
-		LOG(mpp.Print();)
-
 		MPPMarking G = MPPMarking(*this);
 		MPPMarking Gprime = MPPMarking(mpp);
 
