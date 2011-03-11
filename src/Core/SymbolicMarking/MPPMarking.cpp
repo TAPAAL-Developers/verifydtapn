@@ -136,12 +136,12 @@ namespace VerifyTAPN {
 		MPVector a = MPVector(clocks, NegInf);
 		MPVector b = a;
 		a.Set(clock, 0);
-		b.Set(ZeroIdx, interval.GetUpperBound());
+		b.Set(ConeIdx, interval.GetUpperBound());
 		IntersectHalfspace(a,b);
 		LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
 		LOG(Print();)
 
-		b.Set(ZeroIdx, interval.GetLowerBound());
+		b.Set(ConeIdx, interval.GetLowerBound());
 		IntersectHalfspace(b,a);
 
 		ConeToPoly();
@@ -301,6 +301,7 @@ namespace VerifyTAPN {
 
 	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {
 		MPVecSet Gleq, Ggt;
+		LOG(std::cout << "a = " << a << ", b = " << b << "\n")
 		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector g = *it;
 			LOG(std::cout << "a+g = " << a+g << ", b+g = " << b+g << "\n";)
@@ -316,7 +317,9 @@ namespace VerifyTAPN {
 		W = Gleq;
 		for (MPVecIter g = Gleq.begin(); g != Gleq.end(); ++g) {
 			for (MPVecIter h = Ggt.begin(); h != Ggt.end(); ++g) {
-				MPVector p = Max(a+(*h)+(*g), b+(*g)+(*h));
+				MPVector p1 = a+(*h)+(*g);
+				MPVector p2 = b+(*g)+(*h);
+				MPVector p = Max(p1, p2);
 				LOG(std::cout << "Adding " << p << " to W\n";)
 				W.insert(p);
 			}
