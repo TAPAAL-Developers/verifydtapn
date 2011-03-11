@@ -40,8 +40,9 @@ namespace VerifyTAPN {
 	public:
 		static MarkingFactory *factory;
 
-		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size()+1; };
+		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };
+
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;

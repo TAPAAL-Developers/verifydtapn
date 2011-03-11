@@ -1,7 +1,7 @@
 #include "MPPMarking.hpp"
 #include <iostream>
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #define LOG(x) x;
@@ -132,7 +132,6 @@ namespace VerifyTAPN {
 		LOG(std::cout << "Constrain(" << token << ", " << interval.GetLowerBound() << ".." << interval.GetUpperBound() << ")\n");
 		PolyToCone();
 		int clock = GetClockIndex(token);
-		// TODO Check if this is the right size
 		MPVector a = MPVector(clocks, NegInf);
 		MPVector b = a;
 		a.Set(clock, 0);
@@ -205,7 +204,6 @@ namespace VerifyTAPN {
 		LOG(std::cout << "InitZero()\n");
 		V.clear();
 		W.clear();
-		// TODO Check if this is the right size
 		V.insert(MPVector(clocks));
 		LOG(Print();)
 	}
@@ -227,7 +225,7 @@ namespace VerifyTAPN {
 
 		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
 		{
-			map.push_back(i+2);
+			map.push_back(i+1);
 			i++;
 		}
 

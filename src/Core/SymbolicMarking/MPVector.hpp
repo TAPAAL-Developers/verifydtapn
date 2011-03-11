@@ -23,7 +23,6 @@ class InvalidDimException: public std::exception {
 
 const int NegInf = INT_MIN;
 const int ConeIdx = 0;
-const int ZeroIdx = 1;
 
 class MPVector {
 	int n;

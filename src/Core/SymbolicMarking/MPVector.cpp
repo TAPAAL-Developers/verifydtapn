@@ -16,7 +16,6 @@ MPVector::MPVector(int dim, int defVal) {
 	for (int i = 0; i < n; i++)
 		val[i] = defVal;
 	val[ConeIdx] = NegInf;
-	//val[ZeroIdx] = 0;
 }
 
 MPVector::MPVector(const MPVector& mpv) {
@@ -127,7 +126,7 @@ const bool MPVector::operator<(const MPVector & mpv) const
 		throw invdimex;
 	}
 
-	for (int i = ZeroIdx; i < n; ++i) {
+	for (int i = 1; i < n; ++i) {
 		if (val[i] < mpv.val[i]) {
 			return true;
 		}
