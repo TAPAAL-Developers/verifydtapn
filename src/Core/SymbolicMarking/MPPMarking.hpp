@@ -41,7 +41,7 @@ namespace VerifyTAPN {
 		static MarkingFactory *factory;
 		static bool debug;
 
-		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); clocks = dp.size(); };
+		MPPMarking(const DiscretePart &dp, int clocks) : DiscreteMarking(dp), clocks(clocks), isCone(false) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };
 
 		virtual ~MPPMarking() { };

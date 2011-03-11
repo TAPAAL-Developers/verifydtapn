@@ -218,11 +218,9 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::InitMapping() {
-		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<unsigned int> map;
-		int i = 0;
 
-		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
+		for(int i = 0; i < clocks; ++i)
 		{
 			map.push_back(i+1);
 			i++;

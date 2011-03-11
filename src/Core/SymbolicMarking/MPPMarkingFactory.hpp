@@ -8,8 +8,9 @@ namespace VerifyTAPN {
 	class MPPMarkingFactory: public MarkingFactory {
 	private:
 		static id_type nextId;
+		int clocks;
 	public:
-		MPPMarkingFactory() { };
+		MPPMarkingFactory(int clocks) : clocks(clocks) { };
 		virtual ~MPPMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const;
