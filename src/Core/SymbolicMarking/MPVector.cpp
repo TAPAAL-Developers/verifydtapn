@@ -133,12 +133,12 @@ const bool MPVector::operator<(const MPVector & mpv) const
 		throw invdimex;
 	}
 
-	for (int i = 0; i < n; ++i) {
+	for (int i = ZeroIdx; i < n; ++i) {
 		if (val[i] < mpv.val[i]) {
 			return true;
 		}
 	}
-	return false;
+	return val[ConeIdx] < mpv.val[ConeIdx];
 }
 
 const bool MPVector::operator<=(const MPVector & mpv) const {
