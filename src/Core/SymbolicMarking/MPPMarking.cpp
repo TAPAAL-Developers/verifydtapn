@@ -12,7 +12,7 @@
 namespace VerifyTAPN {
 	MarkingFactory* MPPMarking::factory = NULL;
 
-	void MPPMarking::Print() {
+	void MPPMarking::Print() const {
 		std::cout << "V: ";
 		for (MPVecIter it = V.begin(); it != V.end(); ++it)
 			std::cout << *it;
@@ -254,6 +254,11 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::Contains(const MPPMarking& mpp) const {
+		LOG(std::cout << "Contains()\nthis:\n";)
+		LOG(Print();)
+		LOG(std::cout << "mpp:\n";)
+		LOG(mpp.Print();)
+
 		MPPMarking G = MPPMarking(*this);
 		MPPMarking Gprime = MPPMarking(mpp);
 

@@ -36,7 +36,7 @@ namespace VerifyTAPN {
 		void Cleanup();
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 
-		void Print();
+		void Print() const;
 	public:
 		static MarkingFactory *factory;
 
