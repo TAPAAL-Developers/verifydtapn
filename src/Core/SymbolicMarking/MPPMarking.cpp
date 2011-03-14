@@ -220,7 +220,7 @@ namespace VerifyTAPN {
 	void MPPMarking::InitMapping() {
 		std::vector<unsigned int> map;
 
-		for(int i = 0; i < clocks; ++i)
+		for(size_t i = 0; i < clocks; ++i)
 		{
 			map.push_back(i+1);
 			i++;
