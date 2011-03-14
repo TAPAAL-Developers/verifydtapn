@@ -10,11 +10,15 @@ int pass = 0;
 int fail = 0;
 bool debug;
 
+#define COLOR_RESET -1
+#define COLOR_RED 1
+#define COLOR_GREEN 2
+
 char* testDesc;
 #define STARTTEST(str) testDesc=str;
-#define ENDPASS { setrgb(2); printf("%s...pass\n", testDesc); tests++; pass++; setrgb(-1);}
-#define ENDFAIL { setrgb(1); printf("%s...fail\n", testDesc); tests++; fail++; setrgb(-1);}
-#define ENDFAILMSG(msg) { setrgb(1); printf("%s...fail, %s\n", testDesc, msg); tests++; fail++; setrgb(-1);}
+#define ENDPASS { setrgb(COLOR_GREEN); printf("%s...pass\n", testDesc); tests++; pass++; setrgb(COLOR_RESET);}
+#define ENDFAIL { setrgb(COLOR_RED); printf("%s...fail\n", testDesc); tests++; fail++; setrgb(COLOR_RESET);}
+#define ENDFAILMSG(msg) { setrgb(COLOR_RED); printf("%s...fail, %s\n", testDesc, msg); tests++; fail++; setrgb(COLOR_RESET);}
 #define PASS(str) { STARTTEST(str); ENDPASS; }
 #define FAIL(str) { STARTTEST(str); ENDFAIL; }
 #define FAILMSG(str, msg) { STARTTEST(str); ENDFAILMSG(msg); }
@@ -44,13 +48,13 @@ int clocks = 10;
 CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo;
 void setrgb(int color) {
 	switch (color) {
-	case -1: // Reset
+	case COLOR_RESET: // Reset
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ConsoleInfo.wAttributes);
 		break;
-	case 1: // Red on Black
+	case COLOR_RED: // Red on Black
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
 		break;
-	case 2: // Green on Black
+	case COLOR_GREEN: // Green on Black
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_GREEN);
 		break;
 	}
@@ -207,6 +211,16 @@ int main(int argc, char** argv) {
 
 	printf("Test summary:\n%d tests total\n%d passed (%.2f%%)\n%d failed\n",
 		tests, pass, pass / (float) tests * 100, fail);
+
+	if (pass == tests) {
+		setrgb(COLOR_GREEN);
+		printf("\nAll tests passed\n");
+		setrgb(COLOR_RESET);
+	} else {
+		setrgb(COLOR_RED);
+		printf("\nSome tests failed\n");
+		setrgb(COLOR_RESET);
+	}
 
 	return 0;
 }
