@@ -5,16 +5,16 @@
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 
-int tests=0;
-int pass=0;
-int fail=0;
+int tests = 0;
+int pass = 0;
+int fail = 0;
 bool debug;
 
 char* testDesc;
 #define STARTTEST(str) testDesc=str;
-#define ENDPASS { setrgb(2); printf("%s...pass\n", testDesc); tests++; pass++; setrgb(7);}
-#define ENDFAIL { setrgb(1); printf("%s...fail\n", testDesc); tests++; fail++; setrgb(7);}
-#define ENDFAILMSG(msg) { setrgb(1); printf("%s...fail, %s\n", testDesc, msg); tests++; fail++; setrgb(7);}
+#define ENDPASS { setrgb(2); printf("%s...pass\n", testDesc); tests++; pass++; setrgb(-1);}
+#define ENDFAIL { setrgb(1); printf("%s...fail\n", testDesc); tests++; fail++; setrgb(-1);}
+#define ENDFAILMSG(msg) { setrgb(1); printf("%s...fail, %s\n", testDesc, msg); tests++; fail++; setrgb(-1);}
 #define PASS(str) { STARTTEST(str); ENDPASS; }
 #define FAIL(str) { STARTTEST(str); ENDFAIL; }
 #define FAILMSG(str, msg) { STARTTEST(str); ENDFAILMSG(msg); }
@@ -40,29 +40,28 @@ int clocks = 10;
 
 #ifdef __MINGW32__
 #include <windows.h>
-void setrgb(int color)
-{
-  switch (color)
-  {
-  case 1:    // Red on Black
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-                         FOREGROUND_INTENSITY | FOREGROUND_RED);
-    break;
-  case 2:    // Green on Black
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-                      FOREGROUND_INTENSITY | FOREGROUND_GREEN);
-    break;
-  case 7:    // Grey on Black
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-                        FOREGROUND_RED |
-                        FOREGROUND_GREEN | FOREGROUND_BLUE);
-    break;
-  }
+
+CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo;
+void setrgb(int color) {
+	switch (color) {
+	case -1: // Reset
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ConsoleInfo.wAttributes);
+		break;
+	case 1: // Red on Black
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
+		break;
+	case 2: // Green on Black
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_GREEN);
+		break;
+	}
 }
 #else
-  void setrgb(int color) {
-  	printf("\E[0;3%d;40", color);
-  }
+void setrgb(int color) {
+	if (color == -1)
+	printf("\033[0m");
+	else
+	printf("\033[3%dm", color);
+}
 #endif
 
 void TestDelay() {
@@ -71,7 +70,6 @@ void TestDelay() {
 	v.insert(NEWVEC);
 	w.insert(NEWVEC);
 	MPPMarking expected = CREATEMARKING(v,w);
-
 	NEWMARKING(m);
 	m->Delay();
 
@@ -131,7 +129,7 @@ void TestRelation() {
 	v2.clear();
 
 	MPVector mpv = NEWVEC;
-	mpv.Set(1,1);
+	mpv.Set(1, 1);
 	v2.insert(mpv);
 	mpp2 = CREATEMARKING(v2,w1);
 	TESTEQ(mpp1.Relation(mpp2), DIFFERENT, "TestRelationDIF - convex+linear");
@@ -147,8 +145,7 @@ void TestMPPMarking() {
 void TestMPVector() {
 	MPVector mpv1, mpv2(mpv1), mpv3(6), mpv4(mpv3), mpv5(5), mpv6(6);
 
-	/*MPVector constructor tests, equality/inequality + invdimex*/
-	TESTEQ(mpv3,mpv4,"copy constr");
+	/*MPVector constructor tests, equality/inequality + invdimex*/TESTEQ(mpv3,mpv4,"copy constr");
 	TESTNEQ(mpv1,mpv3,"inequality test");
 	TESTEQ(mpv1,mpv2,"copy constr base");
 
@@ -156,9 +153,9 @@ void TestMPVector() {
 	try {
 		MPVector mpv5(0);
 		ENDFAILMSG("no exception thrown");
-	} catch(InvalidDimException) {
+	} catch (InvalidDimException) {
 		ENDPASS;
-	} catch(...) {
+	} catch (...) {
 		ENDFAILMSG("wrong exception thrown");
 	}
 
@@ -168,31 +165,31 @@ void TestMPVector() {
 	try {
 		mpv3.Max(mpv5);
 		ENDFAILMSG("no exception thrown");
-	} catch(InvalidDimException) {
+	} catch (InvalidDimException) {
 		ENDPASS;
-	} catch(...) {
+	} catch (...) {
 		ENDFAILMSG("wrong exception thrown");
 	}
 
-	for(int i=0; i<mpv3.GetDim(); ++i) {
+	for (int i = 0; i < mpv3.GetDim(); ++i) {
 		mpv3.Set(i, i);
-		mpv6.Set(i, i%3);
+		mpv6.Set(i, i % 3);
 	}
 
 	MPVector xmpv(6), ympv(6);
 
-	xmpv=mpv3.Max(mpv6); //xmpv = [0,1,2,3,4,5]
+	xmpv = mpv3.Max(mpv6); //xmpv = [0,1,2,3,4,5]
 
 	TESTEQ(xmpv.Get(2),2,"max(2,2)");
 	TESTEQ(xmpv.Get(5),5,"max(5,2)");
 
-	xmpv.Set(0,NegInf);
-	xmpv.Set(3,NegInf); //xmpv = [NegInf, 1, 2, NegInf, 4, 5]
-	ympv=mpv3;
-	ympv.Set(3,NegInf);
-	ympv.Set(5,NegInf);
-	ympv.Set(4,4); //ympv = [0,1,2,NegInf,4,NegInf]
-	xmpv=ympv.Max(xmpv); //xmpv = [0,1,2,NegiNF,4,5]
+	xmpv.Set(0, NegInf);
+	xmpv.Set(3, NegInf); //xmpv = [NegInf, 1, 2, NegInf, 4, 5]
+	ympv = mpv3;
+	ympv.Set(3, NegInf);
+	ympv.Set(5, NegInf);
+	ympv.Set(4, 4); //ympv = [0,1,2,NegInf,4,NegInf]
+	xmpv = ympv.Max(xmpv); //xmpv = [0,1,2,NegiNF,4,5]
 
 	TESTEQ(xmpv.Get(0),0,"max(0,NegInf)");
 	TESTEQ(xmpv.Get(3),NegInf,"max(neginf,neginf)");
@@ -200,12 +197,16 @@ void TestMPVector() {
 }
 
 int main(int argc, char** argv) {
+#ifdef __MINGW32__
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConsoleInfo);
+#endif
 	debug = (argc > 1);
 	MPPMarking::debug = debug;
 	TestMPVector();
 	TestMPPMarking();
 
-	printf("Test summary:\n%d tests total\n%d passed (%.2f%%)\n%d failed\n", tests, pass, pass/(float)tests*100, fail);
+	printf("Test summary:\n%d tests total\n%d passed (%.2f%%)\n%d failed\n",
+		tests, pass, pass / (float) tests * 100, fail);
 
 	return 0;
 }
