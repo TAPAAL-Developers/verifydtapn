@@ -56,7 +56,7 @@ namespace VerifyTAPN {
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
 		LOG(std::cout << "Extrapolate(...)\n");
-		for (size_t i = 1; i <= clocks; i++) {
+		for (size_t i = FirstClock; i <= clocks; i++) {
 			int k = maxConstants[i-1];
 			if (k == -INF) {
 				//FIXME Reset algorithm must be repeated here because we have a clock, not a token
@@ -99,7 +99,7 @@ namespace VerifyTAPN {
 				}
 				V = newV;
 			} else {
-				for (size_t j = 1; j <= clocks; j++) {
+				for (size_t j = FirstClock; j <= clocks; j++) {
 					if (i != j) {
 						for (MPVecIter u = U.begin(); u != U.end(); ++u) {
 							if (u->Get(i) > k || u->Get(j) > maxConstants[j-1]) {
@@ -344,7 +344,7 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
-		for(size_t i=1; i<clocks; ++i) {
+		for(size_t i=FirstClock; i<clocks; ++i) {
 			if(i!=idx) {
 				int minL = INT_MAX;
 				int minH = INT_MAX;
