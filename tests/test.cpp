@@ -141,9 +141,72 @@ void TestRelation() {
 
 }
 
+void TestReset() {
+	MPPTEST;
+	MPVecSet v, w;
+	v.insert(NEWVEC);
+
+	MPPMarking mpp1 = CREATEMARKING(v,w);
+	MPPMarking mpp2 = CREATEMARKING(v,w);
+
+	mpp1.Reset(0);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex (0,0,..,0)");
+
+	v.insert(NEWVECVAL(5));
+	MPVecSet v2;
+	v2.insert(NEWVEC);
+
+	MPVector mpv = NEWVECVAL(5);
+	mpv.Set(1,0);
+	v2.insert(mpv);
+
+	mpp1 = CREATEMARKING(v,w);
+	mpp2 = CREATEMARKING(v2,w);
+
+	mpp1.Reset(0);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex 2 vector diagonal");
+
+	v.insert(NEWVECVAL(7));
+
+	mpp1 = CREATEMARKING(v,w);
+
+	v2.clear();
+	v2.insert(NEWVEC);
+	mpv= NEWVECVAL(7);
+	mpv.Set(1,0);
+	v2.insert(mpv);
+
+	mpp2 = CREATEMARKING(v2,w);
+
+	mpp1.Reset(0);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex 3 vector diagonal");
+
+	v.clear();
+	v.insert(NEWVEC);
+	w.insert(NEWVEC);
+
+	mpp1 = CREATEMARKING(v,w);
+
+	mpv=NEWVEC;
+	mpv.Set(1,NegInf);
+	MPVecSet w2;
+	w2.insert(mpv);
+
+	mpp2 = CREATEMARKING(v,w2);
+
+	mpp1.Reset(0);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset delayed (0,0,..,0)");
+
+}
+
 void TestMPPMarking() {
 	TestDelay();
 	TestRelation();
+	TestReset();
 }
 
 void TestMPVector() {
