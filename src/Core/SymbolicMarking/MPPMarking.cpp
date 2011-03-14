@@ -277,12 +277,17 @@ namespace VerifyTAPN {
 		int count = W.size();
 		int* y = new int[count];
 		for (int i = 0; i < count; i++)
-			y[i] = 0;
+			y[i] = INF;
 
 		int i = 0;
 		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++) {
-			for (size_t j = 1; j <= clocks; j++) {
-				y[i] = min(y[i], v.Get(j) - it->Get(j));
+			for (size_t j = 0; j <= clocks; j++) {
+				if (it->Get(j) == NegInf)
+					;
+				else if (v.Get(j) == NegInf)
+					y[i] = NegInf;
+				else
+					y[i] = min(y[i], v.Get(j) - it->Get(j));
 			}
 		}
 
