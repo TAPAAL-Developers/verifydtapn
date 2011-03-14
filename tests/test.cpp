@@ -8,6 +8,7 @@ using namespace VerifyTAPN::TAPN;
 int tests=0;
 int pass=0;
 int fail=0;
+bool debug;
 
 #define STARTTEST(str) printf("%s", str);
 #define ENDPASS { printf("...pass\n"); tests++; pass++; }
@@ -32,7 +33,7 @@ int fail=0;
 #define NEWVEC NEWVECVAL(0)
 
 #define DEBUGON MPPMarking::debug = true;
-#define DEBUGOFF MPPMarking::debug = false;
+#define DEBUGOFF MPPMarking::debug = debug;
 
 int clocks = 10;
 
@@ -110,7 +111,8 @@ void TestMPVector() {
 }
 
 int main(int argc, char** argv) {
-	MPPMarking::debug = (argc > 1);
+	debug = (argc > 1);
+	MPPMarking::debug = debug;
 	TestMPVector();
 	TestMPPMarking();
 
