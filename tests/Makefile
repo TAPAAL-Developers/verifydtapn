@@ -1,7 +1,7 @@
 compiler=g++
 input=test.cpp ../src/Core/SymbolicMarking/*.cpp ../src/Core/TAPN/*.cpp
 output=mptest
-options=-Wall -g
+options=-Wall -Wno-write-strings -g
 libs=udbm_debug
 include=/usr/local/uppaal/include
 libpath=/usr/local/uppaal/lib

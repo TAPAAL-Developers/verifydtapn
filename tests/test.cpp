@@ -10,10 +10,11 @@ int pass=0;
 int fail=0;
 bool debug;
 
-#define STARTTEST(str) printf("%s", str);
-#define ENDPASS { printf("...pass\n"); tests++; pass++; }
-#define ENDFAIL { printf("...fail\n"); tests++; fail++; }
-#define ENDFAILMSG(msg) { printf("...fail, %s\n", msg); tests++; fail++; }
+char* testDesc;
+#define STARTTEST(str) testDesc=str;
+#define ENDPASS { setrgb(2); printf("%s...pass\n", testDesc); tests++; pass++; setrgb(7);}
+#define ENDFAIL { setrgb(1); printf("%s...fail\n", testDesc); tests++; fail++; setrgb(7);}
+#define ENDFAILMSG(msg) { setrgb(1); printf("%s...fail, %s\n", testDesc, msg); tests++; fail++; setrgb(7);}
 #define PASS(str) { STARTTEST(str); ENDPASS; }
 #define FAIL(str) { STARTTEST(str); ENDFAIL; }
 #define FAILMSG(str, msg) { STARTTEST(str); ENDFAILMSG(msg); }
@@ -36,6 +37,35 @@ bool debug;
 #define DEBUGOFF MPPMarking::debug = debug;
 
 int clocks = 10;
+
+#ifdef __MINGW32__
+#include <windows.h>
+void setrgb(int color)
+{
+  switch (color)
+  {
+  case 1:    // Red on Black
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+                         FOREGROUND_INTENSITY | FOREGROUND_RED);
+    break;
+  case 2:    // Green on Black
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+                      FOREGROUND_INTENSITY | FOREGROUND_GREEN);
+    break;
+  case 7:    // Grey on Black
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+                        FOREGROUND_RED |
+                        FOREGROUND_GREEN | FOREGROUND_BLUE);
+    break;
+  }
+}
+#else
+  void setrgb(int color) {
+  	if (color == 0)
+  		color = 7;
+  	printf("\E[0;3%d;40", color);
+  }
+#endif
 
 void TestDelay() {
 	MPPTEST;
