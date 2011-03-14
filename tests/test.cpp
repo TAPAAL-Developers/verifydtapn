@@ -2,6 +2,9 @@
 #include "../src/Core/SymbolicMarking/MPPMarkingFactory.hpp"
 #include <stdio.h>
 
+using namespace VerifyTAPN;
+using namespace VerifyTAPN::TAPN;
+
 int tests=0;
 int pass=0;
 int fail=0;
@@ -18,9 +21,41 @@ int fail=0;
 #define TESTEQ(var, val, str) if (var==val) PASS(str) else FAIL(str)
 #define TESTNEQ(var, val, str) if (var!=val) PASS(str) else FAIL(str)
 
-int main() {
-	MPVector mpv1, mpv2(mpv1), mpv3(6), mpv4(mpv3), mpv5(5), mpv6(6);
+#define MPPTEST DiscretePart dp; \
+	MPPMarkingFactory f = MPPMarkingFactory(clocks); \
+	MPPMarking::factory = &f;
 
+#define NEWMARKING(m) MPPMarking* m = (MPPMarking *)f.InitialMarking(dp);
+#define CREATEMARKING(v,w) MPPMarking(dp, clocks, v, w)
+
+#define NEWVECVAL(val) MPVector(clocks, val)
+#define NEWVEC NEWVECVAL(0)
+
+#define DEBUGON MPPMarking::debug = true;
+#define DEBUGOFF MPPMarking::debug = false;
+
+int clocks = 10;
+
+void TestDelay() {
+	MPPTEST;
+	MPVecSet v, w;
+	v.insert(NEWVEC);
+	w.insert(NEWVEC);
+	MPPMarking expected = CREATEMARKING(v,w);
+
+	NEWMARKING(m);
+	m->Delay();
+
+	TESTEQ(m->Relation(expected), EQUAL, "TestDelay");
+	delete m;
+}
+
+void TestMPPMarking() {
+	TestDelay();
+}
+
+void TestMPVector() {
+	MPVector mpv1, mpv2(mpv1), mpv3(6), mpv4(mpv3), mpv5(5), mpv6(6);
 
 	/*MPVector constructor tests, equality/inequality + invdimex*/
 	TESTEQ(mpv3,mpv4,"copy constr");
@@ -72,6 +107,12 @@ int main() {
 	TESTEQ(xmpv.Get(0),0,"max(0,NegInf)");
 	TESTEQ(xmpv.Get(3),NegInf,"max(neginf,neginf)");
 	TESTEQ(xmpv.Get(5),5,"max(5,neginf)");
+}
+
+int main(int argc, char** argv) {
+	MPPMarking::debug = (argc > 1);
+	TestMPVector();
+	TestMPPMarking();
 
 	printf("Test summary:\n%d tests total\n%d passed (%.2f%%)\n%d failed\n", tests, pass, pass/(float)tests*100, fail);
 
