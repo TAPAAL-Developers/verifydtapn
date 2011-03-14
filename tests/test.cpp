@@ -61,8 +61,6 @@ void setrgb(int color)
 }
 #else
   void setrgb(int color) {
-  	if (color == 0)
-  		color = 7;
   	printf("\E[0;3%d;40", color);
   }
 #endif
