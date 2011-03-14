@@ -51,8 +51,69 @@ void TestDelay() {
 	delete m;
 }
 
+void TestRelation() {
+	MPPTEST;
+	MPVecSet v1, w1, v2, w2, w3;
+	v1.insert(NEWVEC);
+	w1.insert(NEWVEC);
+	v2.insert(NEWVEC);
+	w2.insert(NEWVEC);
+
+	MPPMarking mpp1 = CREATEMARKING(v1,w1);
+	MPPMarking mpp2 = CREATEMARKING(v2,w2);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestRelationEQ - convex+linear");
+	TESTEQ(mpp2.Relation(mpp1), EQUAL, "TestRelationEQ - convex+linear");
+
+	mpp1 = CREATEMARKING(v1,w3);
+	mpp2 = CREATEMARKING(v2,w3);
+
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestRelationEQ - convex");
+	TESTEQ(mpp2.Relation(mpp1), EQUAL, "TestRelationEQ - convex");
+
+	v1.insert(NEWVECVAL(5));
+
+	mpp1 = CREATEMARKING(v1,w3);
+
+	TESTEQ(mpp1.Relation(mpp2), SUPERSET, "TestRelationSUP - convex");
+	TESTEQ(mpp2.Relation(mpp1), SUBSET, "TestRelationSUB - convex");
+
+	v1.clear();
+	v1.insert(NEWVECVAL(5));
+
+	mpp1 = CREATEMARKING(v1,w3);
+
+	TESTEQ(mpp1.Relation(mpp2), DIFFERENT, "TestRelationDIF - convex");
+	TESTEQ(mpp2.Relation(mpp1), DIFFERENT, "TestRelationDIF - convex");
+
+	v1.clear();
+	v2.clear();
+	w1.clear();
+
+	v1.insert(NEWVEC);
+	v2.insert(NEWVECVAL(7));
+	w1.insert(NEWVEC);
+
+	mpp1 = CREATEMARKING(v1,w1);
+	mpp2 = CREATEMARKING(v2,w1);
+
+	TESTEQ(mpp1.Relation(mpp2), SUPERSET, "TestRelationSUP - conv+lin");
+	TESTEQ(mpp2.Relation(mpp1), SUBSET, "TestRelationSUB - conv+lin");
+
+	v2.clear();
+
+	MPVector mpv = NEWVEC;
+	mpv.Set(1,1);
+	v2.insert(mpv);
+	mpp2 = CREATEMARKING(v2,w1);
+	TESTEQ(mpp1.Relation(mpp2), DIFFERENT, "TestRelationDIF - convex+linear");
+	TESTEQ(mpp2.Relation(mpp1), DIFFERENT, "TestRelationDIF - convex+linear");
+
+}
+
 void TestMPPMarking() {
 	TestDelay();
+	TestRelation();
 }
 
 void TestMPVector() {
