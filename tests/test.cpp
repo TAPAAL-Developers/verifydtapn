@@ -168,6 +168,9 @@ void TestReset() {
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex 2 vector diagonal");
 
+	mpp1.Reset(0);
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset: reset(mpp)=reset(reset(mpp)), convex");
+
 	v.insert(NEWVECVAL(7));
 
 	mpp1 = CREATEMARKING(v,w);
@@ -200,19 +203,81 @@ void TestReset() {
 	mpp1.Reset(0);
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset delayed (0,0,..,0)");
+	mpp1.Reset(0);
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset: reset(mpp)=reset(reset(mpp)), linear");
 
+}
+
+void TestConstrain() {
+	MPPTEST;
+	MPVecSet v, v2, w;
+
+	v.insert(NEWVEC);
+	v.insert(NEWVECVAL(10));
+
+	v2.insert(NEWVECVAL(4));
+	v2.insert(NEWVECVAL(8));
+
+	MPPMarking mpp1 = CREATEMARKING(v,w);
+	MPPMarking mpp2 = CREATEMARKING(v2,w);
+
+	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+
+	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds convex");
+
+	v.clear();
+	v.insert(NEWVEC);
+
+	w.insert(NEWVEC);
+
+	mpp1 = CREATEMARKING(v,w);
+
+	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+
+	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds linear");
+
+	v.clear();
+	v.insert(NEWVECVAL(5));
+	mpp1 = CREATEMARKING(v,w);
+	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	v2.clear();
+	v2.insert(NEWVECVAL(5));
+	v2.insert(NEWVECVAL(8));
+	MPVecSet w2;
+	mpp2 = CREATEMARKING(v2,w2);
+	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain external lower bound");
+
+	v.clear();
+	v.insert(NEWVECVAL(4));
+	v.insert(NEWVECVAL(6));
+	mpp1 = CREATEMARKING(v,w2);
+	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	v2.clear();
+	v2.insert(NEWVECVAL(4));
+	v2.insert(NEWVECVAL(6));
+	mpp2 = CREATEMARKING(v2,w2);
+	TESTEQ(mpp1.Relation(mpp2),EQUAL,"TestConstrain external  upper bound");
+
+	v.clear();
+	v.insert(NEWVECVAL(5));
+	mpp1 = CREATEMARKING(v,w2);
+	mpp1.Constrain(0,TimeInterval(false,4,6,false));
+	mpp2 = CREATEMARKING(v,w2);
+	TESTEQ(mpp1.Relation(mpp2),EQUAL,"TestConstrain external upper and lower bound");
 }
 
 void TestMPPMarking() {
 	TestDelay();
 	TestRelation();
 	TestReset();
+	TestConstrain();
 }
 
 void TestMPVector() {
 	MPVector mpv1, mpv2(mpv1), mpv3(6), mpv4(mpv3), mpv5(5), mpv6(6);
 
-	/*MPVector constructor tests, equality/inequality + invdimex*/TESTEQ(mpv3,mpv4,"copy constr");
+	/*MPVector constructor tests, equality/inequality + invdimex*/
+	TESTEQ(mpv3,mpv4,"copy constr");
 	TESTNEQ(mpv1,mpv3,"inequality test");
 	TESTEQ(mpv1,mpv2,"copy constr base");
 
