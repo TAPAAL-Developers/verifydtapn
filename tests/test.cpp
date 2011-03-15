@@ -266,11 +266,30 @@ void TestConstrain() {
 	TESTEQ(mpp1.Relation(mpp2),EQUAL,"TestConstrain external upper and lower bound");
 }
 
+void TestSatisfy() {
+	MPPTEST;
+	NEWMARKING(m);
+
+	m->Delay();
+	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 6, false)), "TestSatisfy delayed");
+
+	m->Constrain(0, TimeInterval(false, 4, 6, false));
+
+	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 6, false)), "TestSatisfy convex");
+	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 2, 6, false)), "TestSatisfy outside lower");
+	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 8, false)), "TestSatisfy outside upper");
+	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 2, 8, false)), "TestSatisfy outside both");
+	TESTFALSE(m->PotentiallySatisfies(0, TimeInterval(false, 1, 3, false)), "TestSatisfy false");
+
+	delete m;
+}
+
 void TestMPPMarking() {
 	TestDelay();
 	TestRelation();
 	TestReset();
 	TestConstrain();
+	TestSatisfy();
 }
 
 void TestMPVector() {
