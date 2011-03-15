@@ -171,7 +171,7 @@ void TestReset() {
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex 2 vector diagonal");
 
 	mpp1.Reset(0);
-	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset: reset(mpp)=reset(reset(mpp)), convex");
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset closed, convex");
 
 	v.insert(NEWVECVAL(7));
 
@@ -206,7 +206,7 @@ void TestReset() {
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset delayed (0,0,..,0)");
 	mpp1.Reset(0);
-	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset: reset(mpp)=reset(reset(mpp)), linear");
+	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset closed, linear");
 
 }
 
