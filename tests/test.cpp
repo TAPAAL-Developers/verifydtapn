@@ -37,6 +37,8 @@ char* testDesc;
 #define NEWVECVAL(val) MPVector(clocks, val)
 #define NEWVEC NEWVECVAL(0)
 
+#define INTERVAL(lower, upper) TimeInterval(false, lower, upper, false)
+
 #define DEBUGON MPPMarking::debug = true;
 #define DEBUGOFF MPPMarking::debug = debug;
 
@@ -221,7 +223,7 @@ void TestConstrain() {
 	MPPMarking mpp1 = CREATEMARKING(v,w);
 	MPPMarking mpp2 = CREATEMARKING(v2,w);
 
-	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	mpp1.Constrain(0,INTERVAL(4,8));
 
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds convex");
 
@@ -232,14 +234,14 @@ void TestConstrain() {
 
 	mpp1 = CREATEMARKING(v,w);
 
-	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	mpp1.Constrain(0,INTERVAL(4,8));
 
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds linear");
 
 	v.clear();
 	v.insert(NEWVECVAL(5));
 	mpp1 = CREATEMARKING(v,w);
-	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	mpp1.Constrain(0,INTERVAL(4,8));
 	v2.clear();
 	v2.insert(NEWVECVAL(5));
 	v2.insert(NEWVECVAL(8));
@@ -251,7 +253,7 @@ void TestConstrain() {
 	v.insert(NEWVECVAL(4));
 	v.insert(NEWVECVAL(6));
 	mpp1 = CREATEMARKING(v,w2);
-	mpp1.Constrain(0,TimeInterval(false,4,8,false));
+	mpp1.Constrain(0,INTERVAL(4,8));
 	v2.clear();
 	v2.insert(NEWVECVAL(4));
 	v2.insert(NEWVECVAL(6));
@@ -261,7 +263,7 @@ void TestConstrain() {
 	v.clear();
 	v.insert(NEWVECVAL(5));
 	mpp1 = CREATEMARKING(v,w2);
-	mpp1.Constrain(0,TimeInterval(false,4,6,false));
+	mpp1.Constrain(0,INTERVAL(4,6));
 	mpp2 = CREATEMARKING(v,w2);
 	TESTEQ(mpp1.Relation(mpp2),EQUAL,"TestConstrain external upper and lower bound");
 }
@@ -271,15 +273,15 @@ void TestSatisfy() {
 	NEWMARKING(m);
 
 	m->Delay();
-	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 6, false)), "TestSatisfy delayed");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(4,6)), "TestSatisfy delayed");
 
-	m->Constrain(0, TimeInterval(false, 4, 6, false));
+	m->Constrain(0, INTERVAL(4,6));
 
-	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 6, false)), "TestSatisfy convex");
-	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 2, 6, false)), "TestSatisfy outside lower");
-	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 4, 8, false)), "TestSatisfy outside upper");
-	TESTTRUE(m->PotentiallySatisfies(0, TimeInterval(false, 2, 8, false)), "TestSatisfy outside both");
-	TESTFALSE(m->PotentiallySatisfies(0, TimeInterval(false, 1, 3, false)), "TestSatisfy false");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(4,6)), "TestSatisfy convex");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(2,6)), "TestSatisfy outside lower");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(4,8)), "TestSatisfy outside upper");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(2, 8)), "TestSatisfy outside both");
+	TESTFALSE(m->PotentiallySatisfies(0, INTERVAL(1, 3)), "TestSatisfy false");
 
 	delete m;
 }
