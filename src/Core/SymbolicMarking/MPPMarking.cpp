@@ -213,7 +213,7 @@ namespace VerifyTAPN {
 
 	unsigned int MPPMarking::GetClockIndex(unsigned int token) const {
 		unsigned int retVal = mapping.GetMapping(token);
-		LOG(std::cout << "Mapping token " << token << " to index " << retVal << "\n");
+		//LOG(std::cout << "Mapping token " << token << " to index " << retVal << "\n");
 		return retVal;
 	}
 
@@ -229,6 +229,8 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::PolyToCone() {
+		//LOG(std::cout << "PolyToCone()\n")
+		//LOG(Print());
 		MPVecSet newW;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			MPVector v = *it;
@@ -238,6 +240,7 @@ namespace VerifyTAPN {
 		newW.insert(W.begin(), W.end());
 		V.clear();
 		W = newW;
+		//LOG(Print());
 		isCone = true;
 	}
 

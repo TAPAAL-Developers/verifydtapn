@@ -130,6 +130,8 @@ const bool MPVector::operator<(const MPVector & mpv) const
 		if (val[i] < mpv.val[i]) {
 			return true;
 		}
+		if (val[i] > mpv.val[i])
+			return false;
 	}
 	return val[ConeIdx] < mpv.val[ConeIdx];
 }
