@@ -223,7 +223,6 @@ namespace VerifyTAPN {
 		for(size_t i = 0; i < clocks; ++i)
 		{
 			map.push_back(i+1);
-			i++;
 		}
 
 		mapping = TokenMapping(map);
