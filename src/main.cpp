@@ -24,10 +24,10 @@ namespace VerifyTAPN{
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 	MarkingFactory* factory = NULL;
+	DiscreteMarking::debug = options.UseDebugOutput();
 	if (options.UseMaxPlus()) {
 		factory = new MPPMarkingFactory(options.GetKBound());
 		MPPMarking::factory = factory;
-		MPPMarking::debug = options.UseDebugOutput();
 	}
 	else {
 #ifdef DBM_NORESIZE

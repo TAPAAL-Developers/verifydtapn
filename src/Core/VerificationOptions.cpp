@@ -58,7 +58,7 @@ namespace VerifyTAPN {
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
 				("max-plus,m", "Use max-plus polyhedra instead of DBMs")
-				("debug-output,d", "Print debug output for max-plus polyhedra (debug builds only)")
+				("debug-output,d", "Print debug output (debug builds only)")
 		;
 
 		boost::program_options::positional_options_description p;

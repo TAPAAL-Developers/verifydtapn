@@ -4,10 +4,17 @@
 #include "SymbolicMarking.hpp"
 #include "DiscretePart.hpp"
 
+#ifdef DEBUG
+#define LOG(x) if (DiscreteMarking::debug) x;
+#else
+#define LOG(x)
+#endif
+
 namespace VerifyTAPN {
 
 	class DiscreteMarking : public SymbolicMarking {
 	public:
+		static bool debug;
 		DiscreteMarking(const DiscretePart& dp) : dp(dp) { };
 		DiscreteMarking(const DiscreteMarking& dm) : dp(dm.dp) { };
 		virtual ~DiscreteMarking() { };

@@ -5,7 +5,9 @@
 #include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
 #include "dbm/fed.h"
+#include "dbm/print.h"
 #include "MarkingFactory.hpp"
+#include <iostream>
 
 namespace VerifyTAPN {
 
@@ -28,14 +30,32 @@ namespace VerifyTAPN {
 		virtual id_type UniqueId() const { return id; };
 		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 
-		virtual void Reset(int token) { dbm(mapping.GetMapping(token)) = 0; };
+		virtual void Reset(int token)
+		{
+			LOG(std::cout << "Reset("<<token<<")\n")
+			dbm(mapping.GetMapping(token)) = 0;
+			LOG(Print())
+		};
+
 		virtual bool IsEmpty() const { return dbm.isEmpty(); };
-		virtual void Delay() { dbm.up(); };
+		virtual void Delay()
+		{
+			LOG(std::cout << "Delay()\n");
+			dbm.up();
+			LOG(Print());
+		}
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval)
 		{
+			LOG(std::cout << "Constrain(" << token << ", " << interval.GetLowerBound() << ".." << interval.GetUpperBound() << ")\n");
+			LOG(std::cout << "input:\n")
+			LOG(Print());
 			int clock = mapping.GetMapping(token);
 			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
+			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
+			LOG(Print();)
 			dbm.constrain(clock, 0, interval.UpperBoundToDBMRaw());
+			LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
+			LOG(Print();)
 		};
 
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const
@@ -53,7 +73,15 @@ namespace VerifyTAPN {
 			return ConvertToRelation(relation);
 		}
 
-		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
+		virtual void Extrapolate(const int* maxConstants)
+		{
+			LOG(std::cout << "Extrapolate(...)\n");
+			LOG(std::cout << "input:\n")
+			LOG(Print());
+			dbm.extrapolateMaxBounds(maxConstants);
+			LOG(std::cout << "output:\n")
+			LOG(Print());
+		};
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
 #ifndef DBM_NORESIZE
 		virtual void AddTokens(const std::list<int>& placeIndices);
@@ -71,6 +99,10 @@ namespace VerifyTAPN {
 		dbm::dbm_t dbm;
 		TokenMapping mapping;
 		id_type id;
+
+		void Print() {
+			dbm_cppPrint(std::cout, dbm.getDBM(), dbm.getDimension());
+		}
 	};
 
 }

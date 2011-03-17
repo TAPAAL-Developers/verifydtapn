@@ -1,15 +1,8 @@
 #include "MPPMarking.hpp"
 #include <iostream>
 
-#ifdef DEBUG
-#define LOG(x) if (debug) x;
-#else
-#define LOG(x)
-#endif
-
 namespace VerifyTAPN {
 	MarkingFactory* MPPMarking::factory = NULL;
-	bool MPPMarking::debug = false;
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
@@ -27,6 +20,9 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Reset(int token) {
+		LOG(std::cout << "Reset("<<token<<")\n")
+		LOG(std::cout << "input:\n")
+		LOG(Print());
 		// TODO If possible, find a way to avoid replacing the entire sets
 		int clock = GetClockIndex(token);
 		MPVecSet newV, newW;
@@ -43,11 +39,18 @@ namespace VerifyTAPN {
 		V = newV;
 		W = newW;
 		Cleanup();
+		LOG(std::cout << "output:\n")
+		LOG(Print());
 	}
 
 	void MPPMarking::Delay() {
+		LOG(std::cout << "Delay()\n")
+		LOG(std::cout << "input:\n")
+		LOG(Print());
 		W.insert(V.begin(), V.end());
 		Cleanup();
+		LOG(std::cout << "output:\n")
+		LOG(Print());
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
