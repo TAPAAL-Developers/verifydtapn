@@ -30,7 +30,11 @@ int main(int argc, char* argv[]) {
 		MPPMarking::debug = options.UseDebugOutput();
 	}
 	else {
+#ifdef DBM_NORESIZE
+		factory = new UppaalDBMMarkingFactory(options.GetKBound());
+#else
 		factory = new UppaalDBMMarkingFactory();
+#endif
 		DBMMarking::factory = factory;
 	}
 

@@ -9,13 +9,24 @@ namespace VerifyTAPN {
 	class UppaalDBMMarkingFactory : public MarkingFactory {
 	private:
 		static id_type nextId;
+#ifdef DBM_NORESIZE
+		int clocks;
+	public:
+		UppaalDBMMarkingFactory(int clocks) : clocks(clocks) { };
+
+#else
 	public:
 		UppaalDBMMarkingFactory() { };
+#endif
 		virtual ~UppaalDBMMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const
 		{
+#ifdef DBM_NORESIZE
+			dbm::dbm_t dbm(clocks+1);
+#else
 			dbm::dbm_t dbm(dp.size()+1);
+#endif
 			dbm.setZero();
 			DBMMarking* marking = new DBMMarking(dp, dbm);
 			marking->id = nextId++;

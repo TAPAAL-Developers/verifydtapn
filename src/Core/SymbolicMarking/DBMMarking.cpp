@@ -3,7 +3,7 @@
 namespace VerifyTAPN
 {
 	MarkingFactory* DBMMarking::factory = NULL;
-
+#ifndef DBM_NORESIZE
 	// Add a token in each output place of placesOfTokensToAdd
 	// and add placesOfTokensToAdd.size() clocks to the DBM.
 	// The DBM library requires arrays of bitvectors indicating
@@ -125,11 +125,18 @@ namespace VerifyTAPN
 			dp.RemoveToken(tokenIndices[i]);
 		}
 	}
+#endif
 
 	void DBMMarking::InitMapping()
 	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<unsigned int> map;
+#ifdef DBM_NORESIZE
+		for(size_t i = 0; i < clocks; ++i)
+				{
+					map.push_back(i+1);
+				}
+#else
 		int i = 0;
 
 		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
@@ -137,7 +144,7 @@ namespace VerifyTAPN
 			map.push_back(i+1);
 			i++;
 		}
-
+#endif
 		mapping = TokenMapping(map);
 	}
 

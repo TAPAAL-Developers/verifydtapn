@@ -13,8 +13,15 @@ namespace VerifyTAPN {
 		friend class UppaalDBMMarkingFactory;
 	public:
 		static MarkingFactory* factory;
+#ifdef DBM_NORESIZE
+	private:
+		size_t clocks;
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), clocks(dbm.getDimension()-1), dbm(dbm),  mapping() { InitMapping(); };
+		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), clocks(dm.clocks), dbm(dm.dbm), mapping(dm.mapping) { };
+#else
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
+#endif
 		virtual ~DBMMarking() { };
 
 		virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
@@ -48,9 +55,10 @@ namespace VerifyTAPN {
 
 		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
-
+#ifndef DBM_NORESIZE
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+#endif
 	private:
 		void InitMapping();
 		relation ConvertToRelation(relation_t relation) const;
