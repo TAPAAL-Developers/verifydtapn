@@ -34,7 +34,7 @@ namespace VerifyTAPN {
 	public: // modifiers
 		void MoveToken(unsigned int tokenIndex, int newPlaceIndex);
 		void RemoveToken(int index) { placement.erase(placement.begin() + index); }
-		unsigned int AddTokenInPlace(int placeIndex) { placement.push_back(placeIndex); return placement.size() - 1;}
+		void AddTokenInPlace(int placeIndex) { placement.push_back(placeIndex); }
 		void Swap(int tokenI, int tokenJ);
 
 	private: // data

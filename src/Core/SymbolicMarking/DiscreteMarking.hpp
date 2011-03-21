@@ -28,7 +28,7 @@ namespace VerifyTAPN {
 		{
 			for(std::list<int>::const_iterator i = placeIndices.begin(); i != placeIndices.end(); i++)
 			{
-				Reset(dp.AddTokenInPlace(*i));
+				dp.AddTokenInPlace(*i);
 			}
 		};
 
