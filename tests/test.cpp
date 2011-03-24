@@ -27,7 +27,7 @@ char* testDesc;
 #define TESTEQ(var, val, str) if (var==val) PASS(str) else FAIL(str)
 #define TESTNEQ(var, val, str) if (var!=val) PASS(str) else FAIL(str)
 
-#define MPPTEST DiscretePart dp; \
+#define MPPTEST DiscretePart dp(std::vector<int>(10)); \
 	MPPMarkingFactory f = MPPMarkingFactory(clocks); \
 	MPPMarking::factory = &f;
 
@@ -354,7 +354,7 @@ int main(int argc, char** argv) {
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConsoleInfo);
 #endif
 	debug = (argc > 1);
-	MPPMarking::debug = debug;
+	DiscreteMarking::debug = debug;
 	TestMPVector();
 	TestMPPMarking();
 
