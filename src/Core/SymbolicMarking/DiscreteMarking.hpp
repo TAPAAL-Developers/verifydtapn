@@ -3,9 +3,11 @@
 
 #include "SymbolicMarking.hpp"
 #include "DiscretePart.hpp"
+#include "TokenMapping.hpp"
+#include <queue>
 
 #ifdef DEBUG
-#define LOG(x) if (DiscreteMarking::debug) x;
+#define LOG(x) { if (DiscreteMarking::debug) {x;} }
 #else
 #define LOG(x)
 #endif
@@ -15,8 +17,8 @@ namespace VerifyTAPN {
 	class DiscreteMarking : public SymbolicMarking {
 	public:
 		static bool debug;
-		DiscreteMarking(const DiscretePart& dp) : dp(dp) { };
-		DiscreteMarking(const DiscreteMarking& dm) : dp(dm.dp) { };
+		DiscreteMarking(const DiscretePart& dp) : unusedClocks(), dp(dp), mapping() { };
+		DiscreteMarking(const DiscreteMarking& dm) : unusedClocks(dm.unusedClocks), dp(dm.dp), mapping(dm.mapping) { };
 		virtual ~DiscreteMarking() { };
 
 	public:
@@ -28,7 +30,14 @@ namespace VerifyTAPN {
 		{
 			for(std::list<int>::const_iterator i = placeIndices.begin(); i != placeIndices.end(); i++)
 			{
+				if (unusedClocks.empty()) {
+					mapping.AddTokenToMapping(dp.size());
+				} else {
+					mapping.AddTokenToMapping(unusedClocks.front());
+					unusedClocks.pop();
+				}
 				dp.AddTokenInPlace(*i);
+				Reset(dp.size()-1);
 			}
 		};
 
@@ -36,7 +45,13 @@ namespace VerifyTAPN {
 		{
 			for(std::vector<int>::const_iterator i = tokenIndices.begin(); i != tokenIndices.end(); i++)
 			{
-				dp.RemoveToken(*i);
+				unusedClocks.push(mapping.GetMapping(*i));
+				Free(*i);
+			}
+
+			for(int i = tokenIndices.size() - 1; i >= 0; --i) {
+				mapping.RemoveToken(tokenIndices[i]);
+				dp.RemoveToken(tokenIndices[i]);
 			}
 		};
 
@@ -87,8 +102,11 @@ namespace VerifyTAPN {
 		{
 			dp.Swap(i,j);
 		};
+	private:
+		std::queue<int> unusedClocks;
 	protected: // data
 		DiscretePart dp;
+		TokenMapping mapping;
 	};
 
 }

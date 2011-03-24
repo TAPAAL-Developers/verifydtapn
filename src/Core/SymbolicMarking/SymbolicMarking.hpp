@@ -16,6 +16,7 @@ namespace VerifyTAPN {
 
 		virtual void Delay() = 0; // Maybe call this up to match terminology of Down?
 		//	virtual void Down() = 0;
+		virtual void Free(int token) = 0;
 		virtual bool IsEmpty() const = 0;
 		virtual void Extrapolate(const int* maxConstants) = 0;
 		virtual unsigned int GetClockIndex(unsigned int token) const = 0;

@@ -19,7 +19,6 @@ namespace VerifyTAPN {
 		friend class MPPMarkingFactory;
 	private:
 		MPVecSet V, W;
-		TokenMapping mapping;
 		id_type id;
 		size_t clocks;
 
@@ -37,13 +36,14 @@ namespace VerifyTAPN {
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 
 		void Print() const;
+		void doFree(int clock);
 	public:
 		static MarkingFactory *factory;
 		static bool debug;
 
 		MPPMarking(const DiscretePart &dp, int clocks) : DiscreteMarking(dp), clocks(clocks), isCone(false) { InitMapping(); };
 		MPPMarking(const DiscretePart &dp, int clocks, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), clocks(clocks), isCone(false) { InitMapping(); };
-		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), mapping(mpp.mapping), clocks(mpp.clocks), isCone(false) { };
+		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), clocks(mpp.clocks), isCone(false) { };
 
 		virtual ~MPPMarking() { };
 
@@ -54,6 +54,7 @@ namespace VerifyTAPN {
 		virtual void Reset(int token);
 		virtual bool IsEmpty() const;
 		virtual void Delay();
+		virtual void Free(int token);
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval);
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const;
 		virtual void Extrapolate(const int* maxConstants);

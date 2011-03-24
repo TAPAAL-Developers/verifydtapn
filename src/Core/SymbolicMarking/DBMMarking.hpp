@@ -18,11 +18,11 @@ namespace VerifyTAPN {
 #ifdef DBM_NORESIZE
 	private:
 		size_t clocks;
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), clocks(dbm.getDimension()-1), dbm(dbm),  mapping() { InitMapping(); };
-		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), clocks(dm.clocks), dbm(dm.dbm), mapping(dm.mapping) { };
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), clocks(dbm.getDimension()-1), dbm(dbm) { InitMapping(); };
+		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), clocks(dm.clocks), dbm(dm.dbm) { };
 #else
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
-		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm) { InitMapping(); };
+		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm) { };
 #endif
 		virtual ~DBMMarking() { };
 
@@ -73,6 +73,14 @@ namespace VerifyTAPN {
 			return ConvertToRelation(relation);
 		}
 
+		virtual void Free(int token) {
+			doFree(mapping.GetMapping(token));
+		}
+
+		void doFree(int clock) {
+			dbm.freeClock(clock);
+		}
+
 		virtual void Extrapolate(const int* maxConstants)
 		{
 			LOG(std::cout << "Extrapolate(...)\n");
@@ -97,7 +105,6 @@ namespace VerifyTAPN {
 
 	private: // data
 		dbm::dbm_t dbm;
-		TokenMapping mapping;
 		id_type id;
 
 		void Print() {

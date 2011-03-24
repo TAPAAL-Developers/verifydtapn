@@ -53,6 +53,29 @@ namespace VerifyTAPN {
 		LOG(Print());
 	}
 
+	void MPPMarking::Free(int token) {
+		doFree(mapping.GetMapping(token));
+	}
+
+	void MPPMarking::doFree(int clock) {
+		MPVecSet newV, newW;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			MPVector v = *it;
+			v.Set(clock, 0);
+			newV.insert(v);
+		}
+		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+			MPVector w = *it;
+			w.Set(clock, NegInf);
+			newW.insert(w);
+		}
+		V = newV;
+		W = newW;
+		MPVector g = MPVector(clocks, NegInf);
+		g.Set(clock, 0);
+		W.insert(g);
+	}
+
 	void MPPMarking::Extrapolate(const int *maxConstants) {
 		LOG(std::cout << "Extrapolate(...)\n");
 		LOG(std::cout << "input:\n")
@@ -209,6 +232,8 @@ namespace VerifyTAPN {
 		V.clear();
 		W.clear();
 		V.insert(MPVector(clocks));
+		for (size_t i = dp.size(); i < clocks; ++i)
+			doFree(i);
 	}
 
 	id_type MPPMarking::UniqueId() const {
@@ -221,13 +246,15 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::InitMapping() {
+		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<unsigned int> map;
+		int i = 0;
 
-		for(size_t i = 0; i < clocks; ++i)
+		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
 		{
 			map.push_back(i+1);
+			i++;
 		}
-
 		mapping = TokenMapping(map);
 	}
 

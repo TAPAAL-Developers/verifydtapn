@@ -131,11 +131,11 @@ namespace VerifyTAPN
 	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<unsigned int> map;
-#ifdef DBM_NORESIZE
+#ifdef DBM_NORESIZE_NOTDEFINED
 		for(size_t i = 0; i < clocks; ++i)
-				{
-					map.push_back(i+1);
-				}
+		{
+			map.push_back(i+1);
+		}
 #else
 		int i = 0;
 

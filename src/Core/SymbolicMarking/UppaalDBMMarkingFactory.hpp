@@ -28,6 +28,10 @@ namespace VerifyTAPN {
 			dbm::dbm_t dbm(dp.size()+1);
 #endif
 			dbm.setZero();
+#ifdef DBM_NORESIZE
+			for (int i = dp.size(); i < clocks; ++i)
+						dbm.freeClock(i+1);
+#endif
 			DBMMarking* marking = new DBMMarking(dp, dbm);
 			marking->id = nextId++;
 			return marking;
