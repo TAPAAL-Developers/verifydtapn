@@ -31,7 +31,7 @@ namespace VerifyTAPN {
 			for(std::list<int>::const_iterator i = placeIndices.begin(); i != placeIndices.end(); i++)
 			{
 				if (unusedClocks.empty()) {
-					mapping.AddTokenToMapping(dp.size());
+					mapping.AddTokenToMapping(dp.size()+1);
 				} else {
 					mapping.AddTokenToMapping(unusedClocks.front());
 					unusedClocks.pop();
