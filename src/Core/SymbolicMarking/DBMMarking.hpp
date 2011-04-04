@@ -51,10 +51,10 @@ namespace VerifyTAPN {
 			LOG(Print());
 			int clock = mapping.GetMapping(token);
 			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
-			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
+			LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
 			LOG(Print();)
 			dbm.constrain(clock, 0, interval.UpperBoundToDBMRaw());
-			LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
+			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
 			LOG(Print();)
 		};
 
