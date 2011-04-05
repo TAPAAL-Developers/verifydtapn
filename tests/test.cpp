@@ -39,8 +39,8 @@ char* testDesc;
 
 #define INTERVAL(lower, upper) TimeInterval(false, lower, upper, false)
 
-#define DEBUGON MPPMarking::debug = true;
-#define DEBUGOFF MPPMarking::debug = debug;
+#define DEBUGON DiscreteMarking::debug = true;
+#define DEBUGOFF DiscreteMarking::debug = debug;
 
 int clocks = 10;
 
@@ -292,6 +292,7 @@ void TestMPPMarking() {
 	TestReset();
 	TestConstrain();
 	TestSatisfy();
+
 }
 
 void TestMPVector() {
@@ -348,6 +349,7 @@ void TestMPVector() {
 	TESTEQ(xmpv.Get(3),NegInf,"max(neginf,neginf)");
 	TESTEQ(xmpv.Get(5),5,"max(5,neginf)");
 }
+
 
 int main(int argc, char** argv) {
 #ifdef __MINGW32__
