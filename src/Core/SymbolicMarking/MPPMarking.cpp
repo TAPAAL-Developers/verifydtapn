@@ -23,21 +23,7 @@ namespace VerifyTAPN {
 		LOG(std::cout << "Reset("<<token<<")\n")
 		LOG(std::cout << "input:\n")
 		LOG(Print());
-		// TODO If possible, find a way to avoid replacing the entire sets
-		int clock = GetClockIndex(token);
-		MPVecSet newV, newW;
-		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-			MPVector v = *it;
-			v.Set(clock, 0);
-			newV.insert(v);
-		}
-		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-			MPVector w = *it;
-			w.Set(clock, NegInf);
-			newW.insert(w);
-		}
-		V = newV;
-		W = newW;
+		ResetClock(GetClockIndex(token));
 		Cleanup();
 		LOG(std::cout << "output:\n")
 		LOG(Print());
@@ -54,23 +40,29 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Free(int token) {
-		doFree(mapping.GetMapping(token));
+		FreeClock(mapping.GetMapping(token));
+		Cleanup();
 	}
 
-	void MPPMarking::doFree(int clock) {
+	void MPPMarking::ResetClock(int clock) {
+		// TODO If possible, find a way to avoid replacing the entire sets
 		MPVecSet newV, newW;
-		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-			MPVector v = *it;
-			v.Set(clock, 0);
-			newV.insert(v);
-		}
-		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-			MPVector w = *it;
-			w.Set(clock, NegInf);
-			newW.insert(w);
-		}
-		V = newV;
-		W = newW;
+				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+					MPVector v = *it;
+					v.Set(clock, 0);
+					newV.insert(v);
+				}
+				for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+					MPVector w = *it;
+					w.Set(clock, NegInf);
+					newW.insert(w);
+				}
+				V = newV;
+				W = newW;
+	}
+
+	void MPPMarking::FreeClock(int clock) {
+		ResetClock(clock);
 		MPVector g = MPVector(clocks, NegInf);
 		g.Set(clock, 0);
 		W.insert(g);
@@ -83,24 +75,7 @@ namespace VerifyTAPN {
 		for (size_t i = FirstClock; i <= clocks; i++) {
 			int k = maxConstants[i-1];
 			if (k == -INF) {
-				//FIXME Reset algorithm must be repeated here because we have a clock, not a token
-				//Refactor so we have internal methods working on clocks, which are just called to when we have a token
-				MPVecSet newV, newW;
-				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-					MPVector v = *it;
-					v.Set(i, 0);
-					newV.insert(v);
-				}
-				for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-					MPVector w = *it;
-					w.Set(i, NegInf);
-					newW.insert(w);
-				}
-				V = newV;
-				W = newW;
-				MPVector g = MPVector(clocks, NegInf);
-				g.Set(i, 0);
-				W.insert(g);
+				FreeClock(i);
 				continue;
 			}
 			MPVecSet T, U;
@@ -123,6 +98,15 @@ namespace VerifyTAPN {
 				}
 				V = newV;
 			} else {
+				/*for(MPVecIter u = U.begin(); u!=U.end(); ++u) {
+					bool uppercorner = true;
+					for(size_t j=FirstClock; j<=clocks; j++) {
+						if(u->Get(j)<= maxConstants[j-1])
+							uppercorner = false;
+					}
+					if(uppercorner)
+						W.insert(*u);
+				}*/
 				for (size_t j = FirstClock; j <= clocks; j++) {
 					if (i != j) {
 						for (MPVecIter u = U.begin(); u != U.end(); ++u) {
@@ -233,7 +217,7 @@ namespace VerifyTAPN {
 		W.clear();
 		V.insert(MPVector(clocks));
 		for (size_t i = dp.size(); i < clocks; ++i)
-			doFree(i);
+			FreeClock(i);
 	}
 
 	id_type MPPMarking::UniqueId() const {

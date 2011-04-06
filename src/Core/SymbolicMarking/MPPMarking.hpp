@@ -36,7 +36,9 @@ namespace VerifyTAPN {
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 
 		void Print() const;
-		void doFree(int clock);
+		void ResetClock(int clock);
+		void FreeClock(int clock);
+
 	public:
 		static MarkingFactory *factory;
 		static bool debug;
@@ -61,6 +63,7 @@ namespace VerifyTAPN {
 
 		virtual size_t HashKey() const;
 		virtual relation Relation(const StoredMarking& other) const;
+
 	};
 
 }
