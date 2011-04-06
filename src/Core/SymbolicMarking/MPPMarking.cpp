@@ -182,6 +182,12 @@ namespace VerifyTAPN {
 		return false;
 	}
 
+	void MPPMarking::ConvexUnion(AbstractMarking* marking) {
+		MPPMarking* m = static_cast<MPPMarking*>(marking);
+		V.insert(m->V.begin(), m->V.end());
+		W.insert(m->W.begin(), m->W.end());
+	}
+
 	size_t MPPMarking::HashKey() const {
 		return VerifyTAPN::hash()(dp);
 	}

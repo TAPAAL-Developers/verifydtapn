@@ -18,6 +18,7 @@ namespace VerifyTAPN {
 #ifdef DBM_NORESIZE
 	private:
 		size_t clocks;
+	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), clocks(dbm.getDimension()-1), dbm(dbm) { InitMapping(); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), clocks(dm.clocks), dbm(dm.dbm) { };
 #else
@@ -79,6 +80,11 @@ namespace VerifyTAPN {
 
 		void doFree(int clock) {
 			dbm.freeClock(clock);
+		}
+
+		virtual void ConvexUnion(AbstractMarking* marking) {
+			DBMMarking* m = static_cast<DBMMarking*>(marking);
+			dbm_convexUnion(dbm.getDBM(), m->dbm.getDBM(), dbm.getDimension());
 		}
 
 		virtual void Extrapolate(const int* maxConstants)

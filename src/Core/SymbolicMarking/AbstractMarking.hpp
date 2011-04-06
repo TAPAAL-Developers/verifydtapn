@@ -20,6 +20,7 @@ namespace VerifyTAPN {
 		virtual void Reset(int token) = 0;
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval) = 0; // not sure if this should be here?
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const = 0;
+		virtual void ConvexUnion(AbstractMarking* marking) = 0;
 
 		// discrete part
 		virtual void MoveToken(int tokenIndex, int newPlaceIndex) = 0;
