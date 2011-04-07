@@ -3,6 +3,7 @@
 
 #include "PassedWaitingList/WaitingList.hpp"
 #include "PassedWaitingList/PWList.hpp"
+#include "PassedWaitingList/CHPWList.hpp"
 #include "QueryChecker/QueryChecker.hpp"
 #include "../Core/VerificationOptions.hpp"
 #include "Trace/TraceStore.hpp"

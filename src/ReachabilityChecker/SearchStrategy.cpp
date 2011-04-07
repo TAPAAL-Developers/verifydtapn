@@ -12,10 +12,17 @@ namespace VerifyTAPN
 		MarkingFactory* factory
 	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options)//, traceStore(options, initialMarking)
 	{
+		WaitingList* waitingList;
 		if(options.GetSearchType() == DEPTHFIRST)
-			pwList = new PWList(new StackWaitingList, factory);
+			waitingList = new StackWaitingList;
+
 		else
-			pwList = new PWList(new QueueWaitingList, factory);
+			waitingList = new QueueWaitingList;
+
+		if (options.UseOverApprox())
+			pwList = new CHPWList(waitingList, factory);
+		else
+			pwList = new PWList(waitingList, factory);
 
 		maxConstantsArray = new int[options.GetKBound()+1];
 		for(int i = 0; i < options.GetKBound()+1; ++i)

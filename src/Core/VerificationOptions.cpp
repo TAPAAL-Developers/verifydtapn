@@ -59,6 +59,7 @@ namespace VerifyTAPN {
 				("query-file", boost::program_options::value<std::string>(), "query file")
 				("max-plus,m", "Use max-plus polyhedra instead of DBMs")
 				("debug-output,d", "Print debug output (debug builds only)")
+				("overapproximate,a", "Use overapproximation.")
 		;
 
 		boost::program_options::positional_options_description p;
@@ -152,11 +153,15 @@ namespace VerifyTAPN {
 		if (vm.count("debug-output"))
 			debugOutput = true;
 
+		bool overApproximate = false;
+		if (vm.count("overapproximate"))
+			overApproximate = true;
+
 		if(error) {
 			std::cout << desc << "\n";
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir, maxplus, debugOutput);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir, maxplus, debugOutput, overApproximate);
 	}
 }
