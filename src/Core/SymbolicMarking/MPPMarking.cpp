@@ -6,11 +6,11 @@ namespace VerifyTAPN {
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
-		for (MPVecIter it = V.begin(); it != V.end(); ++it)
+		for (MPVecConstIter it = V.begin(); it != V.end(); ++it)
 			std::cout << *it;
 		std::cout << "\n";
 		std::cout << "W: ";
-		for (MPVecIter it = W.begin(); it != W.end(); ++it)
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it)
 			std::cout << *it;
 		std::cout << "\n";
 	}
@@ -33,7 +33,7 @@ namespace VerifyTAPN {
 		LOG(std::cout << "Delay()\n")
 		LOG(std::cout << "input:\n")
 		LOG(Print());
-		W.insert(V.begin(), V.end());
+		W.insert(W.end(), V.begin(), V.end());
 		Cleanup();
 		LOG(std::cout << "output:\n")
 		LOG(Print());
@@ -50,12 +50,12 @@ namespace VerifyTAPN {
 				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 					MPVector v = *it;
 					v.Set(clock, 0);
-					newV.insert(v);
+					newV.push_back(v);
 				}
 				for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 					MPVector w = *it;
 					w.Set(clock, NegInf);
-					newW.insert(w);
+					newW.push_back(w);
 				}
 				V = newV;
 				W = newW;
@@ -65,7 +65,7 @@ namespace VerifyTAPN {
 		ResetClock(clock);
 		MPVector g = MPVector(clocks, NegInf);
 		g.Set(clock, 0);
-		W.insert(g);
+		W.push_back(g);
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
@@ -81,9 +81,9 @@ namespace VerifyTAPN {
 			MPVecSet T, U;
 			for (MPVecIter v = V.begin(); v != V.end(); ++v) {
 				if (v->Get(i) <= k)
-					T.insert(*v);
+					T.push_back(*v);
 				else
-					U.insert(*v);
+					U.push_back(*v);
 			}
 			if (U.empty())
 				continue;
@@ -94,7 +94,7 @@ namespace VerifyTAPN {
 					MPVector v = *it;
 					if (v.Get(i) > k)
 						v.Set(i, k+1);
-					newV.insert(v);
+					newV.push_back(v);
 				}
 				V = newV;
 			} else {
@@ -105,7 +105,7 @@ namespace VerifyTAPN {
 							uppercorner = false;
 					}
 					if(uppercorner)
-						W.insert(*u);
+						W.push_back(*u);
 				}*/
 				for (size_t j = FirstClock; j <= clocks; j++) {
 					if (i != j) {
@@ -114,7 +114,7 @@ namespace VerifyTAPN {
 								MPVector ex = MPVector(clocks, NegInf);
 								ex.Set(i, u->Get(i));
 								ex.Set(j, u->Get(j));
-								W.insert(ex);
+								W.push_back(ex);
 							}
 							if (u->Get(i) < u->Get(j) + k)
 								hori = false;
@@ -125,7 +125,7 @@ namespace VerifyTAPN {
 			if (hori) {
 				MPVector ex = MPVector(clocks, NegInf);
 				ex.Set(i, 0);
-				W.insert(ex);
+				W.push_back(ex);
 			}
 		}
 		LOG(std::cout << "output:\n")
@@ -164,7 +164,7 @@ namespace VerifyTAPN {
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
 		int clock = GetClockIndex(token);
 		bool lowerSat = false, upperSat = false;
-		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+		for (MPVecConstIter it = V.begin(); it != V.end(); ++it) {
 			lowerSat = lowerSat || it->Get(clock) > interval.GetLowerBound();
 			upperSat = upperSat || it->Get(clock) < interval.GetUpperBound();
 
@@ -175,7 +175,7 @@ namespace VerifyTAPN {
 		if (!upperSat)
 			return false;
 
-		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it) {
 			if (it->Get(clock) != NegInf)
 				return true;
 		}
@@ -184,8 +184,8 @@ namespace VerifyTAPN {
 
 	void MPPMarking::ConvexUnion(AbstractMarking* marking) {
 		MPPMarking* m = static_cast<MPPMarking*>(marking);
-		V.insert(m->V.begin(), m->V.end());
-		W.insert(m->W.begin(), m->W.end());
+		V.insert(V.end(), m->V.begin(), m->V.end());
+		W.insert(W.end(), m->W.begin(), m->W.end());
 	}
 
 	size_t MPPMarking::HashKey() const {
@@ -221,7 +221,7 @@ namespace VerifyTAPN {
 	void MPPMarking::InitZero() {
 		V.clear();
 		W.clear();
-		V.insert(MPVector(clocks));
+		V.push_back(MPVector(clocks));
 		for (size_t i = dp.size(); i < clocks; ++i)
 			FreeClock(i);
 	}
@@ -253,9 +253,9 @@ namespace VerifyTAPN {
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
 			MPVector v = *it;
 			v.Set(ConeIdx, 0);
-			newW.insert(v);
+			newW.push_back(v);
 		}
-		newW.insert(W.begin(), W.end());
+		newW.insert(newW.end(), W.begin(), W.end());
 		V.clear();
 		W = newW;
 		isCone = true;
@@ -266,11 +266,11 @@ namespace VerifyTAPN {
 		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector v = *it;
 			if (v.Get(ConeIdx) == NegInf)
-				newW.insert(v);
+				newW.push_back(v);
 			else {
 				v+=-v.Get(ConeIdx);
 				v.Set(ConeIdx, NegInf);
-				newV.insert(v);
+				newV.push_back(v);
 			}
 		}
 		V = newV;
@@ -299,7 +299,7 @@ namespace VerifyTAPN {
 			y[i] = INF;
 
 		int i = 0;
-		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++) {
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it, i++) {
 			for (size_t j = 0; j <= clocks; j++) {
 				if (it->Get(j) == NegInf)
 					;
@@ -312,7 +312,7 @@ namespace VerifyTAPN {
 
 		MPVector z(clocks, NegInf);
 		i = 0;
-		for (MPVecIter it = W.begin(); it != W.end(); ++it, i++)
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it, i++)
 			z = Max(z, y[i] + (*it));
 		delete[] y;
 		return v == z;
@@ -325,11 +325,11 @@ namespace VerifyTAPN {
 			MPVector g = *it;
 			LOG(std::cout << "a+g = " << a+g << ", b+g = " << b+g << "\n";)
 			if (a+g <= b+g) {
-				Gleq.insert(g);
+				Gleq.push_back(g);
 				LOG(std::cout << "Adding " << g << " to G<=\n";)
 			}
 			else {
-				Ggt.insert(g);
+				Ggt.push_back(g);
 				LOG(std::cout << "Adding " << g << " to G>\n";)
 			}
 		}
@@ -340,7 +340,7 @@ namespace VerifyTAPN {
 				MPVector p2 = b+(*g)+(*h);
 				MPVector p = Max(p1, p2);
 				LOG(std::cout << "Adding " << p << " to W\n";)
-				W.insert(p);
+				W.push_back(p);
 			}
 		}
 	}
@@ -353,9 +353,10 @@ namespace VerifyTAPN {
 		MPPMarking copy(*this);
 
 		for(MPVecIter it = W.begin(); it!=W.end(); ++it) {
-			copy.W.erase(*it);
+			//TODO Adapt to using a list
+			copy.W.erase(it);
 			if(!copy.ContainsPoint(*it)) {
-				copy.W.insert(*it);
+				copy.W.push_back(*it);
 			}
 		}
 

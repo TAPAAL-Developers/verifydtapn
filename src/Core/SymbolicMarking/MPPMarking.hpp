@@ -1,7 +1,7 @@
 #ifndef MPPMARKING_HPP_
 #define MPPMARKING_HPP_
 
-#include <set>
+#include <list>
 
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
@@ -12,8 +12,9 @@
 
 namespace VerifyTAPN {
 
-	typedef std::set<MPVector> MPVecSet;
+	typedef std::list<MPVector> MPVecSet;
 	typedef MPVecSet::iterator MPVecIter;
+	typedef MPVecSet::const_iterator MPVecConstIter;
 
 	class MPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class MPPMarkingFactory;
