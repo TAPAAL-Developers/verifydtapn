@@ -154,8 +154,10 @@ namespace VerifyTAPN {
 			debugOutput = true;
 
 		bool overApproximate = false;
-		if (vm.count("overapproximate"))
+		if (vm.count("overapproximate")) {
+			std::cout << "Using overapproximation\n";
 			overApproximate = true;
+		}
 
 		if(error) {
 			std::cout << desc << "\n";
