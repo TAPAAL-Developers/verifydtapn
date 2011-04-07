@@ -45,20 +45,12 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::ResetClock(int clock) {
-		// TODO If possible, find a way to avoid replacing the entire sets
-		MPVecSet newV, newW;
-				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-					MPVector v = *it;
-					v.Set(clock, 0);
-					newV.push_back(v);
-				}
-				for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-					MPVector w = *it;
-					w.Set(clock, NegInf);
-					newW.push_back(w);
-				}
-				V = newV;
-				W = newW;
+		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+			it->Set(clock, 0);
+		}
+		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+			it->Set(clock, NegInf);
+		}
 	}
 
 	void MPPMarking::FreeClock(int clock) {
@@ -89,24 +81,11 @@ namespace VerifyTAPN {
 				continue;
 			bool hori = true;
 			if (DiagonalFree(T,U,i)) {
-				MPVecSet newV;
 				for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-					MPVector v = *it;
-					if (v.Get(i) > k)
-						v.Set(i, k+1);
-					newV.push_back(v);
-				}
-				V = newV;
-			} else {
-				/*for(MPVecIter u = U.begin(); u!=U.end(); ++u) {
-					bool uppercorner = true;
-					for(size_t j=FirstClock; j<=clocks; j++) {
-						if(u->Get(j)<= maxConstants[j-1])
-							uppercorner = false;
+					if (it->Get(i) > k)
+						it->Set(i,k+1);
 					}
-					if(uppercorner)
-						W.push_back(*u);
-				}*/
+			} else {
 				for (size_t j = FirstClock; j <= clocks; j++) {
 					if (i != j) {
 						for (MPVecIter u = U.begin(); u != U.end(); ++u) {
@@ -249,32 +228,25 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::PolyToCone() {
-		MPVecSet newW;
 		for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-			MPVector v = *it;
-			v.Set(ConeIdx, 0);
-			newW.push_back(v);
+			it->Set(ConeIdx, 0);
 		}
-		newW.insert(newW.end(), W.begin(), W.end());
-		V.clear();
-		W = newW;
+		W.splice(W.end(), V);
 		isCone = true;
 	}
 
 	void MPPMarking::ConeToPoly() {
-		MPVecSet newV, newW;
-		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-			MPVector v = *it;
-			if (v.Get(ConeIdx) == NegInf)
-				newW.push_back(v);
-			else {
-				v+=-v.Get(ConeIdx);
-				v.Set(ConeIdx, NegInf);
-				newV.push_back(v);
+		MPVecIter it = W.begin();
+		while (it != W.end()) {
+			if (it->Get(ConeIdx) != NegInf) {
+				*it+=-it->Get(ConeIdx);
+				it->Set(ConeIdx, NegInf);
+				V.push_back(*it);
+				it = W.erase(it);
+				continue;
 			}
+			++it;
 		}
-		V = newV;
-		W = newW;
 		isCone = false;
 	}
 
@@ -292,14 +264,18 @@ namespace VerifyTAPN {
 		return true;
 	}
 
-	bool MPPMarking::ContainsPoint(const MPVector& v) const {
+	bool MPPMarking::ContainsPoint(const MPVector& v, MPVecIter* skipit) const {
 		int count = W.size();
+		if (skipit)
+			count--;
 		int* y = new int[count];
 		for (int i = 0; i < count; i++)
 			y[i] = INF;
 
 		int i = 0;
-		for (MPVecConstIter it = W.begin(); it != W.end(); ++it, i++) {
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it) {
+			if (skipit && *skipit == it)
+				continue;
 			for (size_t j = 0; j <= clocks; j++) {
 				if (it->Get(j) == NegInf)
 					;
@@ -308,6 +284,7 @@ namespace VerifyTAPN {
 				else
 					y[i] = min(y[i], v.Get(j) - it->Get(j));
 			}
+			++i;
 		}
 
 		MPVector z(clocks, NegInf);
@@ -350,17 +327,17 @@ namespace VerifyTAPN {
 		LOG(std::cout << "input:\n")
 		LOG(Print());
 		PolyToCone();
-		MPPMarking copy(*this);
 
-		for(MPVecIter it = W.begin(); it!=W.end(); ++it) {
+		MPVecIter it = W.begin();
+		while (it!=W.end()) {
 			//TODO Adapt to using a list
-			copy.W.erase(it);
-			if(!copy.ContainsPoint(*it)) {
-				copy.W.push_back(*it);
+			if(ContainsPoint(*it), &it) {
+				it=W.erase(it);
+				continue;
 			}
+			++it;
 		}
 
-		W=copy.W;
 		ConeToPoly();
 		LOG(std::cout << "output:\n")
 		LOG(Print());

@@ -73,8 +73,8 @@ void setrgb(int color) {
 void TestDelay() {
 	MPPTEST;
 	MPVecSet v, w;
-	v.insert(NEWVEC);
-	w.insert(NEWVEC);
+	v.push_back(NEWVEC);
+	w.push_back(NEWVEC);
 	MPPMarking expected = CREATEMARKING(v,w);
 	NEWMARKING(m);
 	m->Delay();
@@ -86,10 +86,10 @@ void TestDelay() {
 void TestRelation() {
 	MPPTEST;
 	MPVecSet v1, w1, v2, w2, w3;
-	v1.insert(NEWVEC);
-	w1.insert(NEWVEC);
-	v2.insert(NEWVEC);
-	w2.insert(NEWVEC);
+	v1.push_back(NEWVEC);
+	w1.push_back(NEWVEC);
+	v2.push_back(NEWVEC);
+	w2.push_back(NEWVEC);
 
 	MPPMarking mpp1 = CREATEMARKING(v1,w1);
 	MPPMarking mpp2 = CREATEMARKING(v2,w2);
@@ -103,7 +103,7 @@ void TestRelation() {
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestRelationEQ - convex");
 	TESTEQ(mpp2.Relation(mpp1), EQUAL, "TestRelationEQ - convex");
 
-	v1.insert(NEWVECVAL(5));
+	v1.push_back(NEWVECVAL(5));
 
 	mpp1 = CREATEMARKING(v1,w3);
 
@@ -111,7 +111,7 @@ void TestRelation() {
 	TESTEQ(mpp2.Relation(mpp1), SUBSET, "TestRelationSUB - convex");
 
 	v1.clear();
-	v1.insert(NEWVECVAL(5));
+	v1.push_back(NEWVECVAL(5));
 
 	mpp1 = CREATEMARKING(v1,w3);
 
@@ -122,9 +122,9 @@ void TestRelation() {
 	v2.clear();
 	w1.clear();
 
-	v1.insert(NEWVEC);
-	v2.insert(NEWVECVAL(7));
-	w1.insert(NEWVEC);
+	v1.push_back(NEWVEC);
+	v2.push_back(NEWVECVAL(7));
+	w1.push_back(NEWVEC);
 
 	mpp1 = CREATEMARKING(v1,w1);
 	mpp2 = CREATEMARKING(v2,w1);
@@ -136,7 +136,7 @@ void TestRelation() {
 
 	MPVector mpv = NEWVEC;
 	mpv.Set(1, 1);
-	v2.insert(mpv);
+	v2.push_back(mpv);
 	mpp2 = CREATEMARKING(v2,w1);
 	TESTEQ(mpp1.Relation(mpp2), DIFFERENT, "TestRelationDIF - convex+linear");
 	TESTEQ(mpp2.Relation(mpp1), DIFFERENT, "TestRelationDIF - convex+linear");
@@ -146,7 +146,7 @@ void TestRelation() {
 void TestReset() {
 	MPPTEST;
 	MPVecSet v, w;
-	v.insert(NEWVEC);
+	v.push_back(NEWVEC);
 
 	MPPMarking mpp1 = CREATEMARKING(v,w);
 	MPPMarking mpp2 = CREATEMARKING(v,w);
@@ -155,13 +155,13 @@ void TestReset() {
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex (0,0,..,0)");
 
-	v.insert(NEWVECVAL(5));
+	v.push_back(NEWVECVAL(5));
 	MPVecSet v2;
-	v2.insert(NEWVEC);
+	v2.push_back(NEWVEC);
 
 	MPVector mpv = NEWVECVAL(5);
 	mpv.Set(1,0);
-	v2.insert(mpv);
+	v2.push_back(mpv);
 
 	mpp1 = CREATEMARKING(v,w);
 	mpp2 = CREATEMARKING(v2,w);
@@ -173,15 +173,15 @@ void TestReset() {
 	mpp1.Reset(0);
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset closed, convex");
 
-	v.insert(NEWVECVAL(7));
+	v.push_back(NEWVECVAL(7));
 
 	mpp1 = CREATEMARKING(v,w);
 
 	v2.clear();
-	v2.insert(NEWVEC);
+	v2.push_back(NEWVEC);
 	mpv= NEWVECVAL(7);
 	mpv.Set(1,0);
-	v2.insert(mpv);
+	v2.push_back(mpv);
 
 	mpp2 = CREATEMARKING(v2,w);
 
@@ -190,15 +190,15 @@ void TestReset() {
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex 3 vector diagonal");
 
 	v.clear();
-	v.insert(NEWVEC);
-	w.insert(NEWVEC);
+	v.push_back(NEWVEC);
+	w.push_back(NEWVEC);
 
 	mpp1 = CREATEMARKING(v,w);
 
 	mpv=NEWVEC;
 	mpv.Set(1,NegInf);
 	MPVecSet w2;
-	w2.insert(mpv);
+	w2.push_back(mpv);
 
 	mpp2 = CREATEMARKING(v,w2);
 
@@ -214,11 +214,11 @@ void TestConstrain() {
 	MPPTEST;
 	MPVecSet v, v2, w;
 
-	v.insert(NEWVEC);
-	v.insert(NEWVECVAL(10));
+	v.push_back(NEWVEC);
+	v.push_back(NEWVECVAL(10));
 
-	v2.insert(NEWVECVAL(4));
-	v2.insert(NEWVECVAL(8));
+	v2.push_back(NEWVECVAL(4));
+	v2.push_back(NEWVECVAL(8));
 
 	MPPMarking mpp1 = CREATEMARKING(v,w);
 	MPPMarking mpp2 = CREATEMARKING(v2,w);
@@ -228,9 +228,9 @@ void TestConstrain() {
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds convex");
 
 	v.clear();
-	v.insert(NEWVEC);
+	v.push_back(NEWVEC);
 
-	w.insert(NEWVEC);
+	w.push_back(NEWVEC);
 
 	mpp1 = CREATEMARKING(v,w);
 
@@ -239,29 +239,29 @@ void TestConstrain() {
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain internal bounds linear");
 
 	v.clear();
-	v.insert(NEWVECVAL(5));
+	v.push_back(NEWVECVAL(5));
 	mpp1 = CREATEMARKING(v,w);
 	mpp1.Constrain(0,INTERVAL(4,8));
 	v2.clear();
-	v2.insert(NEWVECVAL(5));
-	v2.insert(NEWVECVAL(8));
+	v2.push_back(NEWVECVAL(5));
+	v2.push_back(NEWVECVAL(8));
 	MPVecSet w2;
 	mpp2 = CREATEMARKING(v2,w2);
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain external lower bound");
 
 	v.clear();
-	v.insert(NEWVECVAL(4));
-	v.insert(NEWVECVAL(6));
+	v.push_back(NEWVECVAL(4));
+	v.push_back(NEWVECVAL(6));
 	mpp1 = CREATEMARKING(v,w2);
 	mpp1.Constrain(0,INTERVAL(4,8));
 	v2.clear();
-	v2.insert(NEWVECVAL(4));
-	v2.insert(NEWVECVAL(6));
+	v2.push_back(NEWVECVAL(4));
+	v2.push_back(NEWVECVAL(6));
 	mpp2 = CREATEMARKING(v2,w2);
 	TESTEQ(mpp1.Relation(mpp2),EQUAL,"TestConstrain external  upper bound");
 
 	v.clear();
-	v.insert(NEWVECVAL(5));
+	v.push_back(NEWVECVAL(5));
 	mpp1 = CREATEMARKING(v,w2);
 	mpp1.Constrain(0,INTERVAL(4,6));
 	mpp2 = CREATEMARKING(v,w2);
@@ -292,7 +292,6 @@ void TestMPPMarking() {
 	TestReset();
 	TestConstrain();
 	TestSatisfy();
-
 }
 
 void TestMPVector() {

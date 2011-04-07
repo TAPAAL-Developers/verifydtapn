@@ -31,7 +31,7 @@ namespace VerifyTAPN {
 		bool isCone;
 
 		bool Contains(const MPPMarking& mpp) const;
-		bool ContainsPoint(const MPVector& v) const;
+		bool ContainsPoint(const MPVector& v, MPVecIter* skipit = NULL) const;
 		void IntersectHalfspace(const MPVector &a, const MPVector &b);
 		void Cleanup();
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
