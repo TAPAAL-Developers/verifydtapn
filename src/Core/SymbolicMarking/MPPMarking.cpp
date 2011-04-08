@@ -161,7 +161,7 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
-		if (interval.IsLowerBoundStrict() || interval.IsUpperBoundStrict())
+		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != 2147483647))
 			std::cerr << "WARNING: Interval has strictness\n";
 		LOG(std::cout << "Constrain(" << token << ", " << interval.GetLowerBound() << ".." << interval.GetUpperBound() << ")\n");
 		LOG(std::cout << "input:\n")
@@ -171,10 +171,12 @@ namespace VerifyTAPN {
 		MPVector a = MPVector(clocks, NegInf);
 		MPVector b = a;
 		a.Set(clock, 0);
-		b.Set(ConeIdx, interval.GetUpperBound());
-		IntersectHalfspace(a,b);
-		LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
-		LOG(Print();)
+		if (interval.GetUpperBound() != 2147483647) {
+			b.Set(ConeIdx, interval.GetUpperBound());
+			IntersectHalfspace(a,b);
+			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
+			LOG(Print();)
+		}
 
 		b.Set(ConeIdx, interval.GetLowerBound());
 		IntersectHalfspace(b,a);
@@ -346,17 +348,13 @@ namespace VerifyTAPN {
 
 	void MPPMarking::IntersectHalfspace(const MPVector &a, const MPVector &b) {
 		MPVecSet Gleq, Ggt;
-		LOG(std::cout << "a = " << a << ", b = " << b << "\n")
 		for (MPVecIter it = W.begin(); it != W.end(); ++it) {
 			MPVector g = *it;
-			LOG(std::cout << "a+g = " << a+g << ", b+g = " << b+g << "\n";)
 			if (a+g <= b+g) {
 				Gleq.push_back(g);
-				LOG(std::cout << "Adding " << g << " to G<=\n";)
 			}
 			else {
 				Ggt.push_back(g);
-				LOG(std::cout << "Adding " << g << " to G>\n";)
 			}
 		}
 		W = Gleq;
@@ -365,16 +363,15 @@ namespace VerifyTAPN {
 				MPVector p1 = a+(*h)+(*g);
 				MPVector p2 = b+(*g)+(*h);
 				MPVector p = Max(p1, p2);
-				LOG(std::cout << "Adding " << p << " to W\n";)
 				W.push_back(p);
 			}
 		}
 	}
 
 	void MPPMarking::Cleanup() {
-		LOG(std::cout << "Cleanup()\n");
+		/*LOG(std::cout << "Cleanup()\n");
 		LOG(std::cout << "input:\n")
-		LOG(Print());
+		LOG(Print());*/
 		PolyToCone();
 
 		MPVecIter it = W.begin();
@@ -387,8 +384,8 @@ namespace VerifyTAPN {
 		}
 
 		ConeToPoly();
-		LOG(std::cout << "output:\n")
-		LOG(Print());
+		/*LOG(std::cout << "output:\n")
+		LOG(Print());*/
 	}
 
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
