@@ -289,8 +289,12 @@ namespace VerifyTAPN {
 
 		MPVector z(clocks, NegInf);
 		i = 0;
-		for (MPVecConstIter it = W.begin(); it != W.end(); ++it, i++)
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it) {
+			if (skipit && *skipit == it)
+				continue;
 			z = Max(z, y[i] + (*it));
+			i++;
+		}
 		delete[] y;
 		return v == z;
 	}
@@ -330,7 +334,7 @@ namespace VerifyTAPN {
 
 		MPVecIter it = W.begin();
 		while (it!=W.end()) {
-			if(ContainsPoint(*it), &it) {
+			if(ContainsPoint(*it, &it)) {
 				it=W.erase(it);
 				continue;
 			}
