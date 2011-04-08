@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #ifndef DBM_NORESIZE
-#define clocks (dp.size()+1)
+#define clocks (dp.size())
 #endif
 
 namespace VerifyTAPN {
