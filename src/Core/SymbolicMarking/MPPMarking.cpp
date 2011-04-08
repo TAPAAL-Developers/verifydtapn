@@ -220,27 +220,20 @@ namespace VerifyTAPN {
 
 	relation MPPMarking::Relation(const StoredMarking &other) const {
 		const MPPMarking &mpp = static_cast<const MPPMarking&> (other);
-/*		LOG(std::cout << "Relation()\nthis:\n";)
-		LOG(Print();)
-		LOG(std::cout << "mpp:\n";)
-		LOG(mpp.Print();)*/
+
 		bool sup = Contains(mpp);
 		bool sub = mpp.Contains(*this);
 
 		if (sub && sup) {
-			//LOG(std::cout << "Equal\n")
 			return EQUAL;
 		}
 		if (sub) {
-			//LOG(std::cout << "Subset\n")
 			return SUBSET;
 		}
 		if (sup) {
-			//LOG(std::cout << "Superset\n")
 			return SUPERSET;
 		}
 
-		//LOG(std::cout << "Different\n")
 		return DIFFERENT;
 	}
 
@@ -369,9 +362,6 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Cleanup() {
-		/*LOG(std::cout << "Cleanup()\n");
-		LOG(std::cout << "input:\n")
-		LOG(Print());*/
 		PolyToCone();
 
 		MPVecIter it = W.begin();
@@ -384,8 +374,6 @@ namespace VerifyTAPN {
 		}
 
 		ConeToPoly();
-		/*LOG(std::cout << "output:\n")
-		LOG(Print());*/
 	}
 
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
