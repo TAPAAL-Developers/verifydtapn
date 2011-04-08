@@ -330,7 +330,6 @@ namespace VerifyTAPN {
 
 		MPVecIter it = W.begin();
 		while (it!=W.end()) {
-			//TODO Adapt to using a list
 			if(ContainsPoint(*it), &it) {
 				it=W.erase(it);
 				continue;
