@@ -377,6 +377,8 @@ namespace VerifyTAPN {
 	}
 
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
+		if(L.empty())
+			return true;
 		for(size_t i=FirstClock; i<clocks; ++i) {
 			if(i!=idx) {
 				int minL = INT_MAX;
