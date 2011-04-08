@@ -114,6 +114,20 @@ int MPVector::GetDim() const {
 	return n;
 }
 
+void MPVector::AddDim(int value) {
+	val.push_back(value);
+}
+
+void MPVector::RemoveDim(int index) {
+	val.erase(val.begin()+index);
+}
+
+void MPVector::Swap(int dim1, int dim2) {
+	int temp = val[dim1];
+	val[dim1] = val[dim2];
+	val[dim2] = temp;
+}
+
 MPVector Max(const MPVector& lhs, const MPVector& rhs) {
 	return lhs.Max(rhs);
 }

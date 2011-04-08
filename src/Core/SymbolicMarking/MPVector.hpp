@@ -48,6 +48,11 @@ public:
 	int Get(const int idx) const;
 	void Set(const int idx, const int v);
 	int GetDim() const;
+
+	void AddDim(int value = 0);
+	void RemoveDim(int index);
+	void Swap(int dim1, int dim2);
+
 	friend std::ostream &operator<<(std::ostream &out, const MPVector &value) {
 		out << "(";
 		for (int i = 0; i < value.n; i++) {
