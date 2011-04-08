@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <iostream>
+#include <vector>
 
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
@@ -27,15 +28,11 @@ const int FirstClock = 1;
 
 class MPVector {
 	int n;
-	int* val;
+	std::vector<int> val;
 
 public:
-	MPVector();
+	MPVector() : n(0) { };
 	explicit MPVector(int dim, int defVal = 0);
-	MPVector(const MPVector& mpv);
-	const MPVector& operator=(const MPVector& mpv);
-
-	~MPVector();
 
 	const bool operator==(const MPVector& mpv) const;
 	const bool operator!=(const MPVector& mpv) const;

@@ -2,51 +2,13 @@
 
 InvalidDimException invdimex;
 
-MPVector::MPVector() {
-	n = 0;
-	val = NULL;
-}
-
 MPVector::MPVector(int dim, int defVal) {
 	if (dim == 0) {
 		throw invdimex;
 	}
 	n = dim+1; //Add 1 to leave room for simpler poly/cone conversion
-	val = new int[n];
-	for (int i = FirstClock; i < n; i++)
-		val[i] = defVal;
+	val = std::vector<int>(n, defVal);
 	val[ConeIdx] = NegInf;
-}
-
-MPVector::MPVector(const MPVector& mpv) {
-	n = mpv.n;
-	if (n == 0) {
-		val = NULL;
-	} else {
-		val = new int[n];
-		memcpy(val, mpv.val, sizeof(int) * n);
-	}
-}
-
-const MPVector & MPVector::operator =(const MPVector & mpv)
-{
-	if(val) {
-		delete[] val;
-	}
-	n = mpv.n;
-	if (n == 0) {
-		val = NULL;
-	} else {
-		val = new int[n];
-		memcpy(val, mpv.val, sizeof(int) * n);
-	}
-	return *this;
-}
-
-MPVector::~MPVector() {
-	if(val) {
-		delete[] val;
-	}
 }
 
 const bool MPVector::operator==(const MPVector& mpv) const {
