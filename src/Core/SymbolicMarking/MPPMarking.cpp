@@ -27,18 +27,24 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::RemoveTokens(const std::vector<int>& tokenIndices) {
-
-		//Since we have to remove clocks one at a time, we have to guarantee that they are sorted.
-		std::vector<int> sortedIndices = tokenIndices;
-		std::sort(sortedIndices.begin(), sortedIndices.end());
-		for(int i = sortedIndices.size() - 1; i >= 0; --i) {
-			int clockIdx = mapping.GetMapping(sortedIndices[i]);
+		//Since we have to remove clocks one at a time, we have to guarantee that we remove them in order.
+		std::vector<unsigned int> removeClocks;
+		for(int i = tokenIndices.size()-1; i >= 0; --i) {
+			removeClocks.push_back(mapping.GetMapping(i));
+			mapping.RemoveToken(i);
+			dp.RemoveToken(i);
+		}
+		std::sort(removeClocks.begin(), removeClocks.end());
+		for (std::vector<unsigned int>::reverse_iterator it = removeClocks.rbegin(); it != removeClocks.rend(); ++it) {
+			for(unsigned int j = 0; j < mapping.size(); ++j)
+			{
+				if(mapping.GetMapping(j) > *it)
+					mapping.SetMapping(j, *it-1);
+			}
 			for (MPVecIter v = V.begin(); v != V.end(); ++v)
-				v->RemoveDim(clockIdx);
+				v->RemoveDim(*it);
 			for (MPVecIter w = W.begin(); w != W.end(); ++w)
-				w->RemoveDim(clockIdx);
-			mapping.RemoveToken(sortedIndices[i]);
-			dp.RemoveToken(sortedIndices[i]);
+				w->RemoveDim(*it);
 		}
 	}
 #endif
