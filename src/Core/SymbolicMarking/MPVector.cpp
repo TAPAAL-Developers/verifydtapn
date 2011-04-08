@@ -34,7 +34,7 @@ int MPVector::operator+(const MPVector& mpv) const {
 
 	for (int i = 0; i < n; ++i)
 		if (val[i]!=NegInf && mpv.val[i]!=NegInf)
-			resVal = max(resVal, val[i]+mpv.val[i]);
+			resVal = MAX(resVal, val[i]+mpv.val[i]);
 
 	return resVal;
 }
@@ -61,7 +61,7 @@ MPVector MPVector::Max(const MPVector& mpv) const {
 
 	MPVector retVal(*this);
 	for (int i = 0; i < n; ++i) {
-		retVal.Set(i, max(val[i],mpv.val[i]));
+		retVal.Set(i, MAX(val[i],mpv.val[i]));
 	}
 	return retVal;
 }
@@ -115,10 +115,12 @@ int MPVector::GetDim() const {
 }
 
 void MPVector::AddDim(int value) {
+	n++;
 	val.push_back(value);
 }
 
 void MPVector::RemoveDim(int index) {
+	n--;
 	val.erase(val.begin()+index);
 }
 

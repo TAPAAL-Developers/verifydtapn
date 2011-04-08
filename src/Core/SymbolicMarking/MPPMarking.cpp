@@ -1,8 +1,47 @@
 #include "MPPMarking.hpp"
 #include <iostream>
+#include <algorithm>
+
+#ifndef DBM_NORESIZE
+#define clocks (dp.size()+1)
+#endif
 
 namespace VerifyTAPN {
 	MarkingFactory* MPPMarking::factory = NULL;
+
+#ifndef DBM_NORESIZE
+	void MPPMarking::AddTokens(const std::list<int>& placeIndices) {
+		int oldDimension = dp.size()+1;
+
+		unsigned int i = 0;
+		for(std::list<int>::const_iterator iter = placeIndices.begin(); iter != placeIndices.end(); ++iter)
+		{
+			for (MPVecIter v = V.begin(); v != V.end(); ++v)
+				v->AddDim(0);
+			for (MPVecIter w = W.begin(); w != W.end(); ++w)
+				w->AddDim(NegInf);
+			mapping.AddTokenToMapping(oldDimension+i);
+			dp.AddTokenInPlace(*iter);
+			i++;
+		}
+	}
+
+	void MPPMarking::RemoveTokens(const std::vector<int>& tokenIndices) {
+
+		//Since we have to remove clocks one at a time, we have to guarantee that they are sorted.
+		std::vector<int> sortedIndices = tokenIndices;
+		std::sort(sortedIndices.begin(), sortedIndices.end());
+		for(int i = sortedIndices.size() - 1; i >= 0; --i) {
+			int clockIdx = mapping.GetMapping(sortedIndices[i]);
+			for (MPVecIter v = V.begin(); v != V.end(); ++v)
+				v->RemoveDim(clockIdx);
+			for (MPVecIter w = W.begin(); w != W.end(); ++w)
+				w->RemoveDim(clockIdx);
+			mapping.RemoveToken(sortedIndices[i]);
+			dp.RemoveToken(sortedIndices[i]);
+		}
+	}
+#endif
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
@@ -282,7 +321,7 @@ namespace VerifyTAPN {
 				else if (v.Get(j) == NegInf)
 					y[i] = NegInf;
 				else
-					y[i] = min(y[i], v.Get(j) - it->Get(j));
+					y[i] = MIN(y[i], v.Get(j) - it->Get(j));
 			}
 			++i;
 		}
@@ -354,12 +393,12 @@ namespace VerifyTAPN {
 				int maxL = NegInf;
 				int maxH = NegInf;
 				for(MPVecIter it=L.begin(); it!=L.end(); ++it) {
-					minL = min(minL, it->Get(i));
-					maxL = max(maxL, it->Get(i));
+					minL = MIN(minL, it->Get(i));
+					maxL = MAX(maxL, it->Get(i));
 				}
 				for(MPVecIter it=H.begin(); it!=H.end(); ++it) {
-					minH = min(minH, it->Get(i));
-					maxH = max(maxH, it->Get(i));
+					minH = MIN(minH, it->Get(i));
+					maxH = MAX(maxH, it->Get(i));
 				}
 				if(minL<minH || maxL<maxH) {
 					return false;

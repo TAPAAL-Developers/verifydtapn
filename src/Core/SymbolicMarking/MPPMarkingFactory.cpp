@@ -5,7 +5,11 @@ namespace VerifyTAPN {
 	id_type MPPMarkingFactory::nextId = 0;
 
 	SymbolicMarking *MPPMarkingFactory::InitialMarking(const DiscretePart &dp) const {
+#ifdef DBM_NORESIZE
 		MPPMarking *marking = new MPPMarking(dp, clocks);
+#else
+		MPPMarking *marking = new MPPMarking(dp);
+#endif
 		marking->InitZero();
 		marking->id = nextId++;
 		return marking;

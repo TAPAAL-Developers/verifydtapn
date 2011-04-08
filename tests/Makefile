@@ -7,4 +7,5 @@ include=/usr/local/uppaal/include
 libpath=/usr/local/uppaal/lib
 
 all:
-	$(compiler) -DDEBUG -I$(include) -L$(libpath) $(options) -o $(output) $(input) -l udbm_debug
+	$(compiler) -DDEBUG -DDBM_NORESIZE -I$(include) -L$(libpath) $(options) -o $(output) $(input) -l udbm_debug
+#	$(compiler) -DDEBUG -DDBM_NORESIZE -I$(include) -L$(libpath) $(options) -o $(output)_noresize $(input) -l udbm_debug
