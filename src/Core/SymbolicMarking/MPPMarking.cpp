@@ -115,7 +115,7 @@ namespace VerifyTAPN {
 		LOG(std::cout << "input:\n")
 		LOG(Print());
 		for (size_t i = FirstClock; i <= clocks; i++) {
-			int k = maxConstants[i-1];
+			int k = maxConstants[i];
 			if (k == -INF) {
 				FreeClock(i);
 				continue;
