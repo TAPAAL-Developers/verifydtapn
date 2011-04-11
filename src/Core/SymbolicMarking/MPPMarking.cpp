@@ -58,6 +58,11 @@ namespace VerifyTAPN {
 		for (MPVecConstIter it = W.begin(); it != W.end(); ++it)
 			std::cout << *it;
 		std::cout << "\n";
+		std::cout << "Placement vector:";
+		std::vector<int> places = dp.GetTokenPlacementVector();
+		for (std::vector<int>::iterator place = places.begin(); place != places.end(); ++place)
+			std::cout << " " << *place;
+		std::cout << "\n";
 	}
 
 	SymbolicMarking *MPPMarking::Clone() const {

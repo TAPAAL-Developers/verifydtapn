@@ -115,6 +115,11 @@ namespace VerifyTAPN {
 
 		void Print() {
 			dbm_cppPrint(std::cout, dbm.getDBM(), dbm.getDimension());
+			std::cout << "Placement vector:";
+			std::vector<int> places = dp.GetTokenPlacementVector();
+			for (std::vector<int>::iterator place = places.begin(); place != places.end(); ++place)
+				std::cout << " " << *place;
+			std::cout << "\n";
 		}
 	};
 
