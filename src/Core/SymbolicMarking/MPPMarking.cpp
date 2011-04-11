@@ -30,9 +30,9 @@ namespace VerifyTAPN {
 		//Since we have to remove clocks one at a time, we have to guarantee that we remove them in order.
 		std::vector<unsigned int> removeClocks;
 		for(int i = tokenIndices.size()-1; i >= 0; --i) {
-			removeClocks.push_back(mapping.GetMapping(i));
-			mapping.RemoveToken(i);
-			dp.RemoveToken(i);
+			removeClocks.push_back(mapping.GetMapping(tokenIndices[i]));
+			mapping.RemoveToken(tokenIndices[i]);
+			dp.RemoveToken(tokenIndices[i]);
 		}
 		std::sort(removeClocks.begin(), removeClocks.end());
 		for (std::vector<unsigned int>::reverse_iterator it = removeClocks.rbegin(); it != removeClocks.rend(); ++it) {
