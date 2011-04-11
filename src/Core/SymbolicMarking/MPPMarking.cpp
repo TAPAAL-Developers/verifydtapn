@@ -246,8 +246,10 @@ namespace VerifyTAPN {
 		V.clear();
 		W.clear();
 		V.push_back(MPVector(clocks));
+#ifdef DBM_NORESIZE
 		for (size_t i = dp.size(); i < clocks; ++i)
 			FreeClock(i);
+#endif
 	}
 
 	id_type MPPMarking::UniqueId() const {
