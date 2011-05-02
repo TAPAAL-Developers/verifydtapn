@@ -1,53 +1,71 @@
 #ifndef TRACESTORE_HPP_
 #define TRACESTORE_HPP_
 
-#include "TraceInfo.hpp"
-#include "../../Core/SymbolicMarking/SymMarking.hpp"
+
 #include "boost/functional/hash.hpp"
 #include "google/sparse_hash_map"
-#include "../../../lib/rapidxml-1.13/rapidxml.hpp"
 #include <deque>
 #include "../../Core/VerificationOptions.hpp"
+#include "../../typedefs.hpp"
+#include "TraceInfo.hpp"
+#include "../../Core/TAPN/TAPN.hpp"
+#include "ConcreteMarking.hpp"
 
 namespace VerifyTAPN
 {
-	namespace TAPN{ class TimedArcPetriNet; }
+	class SymbolicMarking;
+
+	inline ConcreteMarking CreateConcreteInitialMarking(SymbolicMarking* initialMarking, unsigned int kbound, const TAPN::TimedArcPetriNet& tapn)
+	{
+		std::deque<Token> tokens;
+		for(unsigned int i = 0; i < initialMarking->NumberOfTokens(); i++)
+		{
+			Token token(tapn.GetPlace(initialMarking->GetTokenPlacement(i)).GetName());
+			tokens.push_back(token);
+		}
+
+		for(unsigned int i = tokens.size(); i < kbound; i++)
+		{
+			tokens.push_back(Token(TAPN::TimedPlace::BOTTOM_NAME));
+
+		}
+
+		return ConcreteMarking(tokens);
+	};
 
 	class TraceStore
 	{
 	private:
-		typedef google::sparse_hash_map<SymMarking::id_type, TraceInfo, boost::hash<SymMarking::id_type> > HashMap;
+		typedef google::sparse_hash_map<id_type, TraceInfo, boost::hash<id_type> > HashMap;
 	public: // constructors / destructors
-		TraceStore(const VerificationOptions& options, SymMarking* initialMarking) : store(), initialMarking(initialMarking), options(options) { };
-		~TraceStore() { };
-
-	public:
-		inline void Save(const SymMarking::id_type& id, const TraceInfo& traceInfo){
-			store.insert(std::pair<SymMarking::id_type, TraceInfo>(id, traceInfo));
+		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking, const TAPN::TimedArcPetriNet& tapn) : store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), options(options), identity_map(options.GetKBound(), -1)
+		{
+			for(unsigned int i = 0; i < static_cast<unsigned int>(options.GetKBound()); ++i)
+			{
+				identity_map[i] = i;
+			}
 		};
-		inline void SetFinalMarking(SymMarking* marking) { finalMarking = marking; };
+		~TraceStore() {};
+	public:
+		inline void Save(const id_type& id, const TraceInfo& traceInfo){
+			store.insert(std::pair<id_type, TraceInfo>(id, traceInfo));
+		};
+		inline void SetFinalMarkingId(id_type id) { finalMarkingId = id; };
 
 		void OutputTraceTo(const TAPN::TimedArcPetriNet& tapn) const;
 
 	private:
-		rapidxml::xml_document<>* CreateInputDocForCTU(const std::deque<TraceInfo>& traceInfos) const;
-		void GenerateSystemDescription(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-		std::string GenerateGuardFromTraceInfo(const TraceInfo& traceInfo) const;
-		std::string GenerateUpdateFromTraceInfo(const TraceInfo& traceInfo) const;
-		void GenerateLocationVectors(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-		void GenerateNodeDescriptions(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-		void GenerateDBMS(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-		void GenerateDBMDescription(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& dbmNode, const dbm::dbm_t& info) const;
-		void GenerateStates(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
+		void CalculateDelays(const std::deque<TraceInfo>& traceInfos, std::vector<decimal>& delays) const;
 
-		void RunCTUToObtainDelays(rapidxml::xml_document<>& doc, std::vector<double>& delays) const;
-		void RunCTU(const std::string& tempFile, std::string& output) const;
-		void ParseDelays(const std::string& input, std::vector<double>& delays) const;
+		void ComputeIndexMappings(std::deque<TraceInfo>& traceInfos) const;
+		void AugmentSymmetricMappings(std::deque<TraceInfo>& traceInfos) const;
 	private: // data
 		HashMap store;
-		SymMarking* initialMarking;
-		SymMarking* finalMarking;
+		ConcreteMarking initialMarking;
+		id_type finalMarkingId;
 		const VerificationOptions& options;
+
+		std::vector<unsigned int> identity_map;
 	};
 }
 

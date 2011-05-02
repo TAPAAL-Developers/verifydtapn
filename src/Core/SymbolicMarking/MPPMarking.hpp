@@ -7,6 +7,7 @@
 #include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
 #include "MarkingFactory.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 #include "MPVector.hpp"
 
@@ -42,8 +43,7 @@ namespace VerifyTAPN {
 		void ResetClock(int clock);
 		void FreeClock(int clock);
 
-	public:
-		static MarkingFactory *factory;
+		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 #ifdef DBM_NORESIZE
 		MPPMarking(const DiscretePart &dp, int clocks) : DiscreteMarking(dp), clocks(clocks), isCone(false) { InitMapping(); };
 		MPPMarking(const DiscretePart &dp, int clocks, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), clocks(clocks), isCone(false) { InitMapping(); };
@@ -59,12 +59,12 @@ namespace VerifyTAPN {
 		virtual id_type UniqueId() const;
 		virtual unsigned int GetClockIndex(unsigned int token) const;
 
-		virtual SymbolicMarking* Clone() const;
 		virtual void Reset(int token);
 		virtual bool IsEmpty() const;
 		virtual void Delay();
 		virtual void Free(int token);
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval);
+		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant);
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const;
 		virtual void Extrapolate(const int* maxConstants);
 		virtual void ConvexUnion(AbstractMarking* marking);

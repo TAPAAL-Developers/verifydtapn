@@ -2,23 +2,24 @@
 #define ABSTRACTMARKING_HPP_
 
 #include "../TAPN/TimeInterval.hpp"
+#include "../TAPN/TimeInvariant.hpp"
 #include <vector>
 #include <list>
+#include "../../typedefs.hpp"
 
 namespace VerifyTAPN {
-	typedef long long id_type;
-
 	class AbstractMarking {
 	public:
 		virtual ~AbstractMarking() { };
 
-		virtual AbstractMarking* Clone() const = 0;
+		//virtual AbstractMarking* Clone() const = 0;
 		virtual id_type UniqueId() const = 0;
-		virtual void Canonicalize() = 0; // Not sure this is the right place
+		virtual void MakeSymmetric(BiMap& indirectionTable) = 0; // Not sure this is the right place
 
 		// Continuous part
 		virtual void Reset(int token) = 0;
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval) = 0; // not sure if this should be here?
+		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant) = 0; // not sure if this should be here?
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const = 0;
 		virtual void ConvexUnion(AbstractMarking* marking) = 0;
 

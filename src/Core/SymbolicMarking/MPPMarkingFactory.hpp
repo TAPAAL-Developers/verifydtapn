@@ -10,13 +10,16 @@ namespace VerifyTAPN {
 		static id_type nextId;
 		int clocks;
 	public:
-		MPPMarkingFactory(int clocks) : clocks(clocks) { };
+		MPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int clocks);
 		virtual ~MPPMarkingFactory() {};
 
-		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const;
+		virtual SymbolicMarking* InitialMarking(const std::vector<int>& tokenPlacement) const;
 		virtual SymbolicMarking* Clone(const SymbolicMarking& marking) const;
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const;
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const;
+
+		virtual void Release(SymbolicMarking* marking) {};
+		virtual void Release(StoredMarking* marking) {};
 	};
 }
 

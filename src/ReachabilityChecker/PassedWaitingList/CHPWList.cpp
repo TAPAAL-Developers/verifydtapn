@@ -27,12 +27,13 @@ namespace VerifyTAPN {
 
 			if((relation & SUBSET) != 0)
 			{ // check subseteq
+				factory->Release(storedMarking);
 				return false;
 			}
 			else if(relation == DIFFERENT)
 			{
 				SymbolicMarking* currMarking = factory->Convert(currentNode->GetMarking());
-				SymbolicMarking* newMarking = symMarking.Clone();
+				SymbolicMarking* newMarking = factory->Clone(symMarking);
 				newMarking->ConvexUnion(currMarking);
 				storedMarking = factory->Convert(newMarking);
 				retval = false;

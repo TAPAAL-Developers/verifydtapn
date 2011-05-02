@@ -2,16 +2,20 @@
 
 namespace VerifyTAPN {
 
-	id_type MPPMarkingFactory::nextId = 0;
+	id_type MPPMarkingFactory::nextId = 1;
 
-	SymbolicMarking *MPPMarkingFactory::InitialMarking(const DiscretePart &dp) const {
+	MPPMarkingFactory::MPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int clocks) : clocks(clocks) {
+		MPPMarking::tapn = tapn;
+	};
+
+	SymbolicMarking *MPPMarkingFactory::InitialMarking(const std::vector<int>& tokenPlacement) const {
 #ifdef DBM_NORESIZE
-		MPPMarking *marking = new MPPMarking(dp, clocks);
+		MPPMarking *marking = new MPPMarking(DiscretePart(tokenPlacement), clocks);
 #else
-		MPPMarking *marking = new MPPMarking(dp);
+		MPPMarking *marking = new MPPMarking(DiscretePart(tokenPlacement));
 #endif
 		marking->InitZero();
-		marking->id = nextId++;
+		marking->id = 0;
 		return marking;
 	}
 

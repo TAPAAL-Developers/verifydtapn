@@ -6,54 +6,83 @@
 #include "Core/QueryParser/AST.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "ReachabilityChecker/SearchStrategy.hpp"
-#include "dbm/print.h"
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
+#include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 #include "Core/SymbolicMarking/MPPMarkingFactory.hpp"
+
+#include "ReachabilityChecker/Trace/trace_exception.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
-namespace VerifyTAPN{
-	class MarkingFactory;
-	class SymbolicMarking;
+MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn)
+{
+	switch(options.GetFactory())
+	{
+	case DISCRETE_INCLUSION:
+		return new DiscreteInclusionMarkingFactory(tapn);
+	case MAXPLUS:
+		return new MPPMarkingFactory(tapn, options.GetKBound());
+	default:
+#ifdef DBM_NORESIZE
+		return new UppaalDBMMarkingFactory(tapn, options.GetKBound());
+#else
+		return new UppaalDBMMarkingFactory(tapn);
+#endif
+	}
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
-	MarkingFactory* factory = NULL;
 	DiscreteMarking::debug = options.UseDebugOutput();
-	if (options.UseMaxPlus()) {
-		factory = new MPPMarkingFactory(options.GetKBound());
-		MPPMarking::factory = factory;
-	}
-	else {
-#ifdef DBM_NORESIZE
-		factory = new UppaalDBMMarkingFactory(options.GetKBound());
-#else
-		factory = new UppaalDBMMarkingFactory();
-#endif
-		DBMMarking::factory = factory;
+
+	TAPNXmlParser modelParser;
+	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+
+	try{
+		tapn = modelParser.Parse(options.GetInputFile());
+	}catch(const std::string& e){
+		std::cout << "There was an error parsing the model file: " << e << std::endl;
+		return 1;
 	}
 
-	TAPNXmlParser modelParser(factory);
-	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	SymbolicMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn);
+	MarkingFactory* factory = CreateFactory(options, tapn);
 
-	TAPNQueryParser queryParser(*tapn);
-	queryParser.parse(options.QueryFile());
-	AST::Query* query = queryParser.GetAST();
+	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
+	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
+	if(initialMarking->NumberOfTokens() > options.GetKBound())
+	{
+		std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
+		return 1;
+	}
 
+	AST::Query* query;
+	try{
+		TAPNQueryParser queryParser(*tapn);
+		queryParser.parse(options.QueryFile());
+		query = queryParser.GetAST();
+	}catch(...){
+		std::cout << "There was an error parsing the query file." << std::endl;
+		return 1;
+	}
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
 	bool result = strategy->Verify();
-
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
-	strategy->PrintTraceIfAny(result);
+
+	try{
+		strategy->PrintTraceIfAny(result);
+	}catch(const trace_exception& e){
+		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach your TAPN model and this error message: ";
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
 	delete strategy;
 	delete factory;
 

@@ -9,6 +9,9 @@ namespace VerifyTAPN {
 
 		class TimeInvariant
 		{
+		public:
+			static const TimeInvariant LS_INF;
+
 		public: // construction/destruction
 			TimeInvariant() : strictComparison(true), bound(std::numeric_limits<int>::max()) { };
 			TimeInvariant(bool strictComparison, int bound) : strictComparison(strictComparison), bound(bound) { };
@@ -23,6 +26,8 @@ namespace VerifyTAPN {
 			virtual ~TimeInvariant() { /* Empty */ };
 		public: // inspectors
 			void Print(std::ostream& out) const;
+			inline const int GetBound() const { return bound; }
+			inline const bool IsBoundStrict() const { return strictComparison; }
 
 		public: // statics
 			static TimeInvariant CreateFor(const std::string& invariant);
@@ -31,6 +36,16 @@ namespace VerifyTAPN {
 			bool strictComparison;
 			int bound;
 		};
+
+		inline bool operator==(const TimeInvariant& a, const TimeInvariant& b)
+		{
+			return a.GetBound() == b.GetBound() && a.IsBoundStrict() == b.IsBoundStrict();
+		}
+
+		inline bool operator!=(const TimeInvariant& a, const TimeInvariant& b)
+		{
+			return !(a == b);
+		}
 
 		inline std::ostream& operator<<(std::ostream& out, const TimeInvariant& invariant)
 		{

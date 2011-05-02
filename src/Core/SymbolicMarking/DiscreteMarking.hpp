@@ -18,6 +18,7 @@ namespace VerifyTAPN {
 	public:
 		static bool debug;
 		DiscreteMarking(const DiscretePart& dp) : unusedClocks(), dp(dp), mapping() { };
+		DiscreteMarking(const DiscretePart& dp, const TokenMapping& mapping) : unusedClocks(), dp(dp), mapping(mapping) { };
 		DiscreteMarking(const DiscreteMarking& dm) : unusedClocks(dm.unusedClocks), dp(dm.dp), mapping(dm.mapping) { };
 		virtual ~DiscreteMarking() { };
 
@@ -28,16 +29,18 @@ namespace VerifyTAPN {
 		virtual int GetTokenPlacement(int token) const { return dp.GetTokenPlacement(token); };
 		virtual void AddTokens(const std::list<int>& placeIndices)
 		{
+			unsigned int newToken = NumberOfTokens();
 			for(std::list<int>::const_iterator i = placeIndices.begin(); i != placeIndices.end(); i++)
 			{
 				if (unusedClocks.empty()) {
-					mapping.AddTokenToMapping(dp.size()+1);
+					mapping.SetMapping(newToken, dp.size()+1);
 				} else {
-					mapping.AddTokenToMapping(unusedClocks.front());
+					mapping.SetMapping(newToken, unusedClocks.front());
 					unusedClocks.pop();
 				}
 				dp.AddTokenInPlace(*i);
 				Reset(dp.size()-1);
+				newToken++;
 			}
 		};
 
@@ -59,23 +62,34 @@ namespace VerifyTAPN {
 		// Used for symmetry reduction: if two states are symmetric they will have the same canonical form.
 		// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound,
 		// subsequently on their upper bound and finally by diagonal constraints if necessary.
-		virtual void Canonicalize() { quickSort(0, dp.size()-1); };
+		virtual void MakeSymmetric(BiMap& indirectionTable)
+		{
+			typedef BiMap::value_type element;
+			for(unsigned int i = 0; i < dp.size(); i++)
+			{
+				std::pair<BiMap::const_iterator, bool> success = indirectionTable.insert( element(i,i) );
+				assert(success.second);
+			}
+
+			quickSort(0, dp.size()-1, indirectionTable);
+		};
 
 	private:
-		void quickSort(int left, int right)
+		void quickSort(int left, int right, BiMap& indirectionTable)
 		{
 			if(right > left)
 			{
 				int pivot = left + (right - left)/2;
-				int newPivot = Partition(left, right, pivot);
-				quickSort(left, newPivot - 1);
-				quickSort(newPivot + 1, right);
+				int newPivot = Partition(left, right, pivot, indirectionTable);
+				quickSort(left, newPivot - 1, indirectionTable);
+				quickSort(newPivot + 1, right, indirectionTable);
 			}
 		};
 
-		int Partition(int left, int right, int pivot)
+		int Partition(int left, int right, int pivot, BiMap& indirectionTable)
 		{
 			Swap(pivot, right);
+			UpdateIndirectionTable(indirectionTable, pivot, right);
 			int indexToReturn = left;
 			for(int i = left; i < right; ++i)
 			{
@@ -83,10 +97,12 @@ namespace VerifyTAPN {
 				if(!IsUpperPositionGreaterThanPivot(i, right))
 				{
 					Swap(i, indexToReturn);
+					UpdateIndirectionTable(indirectionTable, i, indexToReturn);
 					indexToReturn++;
 				}
 			}
 			Swap(indexToReturn, right);
+			UpdateIndirectionTable(indirectionTable, indexToReturn, right);
 			return indexToReturn;
 		};
 
@@ -102,13 +118,37 @@ namespace VerifyTAPN {
 		{
 			dp.Swap(i,j);
 		};
+
+		virtual void UpdateIndirectionTable(BiMap& indirectionTable, unsigned int i, unsigned int j)
+		{
+			if(i != j)
+			{
+				BiMap::right_map& right_map = indirectionTable.right;
+				BiMap::right_iterator i_iterator = right_map.find(i);
+				assert(i_iterator != right_map.end());
+
+				BiMap::value_type new_i(i_iterator->second, j); // iterator is invalidated when we delete, so we create the new one to insert first
+				right_map.erase(i_iterator);
+
+				BiMap::right_iterator j_iterator = right_map.find(j);
+				assert(j_iterator != right_map.end());
+
+				BiMap::value_type new_j(j_iterator->second, i);
+				right_map.erase(j_iterator);
+
+				std::pair<BiMap::const_iterator, bool> success = indirectionTable.insert(new_i);
+				assert(success.second);
+				success = indirectionTable.insert(new_j);
+				assert(success.second);
+			}
+		}
 	private:
 		std::queue<int> unusedClocks;
+
 	protected: // data
 		DiscretePart dp;
 		TokenMapping mapping;
 	};
-
 }
 
 #endif /* DISCRETEMARKING_HPP_ */

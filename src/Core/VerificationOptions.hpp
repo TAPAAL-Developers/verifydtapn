@@ -9,6 +9,7 @@
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST };
+	enum Factory { DEFAULT, DISCRETE_INCLUSION, MAXPLUS };
 
 	class VerificationOptions {
 		private:
@@ -16,13 +17,12 @@ namespace VerifyTAPN {
 				const std::string& inputFile,
 				const std::string& queryFile,
 				SearchType searchType,
-				int k_bound,
+				unsigned int k_bound,
 				bool symmetry,
 				Trace trace,
 				bool useUntimedPlaces,
 				bool useGlobalMaxConstants,
-				const std::string& workingdir,
-				bool useMaxPlus,
+				Factory factory,
 				bool debugOutput,
 				bool overApproximate
 			) :
@@ -34,8 +34,7 @@ namespace VerifyTAPN {
 				trace(trace),
 				useUntimedPlaces(useUntimedPlaces),
 				useGlobalMaxConstants(useGlobalMaxConstants),
-				workingdir(workingdir),
-				useMaxPlus(useMaxPlus),
+				factory(factory),
 				debugOutput(debugOutput),
 				overApproximate(overApproximate)
 			{};
@@ -46,27 +45,25 @@ namespace VerifyTAPN {
 		public: // inspectors
 			const std::string GetInputFile() const { return inputFile; }
 			const std::string QueryFile() const {return queryFile; }
-			inline const int GetKBound() const { return k_bound; }
+			inline const unsigned int GetKBound() const { return k_bound; }
 			inline const Trace GetTrace() const { return trace; };
 			inline const bool GetSymmetryEnabled() const { return symmetry; }
 			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
-			inline const std::string& GetWorkingDirPath() const { return workingdir; }
 			inline const SearchType GetSearchType() const { return searchType; }
-			inline const bool UseMaxPlus() const { return useMaxPlus; }
+			inline Factory GetFactory() const { return factory; };
 			inline const bool UseDebugOutput() const { return debugOutput; }
 			inline const bool UseOverApprox() const { return overApproximate;	}
 		private:
 			std::string inputFile;
 			std::string queryFile;
 			SearchType searchType;
-			int k_bound;
+			unsigned int k_bound;
 			bool symmetry;
 			Trace trace;
 			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
-			std::string workingdir;
-			bool useMaxPlus;
+			Factory factory;
 			bool debugOutput;
 			bool overApproximate;
 	};

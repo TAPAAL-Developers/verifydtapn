@@ -1,6 +1,11 @@
 #include "SearchStrategy.hpp"
 #include "../Core/TAPN/TimedArcPetriNet.hpp"
 #include "Successor.hpp"
+#include "../typedefs.hpp"
+
+//TODO: delete
+#include "../Core/SymbolicMarking/DBMMarking.hpp"
+#include "dbm/print.h"
 
 namespace VerifyTAPN
 {
@@ -10,7 +15,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options)//, traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn)
 	{
 		WaitingList* waitingList;
 		if(options.GetSearchType() == DEPTHFIRST)
@@ -25,11 +30,12 @@ namespace VerifyTAPN
 			pwList = new PWList(waitingList, factory);
 
 		maxConstantsArray = new int[options.GetKBound()+1];
-		for(int i = 0; i < options.GetKBound()+1; ++i)
+		for(unsigned int i = 0; i < options.GetKBound()+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
 	};
+
 
 	bool DefaultSearchStrategy::Verify()
 	{
@@ -37,16 +43,19 @@ namespace VerifyTAPN
 		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
 
-		if(options.GetSymmetryEnabled())
-			initialMarking->Canonicalize();
+		if(options.GetSymmetryEnabled()){
+			BiMap bimap;
+			initialMarking->MakeSymmetric(bimap);
+		}
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
-			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
+			if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(initialMarking->UniqueId());
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
-		while(pwList->HasWaitingStates()){
+		while(pwList->HasWaitingStates())
+		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();
 
 			typedef std::vector<Successor> SuccessorVector;
@@ -64,18 +73,28 @@ namespace VerifyTAPN
 
 				succ.Extrapolate(maxConstantsArray);
 
-				if(options.GetSymmetryEnabled()) succ.Canonicalize();
-				//if(options.GetTrace() != NONE) traceStore.Save(succ.Id(), iter->GetTraceInfo());
+				BiMap bimap; // If symmetry is not enabled but trace is requested, TraceStore will provide an identity mapping
+				if(options.GetSymmetryEnabled())
+				{
+					succ.MakeSymmetric(bimap);
+				}
+				if(options.GetTrace() != NONE){
+					TraceInfo traceInfo = iter->GetTraceInfo();
+					traceInfo.SetSymmetricMapping(IndirectionTable(bimap));
+					traceStore.Save(succ.UniqueId(), traceInfo);
+				}
 
 				bool added = pwList->Add(succ);
 
+				if(added && CheckQuery(succ)){
+					factory->Release(iter->Marking());
+					if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(iter->Marking()->UniqueId());
 
-				if(!added) delete (*iter).Marking();
-				else if(CheckQuery(succ)){
-					//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
 					return checker.IsEF();
 				}
+				factory->Release(iter->Marking());
 			}
+			factory->Release(next);
 
 			//PrintDiagnostics(successors.size());
 		}
@@ -127,7 +146,7 @@ namespace VerifyTAPN
 			if((checker.IsAG() && result) || (checker.IsEF() && !result))
 				std::cout << "A trace could not be generated due to the query result." << std::endl;
 			else{
-				//traceStore.OutputTraceTo(tapn);
+				traceStore.OutputTraceTo(tapn);
 			}
 		}
 	}
