@@ -7,3 +7,4 @@ mptest
 mptest.exe
 DebugNoResize
 tests/objs/**/*.o
+config.mk
