@@ -67,10 +67,6 @@ namespace VerifyTAPN {
 		std::cout << "\n";
 	}
 
-//	SymbolicMarking *MPPMarking::Clone() const {
-//		return factory->Clone(*this);
-//	}
-
 	void MPPMarking::Reset(int token) {
 		LOG(std::cout << "Reset("<<token<<")\n")
 		LOG(std::cout << "input:\n")
