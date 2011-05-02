@@ -1,6 +1,8 @@
 #include "../src/Core/SymbolicMarking/MPPMarking.hpp"
 #include "../src/Core/SymbolicMarking/MPPMarkingFactory.hpp"
+#include "../src/Core/TAPN/TimedArcPetriNet.hpp"
 #include <stdio.h>
+#include <boost/shared_ptr.hpp>
 
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
@@ -9,6 +11,8 @@ int tests = 0;
 int pass = 0;
 int fail = 0;
 bool debug;
+TimedArcPetriNet* tapn;
+boost::shared_ptr<TimedArcPetriNet> tapn_ptr;
 
 #define COLOR_RESET -1
 #define COLOR_RED 1
@@ -27,12 +31,16 @@ char* testDesc;
 #define TESTEQ(var, val, str) if (var==val) PASS(str) else FAIL(str)
 #define TESTNEQ(var, val, str) if (var!=val) PASS(str) else FAIL(str)
 
-#define MPPTEST DiscretePart dp(std::vector<int>(10)); \
-	MPPMarkingFactory f = MPPMarkingFactory(clocks); \
-	MPPMarking::factory = &f;
+#define MPPTEST DiscretePart dp = DiscretePart(std::vector<int>(clocks)); \
+	MPPMarkingFactory f = MPPMarkingFactory(tapn_ptr, clocks); \
+	//MPPMarking::factory = &f;
 
-#define NEWMARKING(m) MPPMarking* m = (MPPMarking *)f.InitialMarking(dp);
+#define NEWMARKING(m) MPPMarking* m = (MPPMarking *)f.InitialMarking(std::vector<int>(clocks));
+#ifdef DBM_NORESIZE
 #define CREATEMARKING(v,w) MPPMarking(dp, clocks, v, w)
+#else
+#define CREATEMARKING(v,w) MPPMarking(dp, v, w)
+#endif
 
 #define NEWVECVAL(val) MPVector(clocks, val)
 #define NEWVEC NEWVECVAL(0)
@@ -349,11 +357,25 @@ void TestMPVector() {
 	TESTEQ(xmpv.Get(5),5,"max(5,neginf)");
 }
 
+void CreateNet() {
+	TimedPlace::Vector places;
+	TimedTransition::Vector transitions;
+	TimedInputArc::Vector inputArcs;
+	OutputArc::Vector outputArcs;
+	TransportArc::Vector transportArcs;
+	InhibitorArc::Vector inhibitorArcs;
+
+	TimeInvariant timeInvariant = TimeInvariant::CreateFor("inf");
+	places.push_back(boost::make_shared<TimedPlace>("", "", timeInvariant));
+	//tapn = new TimedArcPetriNet();
+	tapn_ptr = boost::make_shared<TimedArcPetriNet>(places, transitions, inputArcs, outputArcs, transportArcs, inhibitorArcs);
+}
 
 int main(int argc, char** argv) {
 #ifdef __MINGW32__
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConsoleInfo);
 #endif
+	CreateNet();
 	debug = (argc > 1);
 	DiscreteMarking::debug = debug;
 	TestMPVector();
@@ -372,5 +394,6 @@ int main(int argc, char** argv) {
 		setrgb(COLOR_RESET);
 	}
 
+//	delete tapn;
 	return 0;
 }
