@@ -6,3 +6,4 @@ Release
 mptest
 mptest.exe
 DebugNoResize
+tests/objs/**/*.o
