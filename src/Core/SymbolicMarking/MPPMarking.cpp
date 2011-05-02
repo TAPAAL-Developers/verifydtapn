@@ -2,14 +2,11 @@
 #include <iostream>
 #include <algorithm>
 
-#ifndef DBM_NORESIZE
 #define clocks (dp.size())
-#endif
 
 namespace VerifyTAPN {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> MPPMarking::tapn;
 
-#ifndef DBM_NORESIZE
 	void MPPMarking::AddTokens(const std::list<int>& placeIndices) {
 		int oldDimension = dp.size()+1;
 		unsigned int newToken = NumberOfTokens();
@@ -49,7 +46,6 @@ namespace VerifyTAPN {
 				w->RemoveDim(*it);
 		}
 	}
-#endif
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
@@ -254,10 +250,6 @@ namespace VerifyTAPN {
 		V.clear();
 		W.clear();
 		V.push_back(MPVector(clocks));
-#ifdef DBM_NORESIZE
-		for (size_t i = dp.size(); i < clocks; ++i)
-			FreeClock(i);
-#endif
 	}
 
 	id_type MPPMarking::UniqueId() const {

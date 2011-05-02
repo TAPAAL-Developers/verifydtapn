@@ -25,13 +25,9 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	case DISCRETE_INCLUSION:
 		return new DiscreteInclusionMarkingFactory(tapn);
 	case MAXPLUS:
-		return new MPPMarkingFactory(tapn, options.GetKBound());
+		return new MPPMarkingFactory(tapn);
 	default:
-#ifdef DBM_NORESIZE
-		return new UppaalDBMMarkingFactory(tapn, options.GetKBound());
-#else
 		return new UppaalDBMMarkingFactory(tapn);
-#endif
 	}
 }
 

@@ -22,9 +22,6 @@ namespace VerifyTAPN {
 	private:
 		MPVecSet V, W;
 		id_type id;
-#ifdef DBM_NORESIZE
-		size_t clocks;
-#endif
 
 		void InitZero();
 		void InitMapping();
@@ -45,15 +42,9 @@ namespace VerifyTAPN {
 
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 	public:
-#ifdef DBM_NORESIZE
-		MPPMarking(const DiscretePart &dp, int clocks) : DiscreteMarking(dp), clocks(clocks), isCone(false) { InitMapping(); };
-		MPPMarking(const DiscretePart &dp, int clocks, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), clocks(clocks), isCone(false) { InitMapping(); };
-		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), clocks(mpp.clocks), isCone(false) { };
-#else
 		MPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), isCone(false) { InitMapping(); };
 		MPPMarking(const DiscretePart &dp, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), isCone(false) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), isCone(false) { };
-#endif
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;
@@ -72,10 +63,8 @@ namespace VerifyTAPN {
 		virtual size_t HashKey() const;
 		virtual relation Relation(const StoredMarking& other) const;
 
-#ifndef DBM_NORESIZE
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
-#endif
 
 	};
 

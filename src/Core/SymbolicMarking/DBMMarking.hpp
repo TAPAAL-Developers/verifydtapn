@@ -15,18 +15,9 @@ namespace VerifyTAPN {
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
 		friend class DiscreteInclusionMarkingFactory;
-#ifdef DBM_NORESIZE
-	private:
-		size_t clocks;
-	public:
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), clocks(dbm.getDimension()-1), dbm(dbm) { InitMapping(); };
-		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp, mapping), clocks(dbm.getDimension()-1), dbm(dbm) { assert(IsConsistent()); };
-		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), clocks(dm.clocks), dbm(dm.dbm) { };
-#else
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm) { InitMapping(); };
 		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp, mapping), dbm(dbm) { assert(IsConsistent()); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm) { };
-#endif
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 
 		virtual ~DBMMarking() { };
@@ -114,10 +105,9 @@ namespace VerifyTAPN {
 			LOG(Print());
 		};
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
-#ifndef DBM_NORESIZE
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
-#endif
+
 		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };
 

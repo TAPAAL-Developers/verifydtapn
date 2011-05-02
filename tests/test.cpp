@@ -32,15 +32,10 @@ char* testDesc;
 #define TESTNEQ(var, val, str) if (var!=val) PASS(str) else FAIL(str)
 
 #define MPPTEST DiscretePart dp = DiscretePart(std::vector<int>(clocks)); \
-	MPPMarkingFactory f = MPPMarkingFactory(tapn_ptr, clocks); \
-	//MPPMarking::factory = &f;
+	MPPMarkingFactory f = MPPMarkingFactory(tapn_ptr); \
 
 #define NEWMARKING(m) MPPMarking* m = (MPPMarking *)f.InitialMarking(std::vector<int>(clocks));
-#ifdef DBM_NORESIZE
-#define CREATEMARKING(v,w) MPPMarking(dp, clocks, v, w)
-#else
 #define CREATEMARKING(v,w) MPPMarking(dp, v, w)
-#endif
 
 #define NEWVECVAL(val) MPVector(clocks, val)
 #define NEWVEC NEWVECVAL(0)

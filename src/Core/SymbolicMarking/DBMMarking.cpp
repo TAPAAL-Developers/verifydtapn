@@ -3,7 +3,7 @@
 namespace VerifyTAPN
 {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> DBMMarking::tapn;
-#ifndef DBM_NORESIZE
+
 	// Add a token in each output place of placesOfTokensToAdd
 	// and add placesOfTokensToAdd.size() clocks to the DBM.
 	// The DBM library requires arrays of bitvectors indicating
@@ -131,7 +131,6 @@ namespace VerifyTAPN
 
 		assert(IsConsistent());
 	}
-#endif
 
 	void DBMMarking::InitMapping()
 	{
