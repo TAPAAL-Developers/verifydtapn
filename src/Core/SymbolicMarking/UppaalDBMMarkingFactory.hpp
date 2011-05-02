@@ -35,7 +35,7 @@ namespace VerifyTAPN {
 #endif
 			dbm.setZero();
 #ifdef DBM_NORESIZE
-			for (int i = dp.size(); i < clocks; ++i)
+			for (int i = tokenPlacement.size(); i < clocks; ++i)
 						dbm.freeClock(i+1);
 #endif
 			DBMMarking* marking = new DBMMarking(DiscretePart(tokenPlacement), dbm);
