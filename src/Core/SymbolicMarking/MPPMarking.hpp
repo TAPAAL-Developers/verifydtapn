@@ -44,6 +44,7 @@ namespace VerifyTAPN {
 		void FreeClock(int clock);
 
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+	public:
 #ifdef DBM_NORESIZE
 		MPPMarking(const DiscretePart &dp, int clocks) : DiscreteMarking(dp), clocks(clocks), isCone(false) { InitMapping(); };
 		MPPMarking(const DiscretePart &dp, int clocks, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), clocks(clocks), isCone(false) { InitMapping(); };
@@ -53,7 +54,6 @@ namespace VerifyTAPN {
 		MPPMarking(const DiscretePart &dp, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), isCone(false) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), isCone(false) { };
 #endif
-
 		virtual ~MPPMarking() { };
 
 		virtual id_type UniqueId() const;
