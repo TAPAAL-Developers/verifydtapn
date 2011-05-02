@@ -2,8 +2,6 @@
 #include <iostream>
 #include <algorithm>
 
-#define clocks (dp.size())
-
 namespace VerifyTAPN {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> MPPMarking::tapn;
 
@@ -104,7 +102,7 @@ namespace VerifyTAPN {
 
 	void MPPMarking::FreeClock(int clock) {
 		ResetClock(clock);
-		MPVector g = MPVector(clocks, NegInf);
+		MPVector g = MPVector(dp.size(), NegInf);
 		g.Set(clock, 0);
 		W.push_back(g);
 	}
@@ -113,7 +111,7 @@ namespace VerifyTAPN {
 		LOG(std::cout << "Extrapolate(...)\n");
 		LOG(std::cout << "input:\n")
 		LOG(Print());
-		for (size_t i = FirstClock; i <= clocks; i++) {
+		for (size_t i = FirstClock; i <= dp.size(); i++) {
 			int k = maxConstants[i];
 			if (k == -INF) {
 				FreeClock(i);
@@ -135,11 +133,11 @@ namespace VerifyTAPN {
 						it->Set(i,k+1);
 					}
 			} else {
-				for (size_t j = FirstClock; j <= clocks; j++) {
+				for (size_t j = FirstClock; j <= dp.size(); j++) {
 					if (i != j) {
 						for (MPVecIter u = U.begin(); u != U.end(); ++u) {
 							if (u->Get(i) > k || u->Get(j) > maxConstants[j-1]) {
-								MPVector ex = MPVector(clocks, NegInf);
+								MPVector ex = MPVector(dp.size(), NegInf);
 								ex.Set(i, u->Get(i));
 								ex.Set(j, u->Get(j));
 								W.push_back(ex);
@@ -151,7 +149,7 @@ namespace VerifyTAPN {
 				}
 			}
 			if (hori) {
-				MPVector ex = MPVector(clocks, NegInf);
+				MPVector ex = MPVector(dp.size(), NegInf);
 				ex.Set(i, 0);
 				W.push_back(ex);
 			}
@@ -172,7 +170,7 @@ namespace VerifyTAPN {
 		LOG(Print());
 		PolyToCone();
 		int clock = GetClockIndex(token);
-		MPVector a = MPVector(clocks, NegInf);
+		MPVector a = MPVector(dp.size(), NegInf);
 		MPVector b = a;
 		a.Set(clock, 0);
 		if (interval.GetUpperBound() != std::numeric_limits<int>::max()) {
@@ -249,7 +247,7 @@ namespace VerifyTAPN {
 	void MPPMarking::InitZero() {
 		V.clear();
 		W.clear();
-		V.push_back(MPVector(clocks));
+		V.push_back(MPVector(dp.size()));
 	}
 
 	id_type MPPMarking::UniqueId() const {
@@ -316,7 +314,7 @@ namespace VerifyTAPN {
 		for (MPVecConstIter it = W.begin(); it != W.end(); ++it) {
 			if (skipit && *skipit == it)
 				continue;
-			for (size_t j = 0; j <= clocks; j++) {
+			for (size_t j = 0; j <= dp.size(); j++) {
 				if (it->Get(j) == NegInf)
 					;
 				else if (v.Get(j) == NegInf)
@@ -327,7 +325,7 @@ namespace VerifyTAPN {
 			++i;
 		}
 
-		MPVector z(clocks, NegInf);
+		MPVector z(dp.size(), NegInf);
 		i = 0;
 		for (MPVecConstIter it = W.begin(); it != W.end(); ++it) {
 			if (skipit && *skipit == it)
@@ -379,7 +377,7 @@ namespace VerifyTAPN {
 	bool MPPMarking::DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
 		if(L.empty())
 			return true;
-		for(size_t i=FirstClock; i<=clocks; ++i) {
+		for(size_t i=FirstClock; i<=dp.size(); ++i) {
 			if(i!=idx) {
 				int minL = INT_MAX;
 				int minH = INT_MAX;
