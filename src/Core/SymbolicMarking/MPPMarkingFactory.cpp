@@ -4,7 +4,7 @@ namespace VerifyTAPN {
 
 	id_type MPPMarkingFactory::nextId = 1;
 
-	MPPMarkingFactory::MPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) : {
+	MPPMarkingFactory::MPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) {
 		MPPMarking::tapn = tapn;
 	};
 
