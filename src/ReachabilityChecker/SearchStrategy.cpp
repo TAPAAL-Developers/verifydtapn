@@ -7,6 +7,8 @@
 #include "../Core/SymbolicMarking/DBMMarking.hpp"
 #include "dbm/print.h"
 
+#include <unistd.h>
+
 namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
@@ -39,6 +41,7 @@ namespace VerifyTAPN
 
 	bool DefaultSearchStrategy::Verify()
 	{
+		bool printStatus = isatty(fileno(stdout));//!IsConsoleRedirected();
 		initialMarking->Delay();
 		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
@@ -97,6 +100,10 @@ namespace VerifyTAPN
 			factory->Release(next);
 
 			//PrintDiagnostics(successors.size());
+			if (printStatus) {
+				Stats currStats = pwList->GetStats();
+				printf("%lld/%lld/%lld\r", currStats.discoveredStates, currStats.exploredStates, currStats.storedStates);
+			}
 		}
 		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
 	}
