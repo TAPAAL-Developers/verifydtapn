@@ -116,7 +116,7 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants)
-		{return;
+		{
 			LOG(std::cout << "Extrapolate(...)\n");
 			LOG(std::cout << "input:\n")
 			LOG(Print());

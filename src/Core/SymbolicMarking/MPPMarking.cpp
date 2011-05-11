@@ -129,7 +129,6 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
-		return;
 		LOG(std::cout << "Extrapolate(...)\n");
 		LOG(std::cout << "input:\n")
 		LOG(Print());
