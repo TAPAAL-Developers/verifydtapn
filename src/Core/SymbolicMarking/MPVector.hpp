@@ -53,6 +53,8 @@ public:
 	void RemoveDim(int index);
 	void Swap(int dim1, int dim2);
 
+	const MPVector Normalize() const;
+
 	friend std::ostream &operator<<(std::ostream &out, const MPVector &value) {
 		out << "(";
 		for (int i = 0; i < value.n; i++) {

@@ -41,7 +41,9 @@ namespace VerifyTAPN
 
 	bool DefaultSearchStrategy::Verify()
 	{
-		bool printStatus = isatty(fileno(stdout));//!IsConsoleRedirected();
+#ifdef DEBUG
+		bool printStatus = isatty(fileno(stderr));
+#endif
 		initialMarking->Delay();
 		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
@@ -100,10 +102,12 @@ namespace VerifyTAPN
 			factory->Release(next);
 
 			//PrintDiagnostics(successors.size());
+#ifdef DEBUG
 			if (printStatus) {
 				Stats currStats = pwList->GetStats();
-				printf("%lld/%lld/%lld\r", currStats.discoveredStates, currStats.exploredStates, currStats.storedStates);
+				fprintf(stderr, "%lld/%lld/%lld\r", currStats.discoveredStates, currStats.exploredStates, currStats.storedStates);
 			}
+#endif
 		}
 		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
 	}

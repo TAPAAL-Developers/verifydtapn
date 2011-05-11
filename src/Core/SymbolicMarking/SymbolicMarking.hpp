@@ -20,6 +20,8 @@ namespace VerifyTAPN {
 		virtual bool IsEmpty() const = 0;
 		virtual void Extrapolate(const int* maxConstants) = 0;
 		virtual unsigned int GetClockIndex(unsigned int token) const = 0;
+
+		virtual void Print() const = 0;
 	};
 
 }

@@ -137,3 +137,11 @@ MPVector Max(const MPVector& lhs, const MPVector& rhs) {
 const MPVector operator+(const int v, const MPVector& mpv) {
 	return mpv + v;
 }
+
+const MPVector MPVector::Normalize() const {
+	for (int i = 0; i < n; ++i) {
+		if (val[i] != NegInf)
+			return *this + (-val[i]);
+	}
+	return *this;
+}

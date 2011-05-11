@@ -1,6 +1,7 @@
 #include "MPPMarking.hpp"
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 namespace VerifyTAPN {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> MPPMarking::tapn;
@@ -31,13 +32,22 @@ namespace VerifyTAPN {
 			mapping.RemoveToken(tokenIndices[i]);
 			dp.RemoveToken(tokenIndices[i]);
 		}
-		std::sort(removeClocks.begin(), removeClocks.end());
+		for(unsigned int j = 0; j < mapping.size(); ++j) {
+			int offset = 0;
+			unsigned int currentMapping = mapping.GetMapping(j);
+			for (std::vector<unsigned int>::iterator it = removeClocks.begin(); it != removeClocks.end(); ++it) {
+				if (currentMapping>*it)
+					offset++;
+			}
+			mapping.SetMapping(j, currentMapping - offset);
+		}
+		//std::sort(removeClocks.begin(), removeClocks.end());
 		for (std::vector<unsigned int>::reverse_iterator it = removeClocks.rbegin(); it != removeClocks.rend(); ++it) {
-			for(unsigned int j = 0; j < mapping.size(); ++j)
-			{
+
+			/*{
 				if(mapping.GetMapping(j) > *it)
 					mapping.SetMapping(j, *it-1);
-			}
+			}*/
 			for (MPVecIter v = V.begin(); v != V.end(); ++v)
 				v->RemoveDim(*it);
 			for (MPVecIter w = W.begin(); w != W.end(); ++w)
@@ -47,17 +57,25 @@ namespace VerifyTAPN {
 
 	void MPPMarking::Print() const {
 		std::cout << "V: ";
-		for (MPVecConstIter it = V.begin(); it != V.end(); ++it)
+		std::set<MPVector> sortedV, sortedW;
+		sortedV.insert(V.begin(), V.end());
+		for (MPVecConstIter it = W.begin(); it != W.end(); ++it)
+			sortedW.insert(it->Normalize());
+		for (std::set<MPVector>::iterator it = sortedV.begin(); it != sortedV.end(); ++it)
 			std::cout << *it;
 		std::cout << "\n";
 		std::cout << "W: ";
-		for (MPVecConstIter it = W.begin(); it != W.end(); ++it)
+		for (std::set<MPVector>::iterator it = sortedW.begin(); it != sortedW.end(); ++it)
 			std::cout << *it;
 		std::cout << "\n";
 		std::cout << "Placement vector:";
 		std::vector<int> places = dp.GetTokenPlacementVector();
 		for (std::vector<int>::iterator place = places.begin(); place != places.end(); ++place)
 			std::cout << " " << *place;
+		std::cout << "\n";
+		std::cout << "Mapping vector:";
+		for (unsigned int i = 0; i < dp.size(); i++)
+			std::cout << " " << mapping.GetMapping(i);
 		std::cout << "\n";
 	}
 
@@ -79,6 +97,9 @@ namespace VerifyTAPN {
 		for(unsigned int i = 0; i < NumberOfTokens(); i++)
 		{
 			const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
+			if(invariant.GetBound() != std::numeric_limits<int>::max()) {
+				LOG(std::cout << "Found invariant in place " << GetTokenPlacement(i) << "\n";)
+			}
 			Constrain(i, invariant);
 		}
 		Cleanup();
@@ -108,6 +129,7 @@ namespace VerifyTAPN {
 	}
 
 	void MPPMarking::Extrapolate(const int *maxConstants) {
+		return;
 		LOG(std::cout << "Extrapolate(...)\n");
 		LOG(std::cout << "input:\n")
 		LOG(Print());
@@ -162,6 +184,19 @@ namespace VerifyTAPN {
 		return V.empty();
 	}
 
+	//Adds the constraint x-y<=value.
+	void MPPMarking::doConstrain(int x, int y, int value) {
+		MPVector a = MPVector(dp.size(), NegInf);
+		MPVector b = a;
+		a.Set(x, 0);
+		if (value != INF) {
+			b.Set(y, value);
+			/*std::cout << "a: " << a << "\n";
+			std::cout << "b: " << b << "\n";*/
+			IntersectHalfspace(a,b);
+		}
+	}
+
 	void MPPMarking::Constrain(int token, const TAPN::TimeInterval &interval) {
 //		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != 2147483647))
 //			std::cerr << "WARNING: Interval has strictness\n";
@@ -176,30 +211,44 @@ namespace VerifyTAPN {
 		if (interval.GetUpperBound() != std::numeric_limits<int>::max()) {
 			b.Set(ConeIdx, interval.GetUpperBound());
 			IntersectHalfspace(a,b);
-			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
-			LOG(Print();)
+			LOG(ConeToPoly();
+			Cleanup();
+			std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";
+			Print();
+			PolyToCone();)
 		}
 
-		b.Set(ConeIdx, interval.GetLowerBound());
-		IntersectHalfspace(b,a);
+		a.Set(clock, NegInf);
+		b.Set(ConeIdx, NegInf);
+
+		a.Set(ConeIdx, 0);
+		b.Set(clock, -interval.GetLowerBound());
+		IntersectHalfspace(a,b);
 
 		ConeToPoly();
+		Cleanup();
 		LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
 		LOG(Print();)
-		Cleanup();
 	}
 
 	void MPPMarking::Constrain(int token, const TAPN::TimeInvariant& invariant)
 	{
-		Constrain(token, TAPN::TimeInterval(false, 0, invariant.GetBound(), invariant.IsBoundStrict()));
+		if(invariant.GetBound() != std::numeric_limits<int>::max())
+		{
+			PolyToCone();
+			doConstrain(mapping.GetMapping(token), 0, invariant.GetBound());
+			ConeToPoly();
+			Cleanup();
+			//Constrain(token, TAPN::TimeInterval(false, 0, invariant.GetBound(), invariant.IsBoundStrict()));
+		}
 	};
 
 	bool MPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval &interval) const {
 		int clock = GetClockIndex(token);
 		bool lowerSat = false, upperSat = false;
 		for (MPVecConstIter it = V.begin(); it != V.end(); ++it) {
-			lowerSat = lowerSat || it->Get(clock) > interval.GetLowerBound();
-			upperSat = upperSat || it->Get(clock) < interval.GetUpperBound();
+			lowerSat = lowerSat || it->Get(clock) >= interval.GetLowerBound();
+			upperSat = upperSat || it->Get(clock) <= interval.GetUpperBound();
 
 			if (upperSat && lowerSat)
 				return true;
@@ -240,7 +289,6 @@ namespace VerifyTAPN {
 		if (sup) {
 			return SUPERSET;
 		}
-
 		return DIFFERENT;
 	}
 

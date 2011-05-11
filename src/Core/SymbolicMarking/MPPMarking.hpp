@@ -19,6 +19,7 @@ namespace VerifyTAPN {
 
 	class MPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class MPPMarkingFactory;
+		friend class DBMMarking;
 	private:
 		MPVecSet V, W;
 		id_type id;
@@ -36,9 +37,10 @@ namespace VerifyTAPN {
 		void Cleanup();
 		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx);
 
-		void Print() const;
 		void ResetClock(int clock);
 		void FreeClock(int clock);
+
+		void doConstrain(int x, int y, int value);
 
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 	public:
@@ -46,6 +48,7 @@ namespace VerifyTAPN {
 		MPPMarking(const DiscretePart &dp, MPVecSet v, MPVecSet w) : DiscreteMarking(dp),  V(v), W(w), isCone(false) { InitMapping(); };
 		MPPMarking(const MPPMarking &mpp) : DiscreteMarking(mpp), V(mpp.V), W(mpp.W), isCone(false) { };
 		virtual ~MPPMarking() { };
+		virtual void Print() const;
 
 		virtual id_type UniqueId() const;
 		virtual unsigned int GetClockIndex(unsigned int token) const;

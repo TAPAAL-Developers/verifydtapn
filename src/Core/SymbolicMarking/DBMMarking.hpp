@@ -10,6 +10,10 @@
 #include "../TAPN/TimedArcPetriNet.hpp"
 #include <iostream>
 
+//for debugging
+#include "MPPMarking.hpp"
+#include "MPVector.hpp"
+
 namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
@@ -28,21 +32,30 @@ namespace VerifyTAPN {
 		virtual void Reset(int token)
 		{
 			LOG(std::cout << "Reset("<<token<<")\n")
+				LOG(std::cout << "input:\n")
+				LOG(Print());
 			dbm(mapping.GetMapping(token)) = 0;
-			LOG(Print())
+			LOG(std::cout << "output:\n")
+			LOG(Print());
 		};
 
 		virtual bool IsEmpty() const { return dbm.isEmpty(); };
 		virtual void Delay()
 		{
 			LOG(std::cout << "Delay()\n");
+			LOG(std::cout << "input:\n")
+			LOG(Print());
 			dbm.up();
 			for(unsigned int i = 0; i < NumberOfTokens(); i++)
 			{
 				const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
+				if(invariant.GetBound() != std::numeric_limits<int>::max()) {
+					LOG(std::cout << "Found invariant in place " << GetTokenPlacement(i) << "\n";)
+				}
 				Constrain(i, invariant);
 				assert(!IsEmpty()); // this should not be possible
 			}
+			LOG(std::cout << "output:\n")
 			LOG(Print());
 		};
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval)
@@ -51,11 +64,13 @@ namespace VerifyTAPN {
 			LOG(std::cout << "input:\n")
 			LOG(Print());
 			int clock = mapping.GetMapping(token);
-			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
-			LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
-			LOG(Print();)
+			if (interval.GetUpperBound() != std::numeric_limits<int>::max()) {
 			dbm.constrain(clock, 0, interval.UpperBoundToDBMRaw());
 			LOG(std::cout << "After " << clock << " <= " << interval.GetUpperBound() << "\n";)
+			LOG(Print();)
+			}
+			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
+			LOG(std::cout << "After " << clock << " >= " << interval.GetLowerBound() << "\n";)
 			LOG(Print();)
 		};
 
@@ -63,7 +78,12 @@ namespace VerifyTAPN {
 		{
 			if(invariant.GetBound() != std::numeric_limits<int>::max())
 			{
+				//LOG(std::cout << "Constrain(" << token << " <= " << invariant.GetBound() << ")\n";)
+				/*LOG(std::cout << "input:\n")
+				LOG(Print());*/
 				dbm.constrain(mapping.GetMapping(token), 0, dbm_boundbool2raw(invariant.GetBound(), invariant.IsBoundStrict()));
+				//LOG(std::cout << "output:\n")
+				//LOG(Print());
 			}
 		};
 
@@ -96,7 +116,7 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants)
-		{
+		{return;
 			LOG(std::cout << "Extrapolate(...)\n");
 			LOG(std::cout << "input:\n")
 			LOG(Print());
@@ -140,14 +160,51 @@ namespace VerifyTAPN {
 	protected: // data
 		dbm::dbm_t dbm;
 		id_type id;
+	public:
+		virtual void Print() const{
+			//std::cout << dbm;
+			PrintAsMPP();
+			return;
 
-		void Print() {
-			dbm_cppPrint(std::cout, dbm.getDBM(), dbm.getDimension());
 			std::cout << "Placement vector:";
 			std::vector<int> places = dp.GetTokenPlacementVector();
 			for (std::vector<int>::iterator place = places.begin(); place != places.end(); ++place)
 				std::cout << " " << *place;
 			std::cout << "\n";
+		}
+
+		void PrintAsMPP() const {
+			if (dbm.isEmpty())
+				return;
+			MPVecSet v;
+			MPVecSet w;
+			v.push_back(MPVector(dp.size(),0));
+			for (size_t i = 1; i <= dp.size(); i++)
+			{
+				MPVector vec = MPVector(dp.size(), NegInf);
+				vec.Set(i,0);
+				w.push_back(vec);
+			}
+			MPPMarking mpp = MPPMarking(dp,v,w);
+
+			//mpp.PolyToCone();
+			for (size_t i = 0; i <= dp.size(); i++) {
+				//mpp.PolyToCone();
+				for (size_t j = 0; j <= dp.size(); j++) {
+					if (i==j)
+						continue;
+					mpp.PolyToCone();
+					mpp.doConstrain(i,j,dbm_raw2bound(dbm[i][j]));
+					mpp.ConeToPoly();
+					mpp.Cleanup();
+				}
+				//mpp.ConeToPoly();
+				//mpp.Cleanup();
+			}
+			//std::cout << mpp.W.size() <<"\n";
+			//mpp.ConeToPoly();
+			//mpp.Cleanup();
+			mpp.Print();
 		}
 	};
 

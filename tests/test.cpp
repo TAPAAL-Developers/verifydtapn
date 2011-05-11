@@ -284,6 +284,8 @@ void TestSatisfy() {
 	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(2,6)), "TestSatisfy outside lower");
 	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(4,8)), "TestSatisfy outside upper");
 	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(2, 8)), "TestSatisfy outside both");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(2,4)), "TestSatisfy exact upper");
+	TESTTRUE(m->PotentiallySatisfies(0, INTERVAL(6,8)), "TestSatisfy exact lower");
 	TESTFALSE(m->PotentiallySatisfies(0, INTERVAL(1, 3)), "TestSatisfy false");
 
 	delete m;
