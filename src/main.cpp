@@ -27,6 +27,8 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 		return new DiscreteInclusionMarkingFactory(tapn);
 	case MAXPLUS:
 		return new MPPMarkingFactory<MPVector>(tapn);
+	case MAXPLUS_COW:
+		return new MPPMarkingFactory<MPVectorCOW>(tapn);
 	default:
 		return new UppaalDBMMarkingFactory(tapn);
 	}

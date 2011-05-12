@@ -6,6 +6,7 @@ MPVector::MPVector(int dim, int defVal) {
 	if (dim == 0) {
 		throw invdimex;
 	}
+	refs = 1;
 	n = dim+1; //Add 1 to leave room for simpler poly/cone conversion
 	val = std::vector<int>(n, defVal);
 	val[ConeIdx] = NegInf;
@@ -144,4 +145,12 @@ const MPVector MPVector::Normalize() const {
 			return *this + (-val[i]);
 	}
 	return *this;
+}
+
+MPVectorCOW Max(const MPVectorCOW& lhs, const MPVectorCOW& rhs) {
+	return lhs.Max(rhs);
+}
+
+const MPVectorCOW operator+(const int v, const MPVectorCOW& mpv) {
+	return mpv + v;
 }

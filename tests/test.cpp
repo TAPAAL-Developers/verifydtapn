@@ -299,6 +299,7 @@ void TestMPPMarking() {
 	TestSatisfy();
 }
 
+template <typename MPVector>
 void TestMPVector() {
 	MPVector mpv1, mpv2(mpv1), mpv3(6), mpv4(mpv3), mpv5(5), mpv6(6);
 
@@ -375,8 +376,16 @@ int main(int argc, char** argv) {
 	CreateNet();
 	debug = (argc > 1);
 	DiscreteMarking::debug = debug;
-	TestMPVector();
-	TestMPPMarking();
+	try {
+		std::cout << "Testing MPVector\n";
+		TestMPVector<MPVector>();
+		std::cout << "Testing MPVectorCOW\n";
+		TestMPVector<MPVectorCOW>();
+		std::cout << "Testing MPPMarking\n";
+		TestMPPMarking();
+	} catch (std::exception& e) {
+		std::cout << e.what();
+	}
 
 	printf("Test summary:\n%d tests total\n%d passed (%.2f%%)\n%d failed\n",
 		tests, pass, pass / (float) tests * 100, fail);
