@@ -1,5 +1,5 @@
 compiler=g++
-input=test.cpp ../src/Core/SymbolicMarking/DiscreteMarking.cpp ../src/Core/SymbolicMarking/DiscretePart.cpp ../src/Core/SymbolicMarking/MP*.cpp ../src/Core/TAPN/*.cpp
+input=test.cpp ../src/Core/SymbolicMarking/DiscreteMarking.cpp ../src/Core/SymbolicMarking/DiscretePart.cpp ../src/Core/SymbolicMarking/MPVector.cpp ../src/Core/TAPN/*.cpp
 output=mptest
 options=-Wall -Wno-write-strings -g
 libflags=-ludbm_debug
@@ -13,8 +13,6 @@ DEPS = \
 	SymbolicMarking/DiscreteMarking.o \
 	SymbolicMarking/DiscretePart.o \
 	SymbolicMarking/MPVector.o \
-	SymbolicMarking/MPPMarking.o \
-	SymbolicMarking/MPPMarkingFactory.o \
 	TAPN/InhibitorArc.o \
 	TAPN/OutputArc.o \
 	TAPN/Pairing.o \

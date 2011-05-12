@@ -32,10 +32,10 @@ char* testDesc;
 #define TESTNEQ(var, val, str) if (var!=val) PASS(str) else FAIL(str)
 
 #define MPPTEST DiscretePart dp = DiscretePart(std::vector<int>(clocks)); \
-	MPPMarkingFactory f = MPPMarkingFactory(tapn_ptr); \
+	MPPMarkingFactory<MPVector> f = MPPMarkingFactory<MPVector>(tapn_ptr); \
 
-#define NEWMARKING(m) MPPMarking* m = (MPPMarking *)f.InitialMarking(std::vector<int>(clocks));
-#define CREATEMARKING(v,w) MPPMarking(dp, v, w)
+#define NEWMARKING(m) MPPMarking<MPVector>* m = (MPPMarking<MPVector> *)f.InitialMarking(std::vector<int>(clocks));
+#define CREATEMARKING(v,w) MPPMarking<MPVector>(dp, v, w)
 
 #define NEWVECVAL(val) MPVector(clocks, val)
 #define NEWVEC NEWVECVAL(0)
@@ -75,10 +75,10 @@ void setrgb(int color) {
 
 void TestDelay() {
 	MPPTEST;
-	MPVecSet v, w;
+	MPPMarking<MPVector>::MPVecSet v, w;
 	v.push_back(NEWVEC);
 	w.push_back(NEWVEC);
-	MPPMarking expected = CREATEMARKING(v,w);
+	MPPMarking<MPVector> expected = CREATEMARKING(v,w);
 	NEWMARKING(m);
 	m->Delay();
 
@@ -88,14 +88,14 @@ void TestDelay() {
 
 void TestRelation() {
 	MPPTEST;
-	MPVecSet v1, w1, v2, w2, w3;
+	MPPMarking<MPVector>::MPVecSet v1, w1, v2, w2, w3;
 	v1.push_back(NEWVEC);
 	w1.push_back(NEWVEC);
 	v2.push_back(NEWVEC);
 	w2.push_back(NEWVEC);
 
-	MPPMarking mpp1 = CREATEMARKING(v1,w1);
-	MPPMarking mpp2 = CREATEMARKING(v2,w2);
+	MPPMarking<MPVector> mpp1 = CREATEMARKING(v1,w1);
+	MPPMarking<MPVector> mpp2 = CREATEMARKING(v2,w2);
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestRelationEQ - convex+linear");
 	TESTEQ(mpp2.Relation(mpp1), EQUAL, "TestRelationEQ - convex+linear");
@@ -148,18 +148,18 @@ void TestRelation() {
 
 void TestReset() {
 	MPPTEST;
-	MPVecSet v, w;
+	MPPMarking<MPVector>::MPVecSet v, w;
 	v.push_back(NEWVEC);
 
-	MPPMarking mpp1 = CREATEMARKING(v,w);
-	MPPMarking mpp2 = CREATEMARKING(v,w);
+	MPPMarking<MPVector> mpp1 = CREATEMARKING(v,w);
+	MPPMarking<MPVector> mpp2 = CREATEMARKING(v,w);
 
 	mpp1.Reset(0);
 
 	TESTEQ(mpp1.Relation(mpp2), EQUAL, "TestReset convex (0,0,..,0)");
 
 	v.push_back(NEWVECVAL(5));
-	MPVecSet v2;
+	MPPMarking<MPVector>::MPVecSet v2;
 	v2.push_back(NEWVEC);
 
 	MPVector mpv = NEWVECVAL(5);
@@ -200,7 +200,7 @@ void TestReset() {
 
 	mpv=NEWVEC;
 	mpv.Set(1,NegInf);
-	MPVecSet w2;
+	MPPMarking<MPVector>::MPVecSet w2;
 	w2.push_back(mpv);
 
 	mpp2 = CREATEMARKING(v,w2);
@@ -215,7 +215,7 @@ void TestReset() {
 
 void TestConstrain() {
 	MPPTEST;
-	MPVecSet v, v2, w;
+	MPPMarking<MPVector>::MPVecSet v, v2, w;
 
 	v.push_back(NEWVEC);
 	v.push_back(NEWVECVAL(10));
@@ -223,8 +223,8 @@ void TestConstrain() {
 	v2.push_back(NEWVECVAL(4));
 	v2.push_back(NEWVECVAL(8));
 
-	MPPMarking mpp1 = CREATEMARKING(v,w);
-	MPPMarking mpp2 = CREATEMARKING(v2,w);
+	MPPMarking<MPVector> mpp1 = CREATEMARKING(v,w);
+	MPPMarking<MPVector> mpp2 = CREATEMARKING(v2,w);
 
 	mpp1.Constrain(0,INTERVAL(4,8));
 
@@ -248,7 +248,7 @@ void TestConstrain() {
 	v2.clear();
 	v2.push_back(NEWVECVAL(5));
 	v2.push_back(NEWVECVAL(8));
-	MPVecSet w2;
+	MPPMarking<MPVector>::MPVecSet w2;
 	mpp2 = CREATEMARKING(v2,w2);
 	TESTEQ(mpp1.Relation(mpp2),EQUAL, "TestConstrain external lower bound");
 

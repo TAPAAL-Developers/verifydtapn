@@ -176,8 +176,8 @@ namespace VerifyTAPN {
 		void PrintAsMPP() const {
 			if (dbm.isEmpty())
 				return;
-			MPVecSet v;
-			MPVecSet w;
+			MPPMarking<MPVector>::MPVecSet v;
+			MPPMarking<MPVector>::MPVecSet w;
 			v.push_back(MPVector(dp.size(),0));
 			for (size_t i = 1; i <= dp.size(); i++)
 			{
@@ -185,7 +185,7 @@ namespace VerifyTAPN {
 				vec.Set(i,0);
 				w.push_back(vec);
 			}
-			MPPMarking mpp = MPPMarking(dp,v,w);
+			MPPMarking<MPVector> mpp = MPPMarking<MPVector>(dp,v,w);
 
 			//mpp.PolyToCone();
 			for (size_t i = 0; i <= dp.size(); i++) {

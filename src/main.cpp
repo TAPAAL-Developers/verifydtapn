@@ -10,6 +10,7 @@
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 #include "Core/SymbolicMarking/MPPMarkingFactory.hpp"
+#include "Core/SymbolicMarking/MPVector.hpp"
 
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
 
@@ -25,7 +26,7 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	case DISCRETE_INCLUSION:
 		return new DiscreteInclusionMarkingFactory(tapn);
 	case MAXPLUS:
-		return new MPPMarkingFactory(tapn);
+		return new MPPMarkingFactory<MPVector>(tapn);
 	default:
 		return new UppaalDBMMarkingFactory(tapn);
 	}
