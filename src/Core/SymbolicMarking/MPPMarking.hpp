@@ -393,6 +393,7 @@ namespace VerifyTAPN {
 			MPPMarking<MPVec>* m = static_cast<MPPMarking<MPVec>*>(marking);
 			V.insert(V.end(), m->V.begin(), m->V.end());
 			W.insert(W.end(), m->W.begin(), m->W.end());
+			Cleanup();
 		}
 
 		virtual size_t HashKey() const {
