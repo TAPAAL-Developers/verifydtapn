@@ -52,9 +52,10 @@ int main(int argc, char* argv[])
 	}
 
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	MarkingFactory* factory = CreateFactory(options, tapn);
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
+
+	MarkingFactory* factory = CreateFactory(options, tapn);
 	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
 	if(initialMarking->NumberOfTokens() > options.GetKBound())
 	{
