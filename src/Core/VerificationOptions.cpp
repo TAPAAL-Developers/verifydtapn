@@ -50,6 +50,8 @@ namespace VerifyTAPN {
 			return MAXPLUS;
 		case 3:
 			return MAXPLUS_COW;
+		case 4:
+			return LOAD_ONLY;
 		default:
 			return DEFAULT;
 		}
@@ -64,6 +66,8 @@ namespace VerifyTAPN {
 			return "max-plus polyhedra";
 		case MAXPLUS_COW:
 			return "max-plus polyhedra (copy-on-write)";
+		case LOAD_ONLY:
+			return "no";
 		case DEFAULT:
 		default:
 			return "default";
@@ -83,7 +87,7 @@ namespace VerifyTAPN {
 				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
 				("untimed-places,u", "Use the untimed place optimization")
 				("symmetry,s", "Use symmetry reduction")
-				("factory,f", boost::program_options::value<unsigned int>()->default_value(0), "Specify marking factory.\n - 0: default\n - 1: discrete-inclusion\n - 2: max-plus polyhedra\n - 3: max-plus polyhedra (copy-on-write)")
+				("factory,f", boost::program_options::value<unsigned int>()->default_value(0), "Specify marking factory.\n - 0: default\n - 1: discrete-inclusion\n - 2: max-plus polyhedra\n - 3: max-plus polyhedra (copy-on-write)\n - 4: only load model (no checking)")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
 				("debug-output,d", "Print debug output (debug builds only)")
