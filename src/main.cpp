@@ -14,6 +14,20 @@
 
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
 
+double elapsedTime;
+#ifdef __MINGW32__
+#include <windows.h>
+LARGE_INTEGER frequency, t1, t2;
+#define START_TIME QueryPerformanceFrequency(&frequency); QueryPerformanceCounter(&t1);
+#define END_TIME QueryPerformanceCounter(&t2); elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+#else
+#include <sys/time.h>
+timeval t1, t2;
+double elapsedTime;
+#define START_TIME gettimeofday(&t1, NULL);
+#define END_TIME gettimeofday(&t2, NULL); elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0; elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;
+#endif
+
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
@@ -74,9 +88,11 @@ int main(int argc, char* argv[])
 	}
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
+	START_TIME;
 	bool result = strategy->Verify();
+	END_TIME;
 	std::cout << strategy->GetStats() << std::endl;
-	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
+	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << ". Time spent: " << elapsedTime << "ms." << std::endl;
 
 	try{
 		strategy->PrintTraceIfAny(result);
