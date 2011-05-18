@@ -23,7 +23,6 @@ LARGE_INTEGER frequency, t1, t2;
 #else
 #include <sys/time.h>
 timeval t1, t2;
-double elapsedTime;
 #define START_TIME gettimeofday(&t1, NULL);
 #define END_TIME gettimeofday(&t2, NULL); elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0; elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;
 #endif
