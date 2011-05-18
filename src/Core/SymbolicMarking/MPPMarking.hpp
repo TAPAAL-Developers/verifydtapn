@@ -148,30 +148,6 @@ namespace VerifyTAPN {
 
 			ConeToPoly();
 		}
-		bool DiagonalFree(MPVecSet L, MPVecSet H, size_t idx) {
-			if(L.empty())
-				return true;
-			for(size_t i=FirstClock; i<=dp.size(); ++i) {
-				if(i!=idx) {
-					int minL = INT_MAX;
-					int minH = INT_MAX;
-					int maxL = NegInf;
-					int maxH = NegInf;
-					for(MPVecIter it=L.begin(); it!=L.end(); ++it) {
-						minL = MIN(minL, it->Get(i));
-						maxL = MAX(maxL, it->Get(i));
-					}
-					for(MPVecIter it=H.begin(); it!=H.end(); ++it) {
-						minH = MIN(minH, it->Get(i));
-						maxH = MAX(maxH, it->Get(i));
-					}
-					if(minL<minH || maxL<maxH) {
-						return false;
-					}
-				}
-			}
-			return true;
-		}
 
 		void ResetClock(int clock) {
 			for (MPVecIter it = V.begin(); it != V.end(); ++it) {
