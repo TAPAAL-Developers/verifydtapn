@@ -9,7 +9,7 @@
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST };
-	enum Factory { DEFAULT, DISCRETE_INCLUSION, MAXPLUS, MAXPLUS_COW, LOAD_ONLY };
+	enum Factory { DEFAULT, DISCRETE_INCLUSION, MAXPLUS, MAXPLUS_COW };
 
 	class VerificationOptions {
 		private:
