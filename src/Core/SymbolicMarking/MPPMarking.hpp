@@ -339,56 +339,56 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants) {
-			//return;
-			LOG(std::cout << "Extrapolate(...)\n");
-			LOG(std::cout << "input:\n")
-			LOG(Print());
 			for (size_t i = FirstClock; i <= dp.size(); i++) {
+
 				int k = maxConstants[i];
 				if (k == -INF) {
 					FreeClock(i);
 					continue;
 				}
-				MPVecSet T, U;
-				for (MPVecIter v = V.begin(); v != V.end(); ++v) {
-					if (v->Get(i) <= k)
-						T.push_back(*v);
-					else
-						U.push_back(*v);
-				}
-				if (U.empty())
-					continue;
-				bool hori = true;
-				if (DiagonalFree(T,U,i)) {
-					for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-						if (it->Get(i) > k)
-							it->Set(i,k+1);
+
+				bool oneDimVecAdded = false;
+
+				for(MPVecIter v=V.begin(); v!=V.end(); ++v) {
+					bool addOneDimVec = true;
+					for(size_t j = FirstClock; j <= dp.size(); j++) {
+						if(addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
+							addOneDimVec = false;
+						}
+						if(v->Get(i) > maxConstants[i] && v->Get(j) > maxConstants[j]) {
+							MPVec ex = MPVec(dp.size(), NegInf);
+							ex.Set(i,v->Get(i));
+							ex.Set(j,v->Get(j));
+							W.push_back(ex);
+						}
+
 					}
-				} else {
-					for (size_t j = FirstClock; j <= dp.size(); j++) {
-						if (i != j) {
-							for (MPVecIter u = U.begin(); u != U.end(); ++u) {
-								if (u->Get(i) > k || u->Get(j) > maxConstants[j-1]) {
-									MPVec ex = MPVec(dp.size(), NegInf);
-									ex.Set(i, u->Get(i));
-									ex.Set(j, u->Get(j));
-									W.push_back(ex);
-								}
-								if (u->Get(i) < u->Get(j) + k)
-									hori = false;
-							}
+					if(!oneDimVecAdded && addOneDimVec) {
+						MPVec ex = MPVec(dp.size(), NegInf);
+						ex.Set(i, 0);
+						W.push_back(ex);
+						oneDimVecAdded = true;
+					}
+				}
+
+				for(MPVecIter w=W.begin(); !oneDimVecAdded && w!=W.end(); ++w) {
+					bool addVec = true;
+					for(size_t j = FirstClock; j <= dp.size(); j++) {
+						if(w->Get(i) - w->Get(j) <= maxConstants[i]) {
+							addVec = false;
+							continue;
 						}
 					}
-				}
-				if (hori) {
-					MPVec ex = MPVec(dp.size(), NegInf);
-					ex.Set(i, 0);
-					W.push_back(ex);
+					if(addVec) {
+						MPVec ex = MPVec(dp.size(), NegInf);
+						ex.Set(i, 0);
+						W.push_back(ex);
+						oneDimVecAdded = true;
+					}
 				}
 			}
-			LOG(std::cout << "output:\n")
-			LOG(Print());
 		}
+
 		virtual void ConvexUnion(AbstractMarking* marking) {
 			MPPMarking<MPVec>* m = static_cast<MPPMarking<MPVec>*>(marking);
 			V.insert(V.end(), m->V.begin(), m->V.end());
