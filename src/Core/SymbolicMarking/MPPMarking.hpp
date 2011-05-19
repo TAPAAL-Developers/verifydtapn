@@ -328,7 +328,7 @@ namespace VerifyTAPN {
 				for(MPVecIter v=V.begin(); v!=V.end(); ++v) {
 					bool addOneDimVec = true;
 					for(size_t j = FirstClock; j <= dp.size(); j++) {
-						if(addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
+						if(i!=j && addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
 							addOneDimVec = false;
 						}
 						if(v->Get(i) > maxConstants[i] && v->Get(j) > maxConstants[j]) {
@@ -350,7 +350,7 @@ namespace VerifyTAPN {
 				for(MPVecIter w=W.begin(); !oneDimVecAdded && w!=W.end(); ++w) {
 					bool addVec = true;
 					for(size_t j = FirstClock; j <= dp.size(); j++) {
-						if(w->Get(i) - w->Get(j) <= maxConstants[i]) {
+						if(i != j && w->Get(i) - w->Get(j) <= maxConstants[i]) {
 							addVec = false;
 							continue;
 						}
