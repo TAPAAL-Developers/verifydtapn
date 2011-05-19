@@ -331,7 +331,7 @@ namespace VerifyTAPN {
 						if(i!=j && addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
 							addOneDimVec = false;
 						}
-						if(v->Get(i) > maxConstants[i] && v->Get(j) > maxConstants[j]) {
+						if(i!=j && v->Get(i) > maxConstants[i] && v->Get(j) > maxConstants[j]) {
 							MPVec ex = MPVec(dp.size(), NegInf);
 							ex.Set(i,v->Get(i));
 							ex.Set(j,v->Get(j));
