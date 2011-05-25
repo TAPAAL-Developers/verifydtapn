@@ -326,7 +326,7 @@ namespace VerifyTAPN {
 				bool oneDimVecAdded = false;
 
 				for(MPVecIter v=V.begin(); v!=V.end(); ++v) {
-					bool addOneDimVec = true;
+					bool addOneDimVec = v->Get(i) > maxConstants[i];
 					for(size_t j = FirstClock; j <= dp.size(); j++) {
 						if (i==j)
 							continue;
