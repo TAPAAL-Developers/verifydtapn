@@ -34,6 +34,7 @@ namespace VerifyTAPN {
 	public: // modifiers
 		void MoveToken(unsigned int tokenIndex, int newPlaceIndex);
 		void RemoveToken(int index) { placement.erase(placement.begin() + index); }
+		void RemoveListOfTokens(std::vector<int> token);
 		void AddTokenInPlace(int placeIndex) { placement.push_back(placeIndex); }
 		void Swap(int tokenI, int tokenJ);
 

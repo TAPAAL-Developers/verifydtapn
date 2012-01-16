@@ -14,6 +14,9 @@
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
+#include "Core/SymbolicMarking/VectorizedMPPMarkingFactory.hpp"
+#include "Core/SymbolicMarking/MPPMarkingFactory.hpp"
+#include "Core/SymbolicMarking/MPVector.hpp"
 
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
 //#include "Core/QueryParser/ToStringVisitor.hpp"
@@ -28,6 +31,10 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	{
 	case OLD_FACTORY:
 		return new UppaalDBMMarkingFactory(tapn);
+	case MAXPLUS_VECTORIZED:
+		return new VectorizedMPPMarkingFactory(tapn, options.GetKBound());
+	case MAXPLUS_OLD:
+		return new MPPMarkingFactory<MPVector>(tapn);
 	default:// Note that the constructor of DiscreteInclusionMarkingFactory automatically disables discrete inclusion
 		    // if DEFAULT is chosen
 		return new DiscreteInclusionMarkingFactory(tapn, options);

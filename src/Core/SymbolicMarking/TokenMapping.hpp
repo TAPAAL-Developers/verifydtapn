@@ -31,6 +31,18 @@ namespace VerifyTAPN {
 				mapping[index] = dbmIndex;
 			};
 			void RemoveToken(unsigned int index) { mapping.erase(mapping.begin() + index); }
+
+			void RemoveListOfTokens(std::vector<int> tokenIndex){
+				std::vector<unsigned int> newMapping;
+				newMapping.reserve(mapping.size());
+				for(unsigned int i = 0; i<mapping.size(); ++i){
+					if(!tokenIndex.at(i)){
+						newMapping.push_back(mapping.at(i));
+					}
+				}
+				mapping = newMapping;
+			}
+
 		private:
 			std::vector<unsigned int> mapping;
 	};

@@ -33,4 +33,15 @@ namespace VerifyTAPN {
 		placement[tokenI] = placement[tokenJ];
 		placement[tokenJ] = temp;
 	}
+
+	void DiscretePart::RemoveListOfTokens(std::vector<int> tokenIndex){
+		std::vector<int> newPlacements;
+		newPlacements.reserve(placement.size());
+		for(unsigned int i = 0; i<placement.size(); ++i){
+			if(!tokenIndex.at(i)){
+				newPlacements.push_back(placement.at(i));
+			}
+		}
+		placement = newPlacements;
+	}
 }

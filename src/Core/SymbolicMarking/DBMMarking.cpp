@@ -153,6 +153,7 @@ namespace VerifyTAPN
 		}
 	}
 
+
 	bool DBMMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
 	{
 		int placeUpper = dp.GetTokenPlacement(upper);

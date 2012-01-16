@@ -148,7 +148,7 @@ namespace VerifyTAPN {
 
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
 
-		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory",0));
+		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory\n - 3: Max-plus polyhedra vectorized\n - 4: Max-plus old (set impl)",0));
 		parsers.push_back(boost::make_shared<SwitchWithStringArg>("i", INCLUSION_PLACES, "Specify a list of places to consider \nfor discrete inclusion. No spaces after\nthe commas!\nSpecial values: *ALL*, *NONE*", "*ALL*"));
 	};
 
@@ -293,6 +293,8 @@ namespace VerifyTAPN {
 		case 0: return DEFAULT;
 		case 1:	return DISCRETE_INCLUSION;
 		case 2:	return OLD_FACTORY;
+		case 3: return MAXPLUS_VECTORIZED;
+		case 4: return MAXPLUS_OLD;
 		default:
 			std::cout << "Unkown factory specified." << std::endl;
 			exit(1);

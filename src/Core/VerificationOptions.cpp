@@ -32,6 +32,10 @@ namespace VerifyTAPN {
 			return "old DBM";
 		case DISCRETE_INCLUSION:
 			return "discrete inclusion";
+		case MAXPLUS_VECTORIZED:
+			return "max-plus polyhedra vectorized";
+		case MAXPLUS_OLD:
+			return "max-plus polyhedra as sets (old)";
 		default:
 			return "default";
 		}
