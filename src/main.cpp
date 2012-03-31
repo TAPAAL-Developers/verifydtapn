@@ -32,7 +32,7 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	case OLD_FACTORY:
 		return new UppaalDBMMarkingFactory(tapn);
 	case MAXPLUS_VECTORIZED:
-		return new VectorizedMPPMarkingFactory(tapn, options.GetKBound());
+		return new VectorizedMPPMarkingFactory(tapn);
 	case MAXPLUS_OLD:
 		return new MPPMarkingFactory<MPVector>(tapn);
 	default:// Note that the constructor of DiscreteInclusionMarkingFactory automatically disables discrete inclusion

@@ -19,8 +19,6 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
-const int initGens = 50; //number of initial generators for which to allocate memory
-
 namespace VerifyTAPN {
 
 
@@ -33,32 +31,39 @@ namespace VerifyTAPN {
 	private: // data
 		TokenMapping mapping;
 		std::vector<int> G; /* array of generators */
-		std::vector<int> AC; /* active clocks */
-		unsigned int n; /*number of maximal clocks + zero clock */
+		unsigned int n; /*number of tokens + zero clock */
 		unsigned int gens; /* number of generators */
 		id_type id;
 
 
 	public: //constructors
 		VectorizedMPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), mapping() { InitMapping(); };
-		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, std::vector<int> ac, int generators) : DiscreteMarking(dp), mapping(mapping), G(g), AC(ac), n(ac.size()), gens(generators) {};
-		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) : DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), AC(mpp.AC), n(mpp.n), gens(mpp.gens) {};
+		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) : DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {};
+		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) : DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {};
 		virtual ~VectorizedMPPMarking() { };
 
 
 	private:  //internal functions
-		void InitZero(const unsigned int n);
+		void InitZero();
 		void InitMapping();
 
 		bool ContainsPoint(const std::vector<int>& x, int skipGen = -1) const;
 		bool Contains(const VectorizedMPPMarking& mpp) const;
 		void IntersectHalfspace(std::vector<int>& a, std::vector<int>& b);
 		void Cleanup();
+		void CleanupOS();
+		void Norm();
 
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
 
 		void PrintLocal() const;
+
+		void Extrapolate49(const int* maxConstants);
+		void Extrapolate411(const int* maxConstants);
+		void Extrapolate413(const int* maxConstants);
+
+		void AddUnitVec(int dim);
 
 	protected:
 		virtual void Swap(int i, int j);

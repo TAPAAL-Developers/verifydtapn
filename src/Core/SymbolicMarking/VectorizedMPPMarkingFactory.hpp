@@ -13,19 +13,17 @@ namespace VerifyTAPN{
 	class VectorizedMPPMarkingFactory: public MarkingFactory {
 	private:
 		static id_type nextId;
-		unsigned int n; /* maximal number of clocks + "cone reference clock" */
 
 	public:
-		VectorizedMPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, const unsigned int kBound){
+		VectorizedMPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn){
 			VectorizedMPPMarking::tapn = tapn;
-			n = kBound+1; // maximal allowed number of clocks + cone reference (zero) clock
 		};
 
 		virtual ~VectorizedMPPMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const std::vector<int>& tokenPlacement) const {
 			VectorizedMPPMarking *marking = new VectorizedMPPMarking(DiscretePart(tokenPlacement));
-			marking->InitZero(n);
+			marking->InitZero();
 			marking->id = 0;
 			return marking;
 		};
@@ -37,9 +35,6 @@ namespace VerifyTAPN{
 		};
 
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const {
-		//	VectorizedMPPMarking *mpp = static_cast<VectorizedMPPMarking*>(marking);
-		//	mpp->Cleanup();
-		//	return mpp;
 			return static_cast<VectorizedMPPMarking*>(marking);
 		};
 
