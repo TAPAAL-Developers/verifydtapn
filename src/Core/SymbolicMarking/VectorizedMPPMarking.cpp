@@ -189,9 +189,12 @@ namespace VerifyTAPN {
 
 	/*
 	 * output sensitive cleanup
+	 *
+	 * TODO - need to figure out a clever way to implement
 	 */
 	void VectorizedMPPMarking::CleanupOS() {
-		std::vector<int> E; //extreme generators
+		std::vector<int> E = std::vector<int>(n); //extreme generators
+		memcpy(&E.at(0), &G.at(LexminG() * n), sizeof(int) * n); //initializing E with lexicpgraphical minimum
 
 	}
 
@@ -211,6 +214,72 @@ namespace VerifyTAPN {
 				}
 			}
 		}
+	}
+
+	/*
+	 * returning the index of the Lexicographical minimal, to the specified dimension, generator of G
+	 * if no dimension is specified dim 0 is defeault
+	 */
+	int VectorizedMPPMarking::LexminG(unsigned int dim) const {
+		std::vector<int> posMins;
+		bool initValNegInf = false;
+		for (unsigned int i = 0; i < gens; i++) {
+			if (G.at(i * n + dim) != INT_MIN && !initValNegInf) {
+				posMins.push_back(i);
+			} else if (G.at(i * n + dim) == INT_MIN && !initValNegInf) {
+				posMins.clear();
+				posMins.push_back(i);
+			} else if (G.at(i * n + dim) == INT_MIN && initValNegInf) {
+				posMins.push_back(i);
+			}
+		}
+		if (posMins.size() == 1) {
+			return posMins.at(0);
+		}
+		for (unsigned int j = 0; j < n; j++) {
+			if (j != dim) {
+				if (initValNegInf) {
+					int minVal;
+					int normVal = 0;
+					if (G.at(posMins.back() * n + j) == INT_MIN) {
+						minVal = INT_MIN;
+					} else {
+						normVal = G.at(posMins.back() * n + j);
+						minVal = 0;
+					}
+					for (int i = posMins.size() - 2; i >= 0; --i) {
+						if (G.at(posMins.at(i) * n + j) == INT_MIN && minVal != INT_MIN) {
+							minVal = INT_MIN;
+							posMins.resize(i + 1);
+						} else if (G.at(posMins.at(i) * n + j) != INT_MIN && G.at(posMins.at(i) * n + j) - normVal
+								< minVal) {
+							minVal = G.at(posMins.at(i) * n + j) - normVal;
+							posMins.resize(i + 1);
+						} else if (G.at(posMins.at(i) * n + j) != INT_MIN && G.at(posMins.at(i) * n + j) - normVal
+								> minVal) {
+							posMins.erase(posMins.begin() + j);
+						}
+					}
+				} else {
+					int minVal = G.at(posMins.back() * n + j) - G.at(posMins.back() * n + dim);
+					for (int i = posMins.size() - 2; i >= 0; --i) {
+						if (G.at(posMins.at(i) * n + j) - G.at(posMins.at(i) * n + dim) < minVal) {
+							posMins.resize(i + 1);
+							minVal = G.at(posMins.at(i) * n + j) - G.at(posMins.at(i) * n + dim);
+						} else if (G.at(posMins.at(i) * n + j) - G.at(posMins.at(i) * n + dim) > minVal) {
+							posMins.erase(posMins.begin() + j);
+						}
+					}
+				}
+				if (posMins.size() == 1) {
+					return posMins.at(0);
+				}
+			}
+		}
+		std::cout
+				<< "Something went horribly wrong. It should not have come to this. The algorithm detected no lexicographic minimal generator. So I'm returning -1 which will make the program crash."
+				<< std::endl;
+		return -1;
 	}
 
 	/*
@@ -466,20 +535,34 @@ namespace VerifyTAPN {
 		for (unsigned int j = 1; j < n; ++j) {
 			if (maxConstants[j] < 0) {
 				FreeClock(j);
-			} //else {
-			//	for (unsigned int i = 0; i < gens; i++) {
-			//		if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) <= maxConstants[j]) {
-			//			break;
-			//		}
-			//		if (i == gens - 1) {
-			//			FreeClock(j, maxConstants[j] + 1);
-			//			break;
-			//		}
-			//	}
-			//}
+			} else {
+				for (unsigned int i = 0; i < gens; i++) {
+					if (G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
+						bool unitVec = true;
+						bool addUnitVec = false;
+						for (unsigned int k = 1; k < n; k++) {
+							if (k != j) {
+								if (G.at(i * n + k) != INT_MIN) {
+									unitVec = false;
+									if (G.at(i * n + j) - G.at(i * n + k) <= maxConstants[j]) {
+										break;
+									}
+								}
+							}
+							if (k == n - 1 && !unitVec) {
+								addUnitVec = true;
+							}
+						}
+						if (addUnitVec) {
+							AddUnitVec(j);
+							break;
+						}
+					}
+				}
+			}
 		}
 		Cleanup();
-		Extrapolate49(maxConstants);
+		//Extrapolate49(maxConstants);
 		//Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 	}
@@ -533,7 +616,7 @@ namespace VerifyTAPN {
 			for (unsigned int i = 0; i < gens; i++) {
 				if (G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
 					bool unitVec = true;
-					bool addUnitVec;
+					bool addUnitVec = false;
 					for (unsigned int k = 1; k < n; k++) {
 						if (k != j) {
 							if (G.at(i * n + k) != INT_MIN) {
@@ -543,11 +626,11 @@ namespace VerifyTAPN {
 								}
 							}
 						}
-						if(k==n-1 && !unitVec){
+						if (k == n - 1 && !unitVec) {
 							addUnitVec = true;
 						}
 					}
-					if(addUnitVec){
+					if (addUnitVec) {
 						AddUnitVec(j);
 						break;
 					}
@@ -563,7 +646,7 @@ namespace VerifyTAPN {
 	 * e_j = 0, j == dim
 	 * e_j = NegInf, j!= dim
 	 */
-	void VectorizedMPPMarking::AddUnitVec(int dim) {
+	void VectorizedMPPMarking::AddUnitVec(unsigned int dim) {
 		gens++;
 		G.resize(gens * n);
 		for (unsigned int j = 0; j < n; j++) {

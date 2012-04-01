@@ -335,104 +335,107 @@ namespace VerifyTAPN {
 			return false;
 		}
 
-		virtual void Extrapolate(const int* maxConstants) {
-			for (size_t i = FirstClock; i <= dp.size(); ++i) {
-				if (maxConstants[i] == -INF) {
-					FreeClock(i);
-				}
-			}
-			Cleanup();
-			//Extrapolate411(maxConstants);
-		}
-
-
-		/*
-		 * buggy!!!
-		 */
-		void Extrapolate411(const int* maxConstants) {
-			for (size_t i = FirstClock; i <= dp.size(); i++) {
-				if (maxConstants[i] >= 0) {
-					int count = 0;
-					for (MPVecIter v = V.begin(); v != V.end(); ++v) {
-						count++;
-						if (v->Get(i) <= maxConstants[i]) {
-							std::cout<<"breaking ";
-							break;
-						}
-						if (count == V.size()) {
-							std::cout << "count = " << count << " - V.size() = " << V.size();
-							std::cout << "hep" << std::endl;
-							for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-								std::cout<<"q";
-								it->Set(i, maxConstants[i] + 1);
-							}
-							std::cout<<"a";
-							for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-								it->Set(i, NegInf);
-							}
-							std::cout<<"b";
-							MPVec ex = MPVec(dp.size(), NegInf);
-							std::cout<<"c";
-							ex.Set(i, 0);
-							W.push_back(ex);
-							Cleanup();
-						}
-
-					}
-				}
-			}
-		}
-
 		/*		virtual void Extrapolate(const int* maxConstants) {
-		 //std::cout << "Extrapolating\n";
-		 //PrintLocal();
-		 for (size_t i = FirstClock; i <= dp.size(); i++) {
-
-		 int k = maxConstants[i];
-		 if (k == -INF) {
+		 for (size_t i = FirstClock; i <= dp.size(); ++i) {
+		 if (maxConstants[i] == -INF) {
 		 FreeClock(i);
-		 continue;
-		 }
-
-		 bool oneDimVecAdded = false;
-
-		 for (MPVecIter v = V.begin(); v != V.end(); ++v) {
-		 bool addOneDimVec = v->Get(i) > maxConstants[i];
-		 for (size_t j = FirstClock; j <= dp.size(); j++) {
-		 if (i == j)
-		 continue;
-		 if (addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
-		 addOneDimVec = false;
-		 }
-		 }
-		 if (!oneDimVecAdded && addOneDimVec) {
-		 MPVec ex = MPVec(dp.size(), NegInf);
-		 ex.Set(i, 0);
-		 W.push_back(ex);
-		 oneDimVecAdded = true;
-		 }
-		 }
-
-		 for (MPVecIter w = W.begin(); !oneDimVecAdded && w != W.end(); ++w) {
-		 bool addVec = true;
-		 for (size_t j = FirstClock; j <= dp.size(); j++) {
-		 if (i != j && w->Get(i) - w->Get(j) <= maxConstants[i]) {
-		 addVec = false;
-		 break;
-		 }
-		 }
-		 if (addVec) {
-		 MPVec ex = MPVec(dp.size(), NegInf);
-		 ex.Set(i, 0);
-		 W.push_back(ex);
-		 oneDimVecAdded = true;
-		 }
 		 }
 		 }
 		 Cleanup();
-		 //PrintLocal();
-		 //std::cout << std::endl;
 		 }*/
+
+		/*
+		 * buggy!!!
+
+		 void Extrapolate411(const int* maxConstants) {
+		 for (size_t i = FirstClock; i <= dp.size(); i++) {
+		 if (maxConstants[i] >= 0) {
+		 int count = 0;
+		 for (MPVecIter v = V.begin(); v != V.end(); ++v) {
+		 count++;
+		 if (v->Get(i) <= maxConstants[i]) {
+		 std::cout << "breaking ";
+		 break;
+		 }
+		 if (count == V.size()) {
+		 std::cout << "count = " << count << " - V.size() = " << V.size();
+		 std::cout << "hep" << std::endl;
+		 for (MPVecIter it = V.begin(); it != V.end(); ++it) {
+		 std::cout << "q";
+		 it->Set(i, maxConstants[i] + 1);
+		 }
+		 std::cout << "a";
+		 for (MPVecIter it = W.begin(); it != W.end(); ++it) {
+		 it->Set(i, NegInf);
+		 }
+		 std::cout << "b";
+		 MPVec ex = MPVec(dp.size(), NegInf);
+		 std::cout << "c";
+		 ex.Set(i, 0);
+		 W.push_back(ex);
+		 Cleanup();
+		 }
+
+		 }
+		 }
+		 }
+		 }*/
+
+		/* contains bug. Does not handle NegInf correctly in test
+		 *
+		 */
+		virtual void Extrapolate(const int* maxConstants) {
+			//std::cout << "Extrapolating\n";
+			//PrintLocal();
+			for (size_t i = FirstClock; i <= dp.size(); i++) {
+
+				int k = maxConstants[i];
+				if (k == -INF) {
+					FreeClock(i);
+					continue;
+				}
+
+				bool oneDimVecAdded = false;
+
+				for (MPVecIter v = V.begin(); v != V.end(); ++v) {
+					bool addOneDimVec = v->Get(i) > maxConstants[i];
+					for (size_t j = FirstClock; j <= dp.size(); j++) {
+						if (i == j)
+							continue;
+						if (addOneDimVec && v->Get(i) - v->Get(j) <= maxConstants[i]) {
+							addOneDimVec = false;
+						}
+					}
+					if (!oneDimVecAdded && addOneDimVec) {
+						MPVec ex = MPVec(dp.size(), NegInf);
+						ex.Set(i, 0);
+						W.push_back(ex);
+						oneDimVecAdded = true;
+					}
+				}
+
+				for (MPVecIter w = W.begin(); !oneDimVecAdded && w != W.end(); ++w) {
+					if (w->Get(i) != NegInf) { //generator has no value in concerned dimension
+						bool addVec = true;
+						for (size_t j = FirstClock; j <= dp.size(); j++) {
+							if (i != j && w->Get(j) != NegInf && w->Get(i) - w->Get(j) <= maxConstants[i]) {
+								addVec = false;
+								break;
+							}
+						}
+						if (addVec) {
+							MPVec ex = MPVec(dp.size(), NegInf);
+							ex.Set(i, 0);
+							W.push_back(ex);
+							oneDimVecAdded = true;
+						}
+					}
+				}
+			}
+			Cleanup();
+			//PrintLocal();
+			//std::cout << std::endl;
+		}
 
 		virtual void ConvexUnion(AbstractMarking* marking) {
 			MPPMarking<MPVec>* m = static_cast<MPPMarking<MPVec>*> (marking);

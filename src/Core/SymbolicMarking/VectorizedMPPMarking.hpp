@@ -53,6 +53,7 @@ namespace VerifyTAPN {
 		void Cleanup();
 		void CleanupOS();
 		void Norm();
+		int LexminG(unsigned int dim = 0) const;
 
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
@@ -63,7 +64,7 @@ namespace VerifyTAPN {
 		void Extrapolate411(const int* maxConstants);
 		void Extrapolate413(const int* maxConstants);
 
-		void AddUnitVec(int dim);
+		void AddUnitVec(unsigned int dim);
 
 	protected:
 		virtual void Swap(int i, int j);
