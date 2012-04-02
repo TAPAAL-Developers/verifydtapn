@@ -335,7 +335,7 @@ namespace VerifyTAPN {
 			return false;
 		}
 
-		/*		virtual void Extrapolate(const int* maxConstants) {
+		/*virtual void Extrapolate(const int* maxConstants) {
 		 for (size_t i = FirstClock; i <= dp.size(); ++i) {
 		 if (maxConstants[i] == -INF) {
 		 FreeClock(i);
