@@ -21,29 +21,41 @@
 
 namespace VerifyTAPN {
 
-
 	class VectorizedMPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class DiscreteInclusionMarkingFactory;
 		friend class VectorizedMPPMarkingFactory;
 	public:
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 
-	private: // data
+	private:
+		// data
 		TokenMapping mapping;
 		std::vector<int> G; /* array of generators */
 		unsigned int n; /*number of tokens + zero clock */
 		unsigned int gens; /* number of generators */
 		id_type id;
 
+	public:
+		//constructors
+		VectorizedMPPMarking(const DiscretePart &dp) :
+			DiscreteMarking(dp), mapping() {
+			InitMapping();
+		}
+		;
+		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) :
+			DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {
+		}
+		;
+		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) :
+			DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {
+		}
+		;
+		virtual ~VectorizedMPPMarking() {
+		}
+		;
 
-	public: //constructors
-		VectorizedMPPMarking(const DiscretePart &dp) : DiscreteMarking(dp), mapping() { InitMapping(); };
-		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) : DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {};
-		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) : DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {};
-		virtual ~VectorizedMPPMarking() { };
-
-
-	private:  //internal functions
+	private:
+		//internal functions
 		void InitZero();
 		void InitMapping();
 
@@ -53,7 +65,9 @@ namespace VerifyTAPN {
 		void Cleanup();
 		void CleanupOS();
 		void Norm();
-		int LexminG(unsigned int dim = 0) const;
+		int Lexmin(const std::vector<int>& C, unsigned int gens, unsigned int dim = 0) const;
+		bool ExSetContainsPoint(const std::vector<int>& C, int Cgens, const std::vector<int>& x) const;
+		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w, int skipgent = -1) const;
 
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
@@ -68,7 +82,7 @@ namespace VerifyTAPN {
 
 	protected:
 		virtual void Swap(int i, int j);
-	//	virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+		//	virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
 	public:
 		virtual void Print(std::ostream& out) const;
@@ -89,15 +103,14 @@ namespace VerifyTAPN {
 		virtual void AddTokens(const std::list<int>& placeIndicies);
 		virtual void RemoveTokens(const std::set<int>& tokenIndices);
 
-/*
-		virtual void MakeSymmetric(BiMap& inderictionTable);
-		virtual void MoveToken(int tokenIndex, int newPlaceIndex);
-		virtual int GetTokenPlacement(int token) const;
-		virtual unsigned int NumberOfTokens() const;
-		virtual unsigned int NumberOfTokensInPlace(int placeIndex) const;*/
+		/*
+		 virtual void MakeSymmetric(BiMap& inderictionTable);
+		 virtual void MoveToken(int tokenIndex, int newPlaceIndex);
+		 virtual int GetTokenPlacement(int token) const;
+		 virtual unsigned int NumberOfTokens() const;
+		 virtual unsigned int NumberOfTokensInPlace(int placeIndex) const;*/
 
 	};
 }
-
 
 #endif /* VECTORIZEDMPPMARKING_HPP */
