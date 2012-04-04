@@ -344,43 +344,6 @@ namespace VerifyTAPN {
 		 Cleanup();
 		 }*/
 
-		/*
-		 * buggy!!!
-
-		 void Extrapolate411(const int* maxConstants) {
-		 for (size_t i = FirstClock; i <= dp.size(); i++) {
-		 if (maxConstants[i] >= 0) {
-		 int count = 0;
-		 for (MPVecIter v = V.begin(); v != V.end(); ++v) {
-		 count++;
-		 if (v->Get(i) <= maxConstants[i]) {
-		 std::cout << "breaking ";
-		 break;
-		 }
-		 if (count == V.size()) {
-		 std::cout << "count = " << count << " - V.size() = " << V.size();
-		 std::cout << "hep" << std::endl;
-		 for (MPVecIter it = V.begin(); it != V.end(); ++it) {
-		 std::cout << "q";
-		 it->Set(i, maxConstants[i] + 1);
-		 }
-		 std::cout << "a";
-		 for (MPVecIter it = W.begin(); it != W.end(); ++it) {
-		 it->Set(i, NegInf);
-		 }
-		 std::cout << "b";
-		 MPVec ex = MPVec(dp.size(), NegInf);
-		 std::cout << "c";
-		 ex.Set(i, 0);
-		 W.push_back(ex);
-		 Cleanup();
-		 }
-
-		 }
-		 }
-		 }
-		 }*/
-
 		/* contains bug. Does not handle NegInf correctly in test
 		 *
 		 */

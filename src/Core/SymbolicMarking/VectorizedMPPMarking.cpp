@@ -648,43 +648,39 @@ namespace VerifyTAPN {
 		return false;
 	}
 
-
 	/*
 	 * extrapolation - not compleate but sound
 	 * principles: freeing unbounded clocks, and theorems 4.9 and 4.11
 	 */
 	void VectorizedMPPMarking::Extrapolate(const int* maxConstants) {
 		for (unsigned int j = 1; j < n; ++j) {
-			if (maxConstants[j] == INT_MIN) {
+			if (maxConstants[j] == -INF) {
 				FreeClock(j);
-			} else {
+			} else if (maxConstants[j] >= 0) {
+				bool addUnitVec = false; //should we add a new unit vector for the given dimension  (j)?
+				bool resetExtra = true; //is all generators above maxConstant[j] thus we should apply 4.9?
 				for (unsigned int i = 0; i < gens; i++) {
-					if (G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
-						bool unitVec = true;
-						bool addUnitVec = false;
-						bool resetExtra = true;
+					if (resetExtra) {
 						if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) <= maxConstants[j]) {
 							resetExtra = false;
 						}
 						if (i == gens - 1 && resetExtra) {
 							FreeClock(j, maxConstants[j] + 1);
 							break;
+							resetExtra = false;
 						}
-						if (!addUnitVec) {
-							for (unsigned int k = 1; k < n; k++) {
-								if (k != j) {
-									if (G.at(i * n + k) != INT_MIN) {
-										unitVec = false;
-										if (G.at(i * n + j) - G.at(i * n + k) <= maxConstants[j]) {
-											break;
-										}
-									}
-								}
-								if (k == n - 1 && !unitVec) {
-									addUnitVec = true;
+					}
+					if (!addUnitVec && G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
+						bool unitVec = true; //is the given generator a unit vector?
+						for (unsigned int k = 1; k < n; k++) {
+							if (k != j && G.at(i * n + k) != INT_MIN) {
+								unitVec = false;
+								if (G.at(i * n + j) - G.at(i * n + k) <= maxConstants[j]) {
+									break;
 								}
 							}
-							if (addUnitVec) {
+							if (k == n - 1 && !unitVec) {
+								addUnitVec = true;
 								AddUnitVec(j);
 							}
 						}
@@ -698,6 +694,12 @@ namespace VerifyTAPN {
 		//Extrapolate413(maxConstants);
 	}
 
+	void VectorizedMPPMarking::ExtrapolateClaim(const int* maxConstants){
+		for(unsigned int j = 1; j<n; j++){
+
+		}
+	}
+
 	void VectorizedMPPMarking::Extrapolate411(const int* maxConstants) {
 		for (unsigned int j = 1; j < n; j++) {
 			if (maxConstants[j] >= 0) {
@@ -708,6 +710,35 @@ namespace VerifyTAPN {
 					if (i == gens - 1) {
 						FreeClock(j, maxConstants[j] + 1);
 						break;
+					}
+				}
+			}
+		}
+		Cleanup();
+	}
+
+	void VectorizedMPPMarking::Extrapolate49(const int* maxConstants) {
+		for (unsigned int j = 1; j < n; j++) {
+			if (maxConstants[j] >= 0) {
+				bool addUnitVec = false;
+				for (unsigned int i = 0; i < gens; i++) {
+					if (!addUnitVec && G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
+						bool unitVec = true;
+						for (unsigned int k = 1; k < n; k++) {
+							if (k != j && G.at(i * n + k) != INT_MIN) {
+								unitVec = false;
+								if (G.at(i * n + j) - G.at(i * n + k) <= maxConstants[j]) {
+									break;
+								}
+							}
+							if (k == n - 1 && !unitVec) {
+								addUnitVec = true;
+							}
+						}
+						if (addUnitVec) {
+							AddUnitVec(j);
+							break;
+						}
 					}
 				}
 			}
@@ -735,35 +766,6 @@ namespace VerifyTAPN {
 						memcpy(&G.at(gens * n), &G.at(i * n), sizeof(int) * n);
 						G.at(gens * n) = INT_MIN;
 						gens++;
-					}
-				}
-			}
-		}
-		Cleanup();
-	}
-
-	void VectorizedMPPMarking::Extrapolate49(const int* maxConstants) {
-		for (unsigned int j = 1; j < n; j++) {
-			for (unsigned int i = 0; i < gens; i++) {
-				if (G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
-					bool unitVec = true;
-					bool addUnitVec = false;
-					for (unsigned int k = 1; k < n; k++) {
-						if (k != j) {
-							if (G.at(i * n + k) != INT_MIN) {
-								unitVec = false;
-								if (G.at(i * n + j) - G.at(i * n + k) <= maxConstants[j]) {
-									break;
-								}
-							}
-						}
-						if (k == n - 1 && !unitVec) {
-							addUnitVec = true;
-						}
-					}
-					if (addUnitVec) {
-						AddUnitVec(j);
-						break;
 					}
 				}
 			}

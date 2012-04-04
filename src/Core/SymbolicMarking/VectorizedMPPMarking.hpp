@@ -77,6 +77,7 @@ namespace VerifyTAPN {
 		void Extrapolate49(const int* maxConstants);
 		void Extrapolate411(const int* maxConstants);
 		void Extrapolate413(const int* maxConstants);
+		void ExtrapolateClaim(const int* maxConstants);
 
 		void AddUnitVec(unsigned int dim);
 
