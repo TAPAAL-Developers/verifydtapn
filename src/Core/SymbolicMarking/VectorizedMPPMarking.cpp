@@ -689,15 +689,56 @@ namespace VerifyTAPN {
 			}
 		}
 		Cleanup();
+		ExtrapolateClaim(maxConstants);
 		//Extrapolate49(maxConstants);
 		//Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 	}
 
-	void VectorizedMPPMarking::ExtrapolateClaim(const int* maxConstants){
-		for(unsigned int j = 1; j<n; j++){
-
+	void VectorizedMPPMarking::ExtrapolateClaim(const int* maxConstants) {
+		std::vector<int> topCorner = std::vector<int>(n, INT_MIN);
+		std::vector<int> infSupp = std::vector<int>(n, 0);
+		for (unsigned int i = 0; i < gens; i++) {
+			if (G.at(i * n) != INT_MIN) {
+				for (unsigned int j = 0; j < n; j++) {
+					topCorner.at(j) = MAX(topCorner.at(j), G.at(i*n+j)-G.at(i*n));
+				}
+			} else {
+				for (unsigned int j = 1; j < n; j++) {
+					if (G.at(i * n + j) != INT_MIN) {
+						infSupp.at(j) = 1;
+					}
+				}
+			}
 		}
+		for (unsigned int j = 1; j < n; j++) {
+			bool infSuppAllDim = true;
+			for (unsigned int k = 1; k < n; k++) {
+				if (k != j && !infSupp.at(k)) {
+					infSuppAllDim = false;
+				}
+			}
+			for (unsigned int i = 1; i < gens; i++) {
+				if (infSuppAllDim) {
+					gens++;
+					G.resize(gens * n);
+					std::memcpy(&G.at((gens - 1) * n), &G.at(i * n), sizeof(int) * n);
+					G.at((gens - 1) * n) = INT_MIN;
+				} else if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) > maxConstants[j]) {
+					int minDif = INF;
+					for (unsigned int k = 1; k < n; k++) {
+						if (k != j) {
+							minDif = MIN(minDif, topCorner.at(k) - (G.at(i*n+k) - G.at(i*n)));
+						}
+					}
+					if (topCorner.at(j) != G.at(i * n + j) - G.at(i * n)) {
+						topCorner.at(j) += minDif;
+					}
+					G.at(i * n) -= minDif;
+				}
+			}
+		}
+		Cleanup();
 	}
 
 	void VectorizedMPPMarking::Extrapolate411(const int* maxConstants) {
