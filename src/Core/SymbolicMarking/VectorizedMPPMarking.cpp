@@ -689,7 +689,7 @@ namespace VerifyTAPN {
 			}
 		}
 		Cleanup();
-		ExtrapolateClaim(maxConstants);
+		//ExtrapolateClaim(maxConstants);
 		//Extrapolate49(maxConstants);
 		//Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
