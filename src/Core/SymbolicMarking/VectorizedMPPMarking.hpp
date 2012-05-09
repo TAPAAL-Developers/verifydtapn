@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <string.h>
 
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"

@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdio.h>
+#include <limits.h>
 //#include <xmmintrin.h>
 
 namespace VerifyTAPN {
@@ -73,16 +74,6 @@ namespace VerifyTAPN {
 
 		for (unsigned int i = 0; i < mpp.gens; i++) {
 			std::memcpy(&x.at(0), &mpp.G.at(i * n), sizeof(int) * n); //extracting one generator from mpp copying it to x
-
-			//		for (unsigned int j = 0; j < NumberOfTokens(); ++j) {
-			//			if (GetClockIndex(j) != mpp.GetClockIndex(j)) {
-			//				int temp = x.at(GetClockIndex(j));
-			//				x.at(GetClockIndex(j)) = x.at(mpp.GetClockIndex(j));
-			//				x.at(mpp.GetClockIndex(j)) = temp;
-			//
-			//				}
-			//			}
-
 			if (!ContainsPoint(x)) {
 				return false;
 			}
@@ -174,6 +165,7 @@ namespace VerifyTAPN {
 	 * function to remove redundant generators
 	 */
 	void VectorizedMPPMarking::Cleanup() {
+		std::cout<<"Gens before cleanup: " << gens;
 		std::vector<int> g = std::vector<int>(n);
 		for (int i = gens - 1; i >= 0; --i) {
 			std::memcpy(&g.at(0), &G.at(i * n), sizeof(int) * n); //extracting a generator
@@ -185,6 +177,7 @@ namespace VerifyTAPN {
 				G.resize(gens * n);
 			}
 		}
+		std::cout<<" - After cleanup: " << gens << std::endl;
 	}
 
 	/*
@@ -566,7 +559,7 @@ namespace VerifyTAPN {
 	/*
 	 * NOTE: since we don't have any good representation of strictness with max-plus
 	 * polyhedra, there is an implicit conversion of strict constraints to non-strict
-	 * with the same bound. This can cause incorrect behaviour.
+	 * with the same bound. This may cause incorrect behaviour.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInterval& interval) {
 		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != INT_MAX)) {
@@ -598,7 +591,7 @@ namespace VerifyTAPN {
 	/*
 	 * Since we do not have a good representation for strct constraints with
 	 * max-plus polyhedra, in this function there is an implicit conversion of
-	 * strict constraints to non-strict. This can cause incorrect behaviour when
+	 * strict constraints to non-strict. This may cause incorrect behaviour when
 	 * dealing with models contain strict constraints.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInvariant& invariant) {
@@ -716,6 +709,7 @@ namespace VerifyTAPN {
 			for (unsigned int k = 1; k < n; k++) {
 				if (k != j && !infSupp.at(k)) {
 					infSuppAllDim = false;
+					break;
 				}
 			}
 			for (unsigned int i = 1; i < gens; i++) {
