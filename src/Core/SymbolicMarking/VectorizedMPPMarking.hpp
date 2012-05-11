@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <string.h>
+#include <cstring>
 
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
@@ -39,16 +39,16 @@ namespace VerifyTAPN {
 	public:
 		//constructors
 		VectorizedMPPMarking(const DiscretePart &dp) :
-			DiscreteMarking(dp), mapping() {
+				DiscreteMarking(dp), mapping() {
 			InitMapping();
 		}
 		;
 		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) :
-			DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {
+				DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {
 		}
 		;
 		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) :
-			DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {
+				DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {
 		}
 		;
 		virtual ~VectorizedMPPMarking() {
@@ -68,7 +68,8 @@ namespace VerifyTAPN {
 		void Norm();
 		int Lexmin(const std::vector<int>& C, unsigned int gens, unsigned int dim = 0) const;
 		bool ExSetContainsPoint(const std::vector<int>& C, int Cgens, const std::vector<int>& x) const;
-		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w, int skipgent = -1) const;
+		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w,
+				int skipgent = -1) const;
 
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
@@ -102,7 +103,7 @@ namespace VerifyTAPN {
 		void ConvexUnion(AbstractMarking* marking);
 		virtual size_t HashKey() const;
 		virtual relation Relation(const StoredMarking& other) const;
-		virtual void AddTokens(const std::list<int>& placeIndicies);
+		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::set<int>& tokenIndices);
 
 		/*

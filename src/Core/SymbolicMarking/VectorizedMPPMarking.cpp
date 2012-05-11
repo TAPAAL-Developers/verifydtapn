@@ -1,8 +1,8 @@
 #include "VectorizedMPPMarking.hpp"
 #include <cstring>
 #include <iostream>
-#include <stdio.h>
-#include <limits.h>
+#include <cstdio>
+#include <climits>
 //#include <xmmintrin.h>
 
 namespace VerifyTAPN {
