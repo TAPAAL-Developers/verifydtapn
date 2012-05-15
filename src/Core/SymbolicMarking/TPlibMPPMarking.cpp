@@ -32,27 +32,59 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::Swap(int i, int j) {
-		/*TODO*/
+		int perm[dp.size()+1];
+		perm[0] = 0;
+		for(unsigned int k = 1; k<=dp.size(); k++){
+			if(k == i){
+				perm[k] = GetClockIndex(j);
+			}
+			else if (k == j){
+				perm[k] = GetClockIndex(i);
+			}
+			else {
+				perm[k] = GetClockIndex(k);
+			}
+		}
+		poly_t *permPoly = permute_dimensions(poly,perm);
+		poly_free(poly);
+		poly = permPoly;
 	}
 
 	void TPlibMPPMarking::Print(std::ostream& out) const{
 		/*TODO*/
 	}
+
 	id_type TPlibMPPMarking::UniqueId() const{
 		return id;
 	}
+
 	unsigned int TPlibMPPMarking::GetClockIndex(unsigned int token) const{
 		return mapping.GetMapping(token);
 	}
+
 	void TPlibMPPMarking::Reset(int token){
 		/*TODO*/
 	}
+
+	/* checks if the polyhedron is empty in the entire Eucledian space.
+	 * As long as the algorithms preserve positive space this is fine.
+	 *
+	 * TODO
+	 * Problem arises if:
+	 * Intersect(x_i < c) where c <= 0
+	 * Intersect(x_i <= c) where c < 0
+	 * Reset(x_i = c) where c < 0
+	 */
 	bool TPlibMPPMarking::IsEmpty() const{
-		/*TODO*/
+		return is_bottom(poly);
 	}
+
 	void TPlibMPPMarking::Delay(){
-		/*TODO*/
+		poly_t *delayPoly = delay(poly,0);
+		poly_free(poly);
+		poly = delayPoly;
 	}
+
 	void TPlibMPPMarking::Free(int token){
 		/*TODO*/
 	}
@@ -66,20 +98,43 @@ namespace VerifyTAPN {
 		/*TODO*/
 	}
 	void TPlibMPPMarking::Extrapolate(const int* maxConstants){
-		/*TODO*/
-		/*ignoring this function until implemented in the TPlib */
+		/*TODO*//*ignoring this function until implemented in the TPlib */
 	}
+
 	size_t TPlibMPPMarking::HashKey() const{
 		return VerifyTAPN::hash()(dp);
 	}
+
 	relation TPlibMPPMarking::Relation(const StoredMarking& other) const{
-		/*TODO*/
+		const TPlibMPPMarking &mpp = static_cast<const TPlibMPPMarking&>(other);
+		bool sub = is_leq(poly,mpp.poly);
+		bool sup = is_leq(mpp.poly,poly);
+		if(sup&&sup){
+			return EQUAL;
+		}
+		if(sup){
+			return SUPERSET;
+		}
+		if(sub){
+			return SUBSET;
+		}
+		return DIFFERENT;
 	}
+
 	void TPlibMPPMarking::AddTokens(const std::list<int>& placeIndices){
 		/*TODO*/
 	}
+
 	void TPlibMPPMarking::RemoveTokens(const std::set<int>& tokenIndices){
-		/*TODO*/
+		int remDims[tokenIndices.size()];
+		int i = 0;
+		for(std::set<int>::const_iterator it = tokenIndices.begin(); it != tokenIndices.end(); ++i){
+			remDims[i] = GetClockIndex(*it);
+			i++;
+		}
+		poly_t *remPoly = remove_dimensions(poly,remDims,tokenIndices.size());
+		poly_free(poly);
+		poly = remPoly;
 	}
 
 }

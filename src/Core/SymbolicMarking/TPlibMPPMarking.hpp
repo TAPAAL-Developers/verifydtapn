@@ -19,11 +19,7 @@
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
 
-//extern "C" {
 #include "tplib_double.h"
-//}
-
-//#include "tplib_double.h" /* bindings for the TPlib. */
 
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {
