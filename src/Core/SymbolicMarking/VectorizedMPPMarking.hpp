@@ -11,13 +11,16 @@
 #include "TokenMapping.hpp"
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
-//#include "MPVector.hpp"		//using InvalidDimException defined here
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+
+#ifndef DEBUG_PRINT_MPV
+#define DEBUG_PRINT_MPV false
 #endif
 
 namespace VerifyTAPN {
@@ -44,7 +47,7 @@ namespace VerifyTAPN {
 		}
 		;
 		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) :
-				DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()), gens(generators) {
+				DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()+1), gens(generators) {
 		}
 		;
 		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) :
@@ -74,7 +77,7 @@ namespace VerifyTAPN {
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
 
-		void PrintLocal() const;
+		void PrintMarking() const;
 
 		void Extrapolate49(const int* maxConstants);
 		void Extrapolate411(const int* maxConstants);

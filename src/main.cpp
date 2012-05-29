@@ -18,6 +18,7 @@
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 #include "Core/SymbolicMarking/VectorizedMPPMarkingFactory.hpp"
+#include "Core/SymbolicMarking/TPlibMPPMarkingFactory.hpp"
 #include "Core/SymbolicMarking/MPPMarkingFactory.hpp"
 #include "Core/SymbolicMarking/MPVector.hpp"
 
@@ -38,6 +39,8 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 		return new VectorizedMPPMarkingFactory(tapn);
 	case MAXPLUS_OLD:
 		return new MPPMarkingFactory<MPVector>(tapn);
+	case MAXPLUS_TPLIB:
+		return new TPlibMPPMarkingFactory(tapn);
 	default:// Note that the constructor of DiscreteInclusionMarkingFactory automatically disables discrete inclusion
 		    // if DEFAULT is chosen
 		return new DiscreteInclusionMarkingFactory(tapn, options);

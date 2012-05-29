@@ -36,6 +36,8 @@ namespace VerifyTAPN {
 			return "max-plus polyhedra vectorized";
 		case MAXPLUS_OLD:
 			return "max-plus polyhedra as sets (old)";
+		case MAXPLUS_TPLIB:
+			return "max-plus pilyhedra TPlib bind";
 		default:
 			return "default";
 		}

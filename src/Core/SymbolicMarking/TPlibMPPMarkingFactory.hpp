@@ -7,6 +7,7 @@
 
 #ifndef TPLIBMPPMARKINGFACTORY_HPP_
 #define TPLIBMPPMARKINGFACTORY_HPP_
+
 #include "MarkingFactory.hpp"
 #include "TPlibMPPMarking.hpp"
 #include "../VerificationOptions.hpp"
@@ -22,20 +23,21 @@ namespace VerifyTAPN{
 
 	public:
 		TPlibMPPMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn){
+			init();
 			TPlibMPPMarking::tapn = tapn;
 		};
 
-		virtual ~VectorizedMPPMarkingFactory() {};
+		virtual ~TPlibMPPMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const std::vector<int>& tokenPlacement) const {
-			TPlibMPPMarking *marking = new VectorizedMPPMarking(DiscretePart(tokenPlacement));
+			TPlibMPPMarking *marking = new TPlibMPPMarking(DiscretePart(tokenPlacement));
 			marking->InitZero();
 			marking->id = 0;
 			return marking;
 		};
 
 		virtual SymbolicMarking* Clone(const SymbolicMarking& marking) const {
-			TPlibMPPMarking *clone = new VectorizedMPPMarking(static_cast<const VectorizedMPPMarking&>(marking));
+			TPlibMPPMarking *clone = new TPlibMPPMarking(static_cast<const TPlibMPPMarking&>(marking));
 			clone->id = nextId++;
 			return clone;
 		};

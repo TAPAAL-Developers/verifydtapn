@@ -21,6 +21,10 @@
 
 #include "tplib_double.h"
 
+#ifndef DEBUG_PRINT_TP
+#define DEBUG_PRINT_TP false
+#endif
+
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class DiscreteInclusionMarkingFactory;
@@ -35,17 +39,19 @@ namespace VerifyTAPN {
 
 	public:
 		//constructors
-		TPlibMPPMarking(const DiscretePart) :
+		TPlibMPPMarking(const DiscretePart dp) :
 				DiscreteMarking(dp), mapping() {
 			InitMapping();
 		}
 		;
-		TPlibMPPMarking(const DiscretePart &dp, const TokenMapping &mapping, poly_t &poly) :
-				DiscreteMarking(dp), mapping(mapping), poly(&poly) {
+		TPlibMPPMarking(const DiscretePart &dp, const TokenMapping &mapping, poly_t &polyIn) :
+				DiscreteMarking(dp), mapping(mapping) {
+			poly = copy(&polyIn);
 		}
 		;
 		TPlibMPPMarking(const TPlibMPPMarking &mpp) :
-				DiscreteMarking(mpp), mapping(mpp.mapping), poly(mpp.poly) {
+				DiscreteMarking(mpp), mapping(mpp.mapping) {
+			poly = copy(mpp.poly);
 		}
 		;
 		virtual ~TPlibMPPMarking() {
@@ -56,6 +62,10 @@ namespace VerifyTAPN {
 		//internal functions
 		void InitZero();
 		void InitMapping();
+
+		void FreeClock(int clock);
+		void ConstrainClock(int clock, int upperBound, int lowerBound);
+		void PrintMarking() const;
 
 	protected:
 		virtual void Swap(int i, int j);
@@ -71,7 +81,7 @@ namespace VerifyTAPN {
 		virtual void Free(int token);
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval);
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant);
-		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval);
+		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const;
 		virtual void Extrapolate(const int* maxConstants);
 		virtual size_t HashKey() const;
 		virtual relation Relation(const StoredMarking& other) const;
