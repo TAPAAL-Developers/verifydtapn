@@ -67,12 +67,16 @@ namespace VerifyTAPN {
 		bool Contains(const VectorizedMPPMarking& mpp) const;
 		void IntersectHalfspace(std::vector<int>& a, std::vector<int>& b);
 		void Cleanup();
+		int GetBound(int clock1, int clock2) const;
+
+		//experimenting
 		void CleanupOS();
 		void Norm();
 		int Lexmin(const std::vector<int>& C, unsigned int gens, unsigned int dim = 0) const;
 		bool ExSetContainsPoint(const std::vector<int>& C, int Cgens, const std::vector<int>& x) const;
 		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w,
 				int skipgent = -1) const;
+
 
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
@@ -88,7 +92,7 @@ namespace VerifyTAPN {
 
 	protected:
 		virtual void Swap(int i, int j);
-		//	virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
 	public:
 		virtual void Print(std::ostream& out) const;
@@ -108,14 +112,6 @@ namespace VerifyTAPN {
 		virtual relation Relation(const StoredMarking& other) const;
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::set<int>& tokenIndices);
-
-		/*
-		 virtual void MakeSymmetric(BiMap& inderictionTable);
-		 virtual void MoveToken(int tokenIndex, int newPlaceIndex);
-		 virtual int GetTokenPlacement(int token) const;
-		 virtual unsigned int NumberOfTokens() const;
-		 virtual unsigned int NumberOfTokensInPlace(int placeIndex) const;*/
-
 	};
 }
 

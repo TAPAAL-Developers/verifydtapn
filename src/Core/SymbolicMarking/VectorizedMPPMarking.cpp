@@ -185,6 +185,21 @@ namespace VerifyTAPN {
 	}
 
 	/*
+	 * return: clock1 - clock2
+	 */
+	int VectorizedMPPMarking::GetBound(int clock1, int clock2) const {
+		int bound = INT_MIN;
+		for (unsigned int i = 0; i < gens; i++) {
+			if (G.at(i * n + clock1) != INT_MIN && G.at(i * n + clock2) != INT_MIN) {
+				bound = MAX(bound, G.at(i*n+clock1)-G.at(i*n+clock2));
+			} else if (G.at(i * n + clock1) != INT_MIN && G.at(i * n + clock2) == INT_MIN) {
+				return INT_MAX;
+			}
+		}
+		return bound;
+	}
+
+	/*
 	 * output sensitive cleanup
 	 * naive implementation - copying around a lot of data, which should be avoided if possible
 	 * TODO - need to figure out a clever way to implement -- ALGORITHM NOT COMPLEATE
@@ -482,10 +497,24 @@ namespace VerifyTAPN {
 		}
 	}
 
-	//	bool VectorizedMPPMarking::IsUpperPositionGreaterThanPivot(int upper, int pivoxIndex) const{
-	/*TODO*/
-	//		return false;
-	//	}
+	bool VectorizedMPPMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const {
+		int placeUpper = dp.GetTokenPlacement(upper);
+		int pivot = dp.GetTokenPlacement(pivotIndex);
+		unsigned int mapUpper = GetClockIndex(upper);
+		unsigned int mapPivot = GetClockIndex(pivotIndex);
+		if (mapPivot > NumberOfTokens() + 1) {
+			std::cout << "*";
+		}
+		return DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)
+				|| (placeUpper == pivot && GetBound(0, mapUpper) > GetBound(0, mapPivot))
+				|| (placeUpper == pivot && GetBound(0, mapUpper) == GetBound(0, mapPivot)
+						&& GetBound(mapUpper, 0) > GetBound(mapPivot, 0))
+				|| (placeUpper == pivot && GetBound(0, mapUpper) == GetBound(0, mapPivot)
+						&& GetBound(mapUpper, 0) == GetBound(mapPivot, 0)
+						&& (mapPivot > mapUpper ? GetBound(mapPivot, mapUpper) > GetBound(mapUpper, mapPivot) :
+								GetBound(mapUpper, mapPivot) > GetBound(mapPivot, mapUpper)));
+	}
+
 	void VectorizedMPPMarking::Print(std::ostream& out) const {
 		out << "Placement: ";
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
@@ -742,7 +771,7 @@ namespace VerifyTAPN {
 		for (unsigned int j = 1; j < n; ++j) {
 			if (maxConstants[j] == -INF) {
 				FreeClock(j);
-			} /*else if (maxConstants[j] >= 0) {
+			} else if (maxConstants[j] >= 0) {
 			 bool addUnitVec = false; //should we add a new unit vector for the given dimension  (j)?
 			 bool resetExtra = true; //is all generators above maxConstant[j] thus we should apply 4.9?
 			 for (unsigned int i = 0; i < gens; i++) {
@@ -772,7 +801,7 @@ namespace VerifyTAPN {
 			 }
 			 }
 			 }
-			 }*/
+			 }
 		}
 		Cleanup();
 		//ExtrapolateClaim(maxConstants);
