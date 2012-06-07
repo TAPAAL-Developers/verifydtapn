@@ -138,6 +138,37 @@ namespace VerifyTAPN {
 		}
 	}
 
+	bool TPlibMPPMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const {
+		int placeUpper = dp.GetTokenPlacement(upper);
+		int pivot = dp.GetTokenPlacement(pivotIndex);
+		unsigned int mapUpper = GetClockIndex(upper);
+		unsigned int mapPivot = GetClockIndex(pivotIndex);
+		if (mapPivot > NumberOfTokens() + 1) {
+			std::cout << "*";
+		}
+
+		if(DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)){
+			return true;
+		} else if (placeUpper == pivot) {
+			double zeroUpper = lower_difference_bound(poly,mapUpper,0);
+			double zeroPivot = lower_difference_bound(poly,mapPivot,0);
+			if(zeroUpper > zeroPivot){
+				return true;
+			} else if(zeroUpper == zeroPivot) {
+				double upperZero = lower_difference_bound(poly,0,mapUpper);
+				double pivotZero = lower_difference_bound(poly,0,mapPivot);
+				if(upperZero > pivotZero) {
+					return true;
+				} else if(upperZero == pivotZero) {
+					double pivotUpper = lower_difference_bound(poly,mapUpper,mapPivot);
+					double upperPivot = lower_difference_bound(poly,mapPivot,mapUpper);
+					return mapPivot > mapUpper ? pivotUpper > upperPivot : upperPivot > pivotUpper;
+				}
+			}
+		}
+		return false;
+	}
+
 	void TPlibMPPMarking::Print(std::ostream& out) const {
 		/*TODO*/
 	}
@@ -191,7 +222,7 @@ namespace VerifyTAPN {
 		poly_free(poly);
 		poly = delayPoly;
 
-		for(unsigned int i = 0; i< NumberOfTokens(); i++){
+		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
 			Constrain(i, invariant);
 		}
@@ -373,7 +404,7 @@ namespace VerifyTAPN {
 	relation TPlibMPPMarking::Relation(const StoredMarking& other) const {
 		const TPlibMPPMarking &mpp = static_cast<const TPlibMPPMarking&>(other);
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
 			std::cout << "Relation!" << std::endl;
 			std::cout << "Left marking:" << std::endl;
 			PrintMarking();
@@ -386,13 +417,13 @@ namespace VerifyTAPN {
 		bool sub = is_leq(poly, mpp.poly);
 		bool sup = is_leq(mpp.poly, poly);
 
-		if (DEBUG_PRINT_TP){
-			std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly,mpp.poly) << std::endl;
-			std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(mpp.poly,poly) << std::endl;
+		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+			std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly, mpp.poly) << std::endl;
+			std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(mpp.poly, poly) << std::endl;
 		}
 
 		if (sup && sup) {
-			if (DEBUG_PRINT_TP) {
+			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
 				std::cout << "Relation: EQUAL" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -400,7 +431,7 @@ namespace VerifyTAPN {
 			return EQUAL;
 		}
 		if (sup) {
-			if (DEBUG_PRINT_TP) {
+			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
 				std::cout << "Relation: SUPERSET" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -408,14 +439,14 @@ namespace VerifyTAPN {
 			return SUPERSET;
 		}
 		if (sub) {
-			if (DEBUG_PRINT_TP) {
+			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
 				std::cout << "Relation: SUBSET" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
 
 			return SUBSET;
 		}
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
 			std::cout << "Relation: DIFFERENT" << std::endl;
 			std::cout << "-----------------" << std::endl;
 		}

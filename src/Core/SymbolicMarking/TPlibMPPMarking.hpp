@@ -24,6 +24,9 @@
 #ifndef DEBUG_PRINT_TP
 #define DEBUG_PRINT_TP false
 #endif
+#ifndef DEBUG_RELATION
+#define DEBUG_RELATION true
+#endif
 
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {
@@ -69,7 +72,7 @@ namespace VerifyTAPN {
 
 	protected:
 		virtual void Swap(int i, int j);
-		//virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
 	public:
 		virtual void Print(std::ostream& out) const;
