@@ -14,8 +14,8 @@ namespace VerifyTAPN {
 		G = std::vector<int>(n, 0);
 		gens = 1;
 
-		if (DEBUG_PRINT_MPV) {
-			PrintMarking();
+		if (DEBUG_PRINT) {
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -437,43 +437,14 @@ namespace VerifyTAPN {
 		AddUnitVec(clock);
 	}
 
-	void VectorizedMPPMarking::PrintMarking() const {
-		std::cout << "Polyhedron ID: " << id << std::endl;
-		std::cout << "Number of tokens: " << NumberOfTokens() << std::endl;
-		std::cout << "Placement: ";
-		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
-			std::cout << GetTokenPlacement(i) << ", ";
-		}
-		std::cout << std::endl << "Mapping (token:clock): ";
-		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
-			std::cout << i << ":" << GetClockIndex(i) << ", ";
-		}
-		std::cout << std::endl << "Poly:" << std::endl;
-		std::cout << "gens: " << gens << std::endl;
-		std::cout << "n: " << n << std::endl;
-		std::cout << "G:" << std::endl;
-		for (unsigned int i = 0; i < gens; i++) {
-			for (unsigned j = 0; j < n; j++) {
-				if (j == 0) {
-					std::cout << "g" << i << "   ";
-				}
-				std::cout << G.at(i * n + j) << " ";
-				if (j == n - 1) {
-					std::cout << std::endl;
-				}
-			}
-		}
-		std::cout << std::endl;
-	}
-
 	/*
 	 * function assumes that any two clocks asked to be swapped are active
 	 */
 
 	void VectorizedMPPMarking::Swap(int x, int y) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Swap!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Swapping tokens: " << x << " and " << y << std::endl;
 			std::cout << "Swapping clocks: " << GetClockIndex(x) << " and " << GetClockIndex(y) << std::endl;
 			std::cout << "swapping..." << std::endl;
@@ -489,9 +460,9 @@ namespace VerifyTAPN {
 			G.at(i * n + yClock) = temp;
 		}
 
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << std::endl;
 			std::cout << "-----------------" << std::endl;
 		}
@@ -516,28 +487,36 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPPMarking::Print(std::ostream& out) const {
+		out << "Polyhedron ID: " << id << std::endl;
+		out << "Number of tokens: " << NumberOfTokens() << std::endl;
 		out << "Placement: ";
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
-			out << GetTokenPlacement(i) << ", ";
+			std::cout << GetTokenPlacement(i) << ", ";
 		}
-		out << std::endl;
-		out << "Mapping (token:clock): ";
+		out << std::endl << "Mapping (token:clock): ";
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			out << i << ":" << GetClockIndex(i) << ", ";
 		}
-		out << std::endl;
+		out << std::endl << "Poly:" << std::endl;
+		out << "gens: " << gens << std::endl;
+		out << "n: " << n << std::endl;
 		out << "G:" << std::endl;
 		for (unsigned int i = 0; i < gens; i++) {
 			for (unsigned j = 0; j < n; j++) {
 				if (j == 0) {
 					out << "g" << i << "   ";
 				}
-				out << G.at(i * n + j);
+				if (G.at(i * n + j) != INT_MIN) {
+					out << G.at(i * n + j) << " ";
+				} else {
+					out << "-inf ";
+				}
 				if (j == n - 1) {
 					out << std::endl;
 				}
 			}
 		}
+		out << std::endl;
 	}
 
 	id_type VectorizedMPPMarking::UniqueId() const {
@@ -552,18 +531,18 @@ namespace VerifyTAPN {
 	 * Resets a tokens time to 0
 	 */
 	void VectorizedMPPMarking::Reset(int token) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Reset!" << std::endl << "BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "resetting.." << std::endl;
 		}
 
 		ResetClock(GetClockIndex(token));
 		Cleanup();
 
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -572,13 +551,13 @@ namespace VerifyTAPN {
 	 * function assumes that no calculation bring us out of positive space (delay, intersection, reset etc.)
 	 */
 	bool VectorizedMPPMarking::IsEmpty() const {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "IsEmpty!" << std::endl << "Marking:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 		}
 
 		if (gens == 0 || G.size() == 0) {
-			if (DEBUG_PRINT_MPV) {
+			if (DEBUG_PRINT) {
 				std::cout << "is empty? " << true << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -587,7 +566,7 @@ namespace VerifyTAPN {
 		}
 		for (unsigned int i = 0; i < gens; ++i) {
 			if (G.at(i * n) != INT_MIN) {
-				if (DEBUG_PRINT_MPV) {
+				if (DEBUG_PRINT) {
 					std::cout << "is empty? " << false << std::endl;
 					std::cout << "-----------------" << std::endl;
 				}
@@ -596,7 +575,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		PrintMarking();
+		Print(std::cout);
 		std::cout << "all tests failed, returning empty\n";
 		std::cout << "-----------------" << std::endl;
 		return true;
@@ -606,9 +585,9 @@ namespace VerifyTAPN {
 	 * Delay a polyhedra by making a linear copy of all convex generators
 	 */
 	void VectorizedMPPMarking::Delay() {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Delay!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "delaying..." << std::endl;
 		}
 
@@ -631,9 +610,9 @@ namespace VerifyTAPN {
 		}
 		Cleanup();
 
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -642,18 +621,18 @@ namespace VerifyTAPN {
 	 * freeing the constraints on a token
 	 */
 	void VectorizedMPPMarking::Free(int token) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Free!" << std::endl << "BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "freeing.." << std::endl;
 		}
 
 		FreeClock(mapping.GetMapping(token));
 		Cleanup();
 
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -664,8 +643,11 @@ namespace VerifyTAPN {
 	 * with the same bound. This may cause incorrect behaviour.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInterval& interval) {
-		if (DEBUG_PRINT_MPV) {
-			std::cout << "Constrain(TimeInterval)!" << std::endl;
+		if (DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL) {
+			std::cout << "Constrain(TimeInterval)!" << std::endl << "Marking BEFORE:" << std::endl;
+			Print(std::cout);
+			std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
+					<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 		}
 
 		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != INT_MAX)) {
@@ -693,6 +675,12 @@ namespace VerifyTAPN {
 			IntersectHalfspace(a, b);
 			Cleanup();
 		}
+
+		if(DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL){
+			std::cout << "Marking AFTER:" << std::endl;
+			Print(std::cout);
+			std::cout << "----------------------" << std::endl;
+		}
 	}
 	/*
 	 * Since we do not have a good representation for strct constraints with
@@ -701,7 +689,7 @@ namespace VerifyTAPN {
 	 * dealing with models contain strict constraints.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInvariant& invariant) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Constrain(TimeInvariant)!" << std::endl;
 		}
 		if (invariant.IsBoundStrict() && invariant.GetBound() != INT_MAX) {
@@ -721,7 +709,7 @@ namespace VerifyTAPN {
 	}
 
 	bool VectorizedMPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "PotentiallySatisfies!" << std::endl;
 		}
 		int clock = GetClockIndex(token);
@@ -758,9 +746,9 @@ namespace VerifyTAPN {
 	 * principles: freeing unbounded clocks, and theorems 4.9 and 4.11
 	 */
 	void VectorizedMPPMarking::Extrapolate(const int* maxConstants) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Extrapolate!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Max constants: ";
 			for (unsigned int i = 1; i < n; i++) {
 				std::cout << maxConstants[i] << ", ";
@@ -771,7 +759,7 @@ namespace VerifyTAPN {
 		for (unsigned int j = 1; j < n; ++j) {
 			if (maxConstants[j] == -INF) {
 				FreeClock(j);
-			} else if (maxConstants[j] >= 0) {
+			} /*else if (maxConstants[j] >= 0) {
 			 bool addUnitVec = false; //should we add a new unit vector for the given dimension  (j)?
 			 bool resetExtra = true; //is all generators above maxConstant[j] thus we should apply 4.9?
 			 for (unsigned int i = 0; i < gens; i++) {
@@ -801,7 +789,7 @@ namespace VerifyTAPN {
 			 }
 			 }
 			 }
-			 }
+			 }*/
 		}
 		Cleanup();
 		//ExtrapolateClaim(maxConstants);
@@ -809,9 +797,9 @@ namespace VerifyTAPN {
 		//Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER: " << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << std::endl;
 		}
 	}
@@ -954,7 +942,7 @@ namespace VerifyTAPN {
 		}
 	}
 
-	void VectorizedMPPMarking::ConvexUnion(AbstractMarking* marking) {
+	void VectorizedMPPMarking::ConvexHullUnion(AbstractMarking* marking) {
 		VectorizedMPPMarking* mpp = static_cast<VectorizedMPPMarking*>(marking);
 		G.resize(G.size() + mpp->G.size());
 		memcpy(&G.at(n * gens), &mpp->G.at(0), sizeof(int) * n * mpp->gens);
@@ -967,8 +955,11 @@ namespace VerifyTAPN {
 	}
 
 	relation VectorizedMPPMarking::Relation(const StoredMarking& other) const {
-		if (DEBUG_PRINT_MPV) {
-			std::cout << "Relation!" << std::endl;
+		if (DEBUG_PRINT || DEBUG_RELATION) {
+			std::cout << "Relation!" << std::endl << "Left poly:" << std::endl;
+			Print(std::cout);
+			std::cout << "Right poly:" << std::endl;
+			other.Print(std::cout);
 		}
 		const VectorizedMPPMarking &mpp = static_cast<const VectorizedMPPMarking&>(other);
 		bool sup = Contains(mpp);
@@ -986,7 +977,7 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPPMarking::AddTokens(const std::list<int>& placeIndicies) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "AddTokens!" << std::endl;
 		}
 		unsigned int newToken = NumberOfTokens();
@@ -1003,7 +994,7 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPPMarking::RemoveTokens(const std::set<int>& tokenIndices) {
-		if (DEBUG_PRINT_MPV) {
+		if (DEBUG_PRINT) {
 			std::cout << "RemoveTokens!" << std::endl;
 		}
 		//Since we have to remove clocks one at a time, we have to guarantee that we remove them in order.

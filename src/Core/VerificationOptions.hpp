@@ -23,7 +23,8 @@ namespace VerifyTAPN {
 				bool useUntimedPlaces,
 				bool useGlobalMaxConstants,
 				Factory factory,
-				const std::vector<std::string>& inc_places
+				const std::vector<std::string>& inc_places,
+				bool useChOverApprox
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
@@ -34,7 +35,8 @@ namespace VerifyTAPN {
 				useUntimedPlaces(useUntimedPlaces),
 				useGlobalMaxConstants(useGlobalMaxConstants),
 				factory(factory),
-				inc_places(inc_places)
+				inc_places(inc_places),
+				useChOverApprox(useChOverApprox)
 			{ };
 
 		public: // inspectors
@@ -51,6 +53,7 @@ namespace VerifyTAPN {
 			inline void SetFactory(Factory f) { factory = f; };
 			inline const std::vector<std::string>& GetIncPlaces() const { return inc_places; };
 			inline std::vector<std::string>& GetIncPlaces(){ return inc_places; };
+			inline const bool CHOverApproxEnabled() const { return useChOverApprox; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
@@ -63,6 +66,7 @@ namespace VerifyTAPN {
 			bool useGlobalMaxConstants;
 			Factory factory;
 			std::vector<std::string> inc_places;
+			bool useChOverApprox;
 	};
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

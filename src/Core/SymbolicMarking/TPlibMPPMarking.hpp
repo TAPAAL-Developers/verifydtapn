@@ -21,13 +21,6 @@
 
 #include "tplib_double.h"
 
-#ifndef DEBUG_PRINT_TP
-#define DEBUG_PRINT_TP false
-#endif
-#ifndef DEBUG_RELATION
-#define DEBUG_RELATION true
-#endif
-
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class DiscreteInclusionMarkingFactory;
@@ -68,7 +61,6 @@ namespace VerifyTAPN {
 
 		void FreeClock(int clock);
 		void ConstrainClock(int clock, int upperBound, int lowerBound);
-		void PrintMarking() const;
 
 	protected:
 		virtual void Swap(int i, int j);
@@ -90,6 +82,7 @@ namespace VerifyTAPN {
 		virtual relation Relation(const StoredMarking& other) const;
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::set<int>& tokenIndices);
+		virtual void ConvexHullUnion(AbstractMarking* marking);
 
 
 

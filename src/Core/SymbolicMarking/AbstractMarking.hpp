@@ -8,6 +8,34 @@
 #include <iosfwd>
 #include <set>
 
+#ifndef DEBUG_PRINT
+#define DEBUG_PRINT false
+#endif
+#ifndef DEBUG_INIT
+#define DEBUG_INIT true
+#endif
+#ifndef DEBUG_SWAP
+#define DEBUG_SWAP false
+#endif
+#ifndef DEBUG_RESET
+#define DEBUG_RESET false
+#endif
+#ifndef DEBUG_ISEMPTY
+#define DEBUG_ISEMPTY false
+#endif
+#ifndef DEBUG_DELAY
+#define DEBUG_DELAY false
+#endif
+#ifndef DEBUG_FREE
+#define DEBUG_FREE false
+#endif
+#ifndef DEBUG_CONSTRAIN_INTERVAL
+#define DEBUG_CONSTRAIN_INTERVAL true
+#endif
+#ifndef DEBUG_RELATION
+#define DEBUG_RELATION false
+#endif
+
 namespace VerifyTAPN {
 	class AbstractMarking {
 	public:
@@ -22,6 +50,7 @@ namespace VerifyTAPN {
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval) = 0; // not sure if this should be here?
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant) = 0; // not sure if this should be here?
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const = 0;
+		virtual void ConvexHullUnion(AbstractMarking* marking) = 0;
 
 		// discrete part
 		virtual void MoveToken(int tokenIndex, int newPlaceIndex) = 0;

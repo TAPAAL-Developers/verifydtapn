@@ -70,6 +70,7 @@ namespace VerifyTAPN {
 			}
 			out << " for discrete inclusion." << std::endl;
 		}
+		out << "Convex hull overapproximation is " << (options.CHOverApproxEnabled() ? "ON" : "OFF") << std::endl;
 		out << "Model file is: " << options.GetInputFile() << std::endl;
 		out << "Query file is: " << options.QueryFile() << std::endl;
 		return out;

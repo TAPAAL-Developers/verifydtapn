@@ -19,10 +19,6 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
-#ifndef DEBUG_PRINT_MPV
-#define DEBUG_PRINT_MPV false
-#endif
-
 namespace VerifyTAPN {
 
 	class VectorizedMPPMarking: public DiscreteMarking, public StoredMarking {
@@ -81,8 +77,6 @@ namespace VerifyTAPN {
 		void ResetClock(int clock, int resetVal = 0);
 		void FreeClock(int clock, int resetVal = 0);
 
-		void PrintMarking() const;
-
 		void Extrapolate49(const int* maxConstants);
 		void Extrapolate411(const int* maxConstants);
 		void Extrapolate413(const int* maxConstants);
@@ -107,7 +101,7 @@ namespace VerifyTAPN {
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant);
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const;
 		virtual void Extrapolate(const int* maxConstants);
-		void ConvexUnion(AbstractMarking* marking);
+		virtual void ConvexHullUnion(AbstractMarking* marking);
 		virtual size_t HashKey() const;
 		virtual relation Relation(const StoredMarking& other) const;
 		virtual void AddTokens(const std::list<int>& placeIndices);

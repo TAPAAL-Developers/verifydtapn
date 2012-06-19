@@ -18,18 +18,18 @@ namespace VerifyTAPN {
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) :
-			DiscreteMarking(dp), dbm(dbm), mapping() {
+				DiscreteMarking(dp), dbm(dbm), mapping() {
 			InitMapping();
 			assert(IsConsistent());
 		}
 		;
 		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) :
-			DiscreteMarking(dp), dbm(dbm), mapping(mapping) {
+				DiscreteMarking(dp), dbm(dbm), mapping(mapping) {
 			assert(IsConsistent());
 		}
 		;
 		DBMMarking(const DBMMarking& dm) :
-			DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) {
+				DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) {
 		}
 		;
 		virtual ~DBMMarking() {
@@ -58,7 +58,8 @@ namespace VerifyTAPN {
 			for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 				const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
 				Constrain(i, invariant);
-				assert(!IsEmpty()); // this should not be possible
+				assert(!IsEmpty());
+				// this should not be possible
 			}
 		}
 		;
@@ -71,8 +72,8 @@ namespace VerifyTAPN {
 
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant) {
 			if (invariant.GetBound() != std::numeric_limits<int>::max()) {
-				dbm.constrain(mapping.GetMapping(token), 0, dbm_boundbool2raw(invariant.GetBound(),
-						invariant.IsBoundStrict()));
+				dbm.constrain(mapping.GetMapping(token), 0,
+						dbm_boundbool2raw(invariant.GetBound(), invariant.IsBoundStrict()));
 			}
 		}
 		;
@@ -86,8 +87,13 @@ namespace VerifyTAPN {
 		}
 		;
 
+		virtual void ConvexHullUnion(AbstractMarking* marking){
+			DBMMarking* m = static_cast<DBMMarking*>(marking);
+			dbm_convexUnion(dbm.getDBM(), m->dbm.getDBM(), dbm.getDimension());
+		}
+
 		virtual relation Relation(const StoredMarking& other) const {
-			relation_t relation = dbm.relation(static_cast<const DBMMarking&> (other).dbm);
+			relation_t relation = dbm.relation(static_cast<const DBMMarking&>(other).dbm);
 			return ConvertToRelation(relation);
 		}
 

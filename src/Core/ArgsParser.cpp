@@ -17,6 +17,7 @@ namespace VerifyTAPN {
 	static const std::string FACTORY_OPTION = "factory";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
 	static const std::string INCLUSION_PLACES = "inc-places";
+	static const std::string CHOVER_APPROX = "chover-approx";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -150,6 +151,7 @@ namespace VerifyTAPN {
 
 		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory\n - 3: Max-plus polyhedra vectorized\n - 4: Max-plus old (set impl)\n - 5: Max-plus polyhedra (TPlib impl)",0));
 		parsers.push_back(boost::make_shared<SwitchWithStringArg>("i", INCLUSION_PLACES, "Specify a list of places to consider \nfor discrete inclusion. No spaces after\nthe commas!\nSpecial values: *ALL*, *NONE*", "*ALL*"));
+		parsers.push_back(boost::make_shared<Switch>("c",CHOVER_APPROX, "Use convex hull overapproximation."));
 	};
 
 	void ArgsParser::Help() const
@@ -352,6 +354,9 @@ namespace VerifyTAPN {
 
 		assert(map.find(INCLUSION_PLACES) != map.end());
 		std::vector<std::string> inc_places = ParseIncPlaces(map.find(INCLUSION_PLACES)->second);
-		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places);
+
+		assert(map.find(CHOVER_APPROX) != map.end());
+		bool enable_ch_over_approx = boost::lexical_cast<bool>(map.find(CHOVER_APPROX)->second);
+		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places, enable_ch_over_approx);
 	}
 }

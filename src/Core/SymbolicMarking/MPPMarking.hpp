@@ -400,7 +400,7 @@ namespace VerifyTAPN {
 			//std::cout << std::endl;
 		}
 
-		virtual void ConvexUnion(AbstractMarking* marking) {
+		virtual void ConvexHullUnion(AbstractMarking* marking) {
 			MPPMarking<MPVec>* m = static_cast<MPPMarking<MPVec>*> (marking);
 			V.insert(V.end(), m->V.begin(), m->V.end());
 			W.insert(W.end(), m->W.begin(), m->W.end());

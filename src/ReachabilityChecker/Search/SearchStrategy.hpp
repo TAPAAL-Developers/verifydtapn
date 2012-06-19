@@ -3,6 +3,7 @@
 
 #include "../PassedWaitingList/WaitingList.hpp"
 #include "../PassedWaitingList/PWList.hpp"
+#include "../PassedWaitingList/CHPWList.hpp"
 #include "../QueryChecker/QueryChecker.hpp"
 #include "../../Core/VerificationOptions.hpp"
 #include "../Trace/TraceStore.hpp"
@@ -47,7 +48,11 @@ namespace VerifyTAPN
 		virtual ~DefaultSearchStrategy() { delete pwList; delete[] maxConstantsArray; };
 		virtual void Init()
 		{
-			pwList = new PWList(CreateWaitingList(), factory);
+			if(options.CHOverApproxEnabled()){
+				pwList = new CHPWList(CreateWaitingList(), factory);
+			}else{
+				pwList = new PWList(CreateWaitingList(), factory);
+			}
 		}
 
 		virtual bool Verify();

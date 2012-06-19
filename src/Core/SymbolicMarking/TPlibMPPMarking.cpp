@@ -23,8 +23,8 @@ namespace VerifyTAPN {
 		poly = of_gen(1 + NumberOfTokens(), initGen);
 		matrix_free(initGen);
 
-		if (DEBUG_PRINT_TP) {
-			PrintMarking();
+		if (DEBUG_PRINT || DEBUG_INIT) {
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -58,6 +58,7 @@ namespace VerifyTAPN {
 			}
 			if (numberOfCons) {
 				unsigned int d = NumberOfTokens() + 1;
+				std::cout << "d: " << d << " clock: " << clock << std::endl;
 				matrix_t *cons = matrix_alloc(numberOfCons, d * 2);
 				for (unsigned int j = 0; j < numberOfCons; j++) {
 					for (unsigned int i = 0; i < d * 2; i++) {
@@ -75,6 +76,11 @@ namespace VerifyTAPN {
 					matrix_set(cons, 0, clock, 0);
 					matrix_set(cons, 0, d, lb);
 				}
+				if(DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL){
+					std::cout << "cons matrix:" << std::endl;
+					matrix_print(cons);
+					std::cout << std::endl;
+				}
 				poly_t *consPoly = meet_cons(poly, cons);
 				matrix_free(cons);
 				poly_free(poly);
@@ -83,24 +89,10 @@ namespace VerifyTAPN {
 		}
 	}
 
-	void TPlibMPPMarking::PrintMarking() const {
-		std::cout << "Marking id: " << id << std::endl << "Number of tokens: " << NumberOfTokens() << std::endl
-				<< "Placement: ";
-		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
-			std::cout << GetTokenPlacement(i) << ", ";
-		}
-		std::cout << std::endl << "Mapping (token:clock): ";
-		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
-			std::cout << i << ":" << GetClockIndex(i) << ", ";
-		}
-		std::cout << std::endl << "Poly:" << std::endl;
-		print_poly(poly);
-	}
-
 	void TPlibMPPMarking::Swap(int i, int j) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_SWAP) {
 			std::cout << "Swap!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Swapping tokens: " << i << " and " << j << std::endl;
 			std::cout << "Swapping clocks: " << GetClockIndex(i) << " and " << GetClockIndex(j) << std::endl;
 			std::cout << "swapping..." << std::endl;
@@ -119,7 +111,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_SWAP) {
 			std::cout << "Permutation array [ ";
 			for (unsigned int i = 0; i <= NumberOfTokens(); i++) {
 				std::cout << perm[i] << " ";
@@ -131,9 +123,9 @@ namespace VerifyTAPN {
 		poly_free(poly);
 		poly = permPoly;
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_SWAP) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -147,21 +139,21 @@ namespace VerifyTAPN {
 			std::cout << "*";
 		}
 
-		if(DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)){
+		if (DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)) {
 			return true;
 		} else if (placeUpper == pivot) {
-			double zeroUpper = lower_difference_bound(poly,mapUpper,0);
-			double zeroPivot = lower_difference_bound(poly,mapPivot,0);
-			if(zeroUpper > zeroPivot){
+			double zeroUpper = lower_difference_bound(poly, mapUpper, 0);
+			double zeroPivot = lower_difference_bound(poly, mapPivot, 0);
+			if (zeroUpper > zeroPivot) {
 				return true;
-			} else if(zeroUpper == zeroPivot) {
-				double upperZero = lower_difference_bound(poly,0,mapUpper);
-				double pivotZero = lower_difference_bound(poly,0,mapPivot);
-				if(upperZero > pivotZero) {
+			} else if (zeroUpper == zeroPivot) {
+				double upperZero = lower_difference_bound(poly, 0, mapUpper);
+				double pivotZero = lower_difference_bound(poly, 0, mapPivot);
+				if (upperZero > pivotZero) {
 					return true;
-				} else if(upperZero == pivotZero) {
-					double pivotUpper = lower_difference_bound(poly,mapUpper,mapPivot);
-					double upperPivot = lower_difference_bound(poly,mapPivot,mapUpper);
+				} else if (upperZero == pivotZero) {
+					double pivotUpper = lower_difference_bound(poly, mapUpper, mapPivot);
+					double upperPivot = lower_difference_bound(poly, mapPivot, mapUpper);
 					return mapPivot > mapUpper ? pivotUpper > upperPivot : upperPivot > pivotUpper;
 				}
 			}
@@ -170,7 +162,17 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::Print(std::ostream& out) const {
-		/*TODO*/
+		out << "Marking id: " << id << std::endl << "Number of tokens: " << NumberOfTokens() << std::endl
+				<< "Placement: ";
+		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
+			out << GetTokenPlacement(i) << ", ";
+		}
+		out << std::endl << "Mapping (token:clock): ";
+		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
+			out << i << ":" << GetClockIndex(i) << ", ";
+		}
+		out << std::endl << "Poly:" << std::endl;
+		print_poly(poly);
 	}
 
 	id_type TPlibMPPMarking::UniqueId() const {
@@ -182,9 +184,9 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::Reset(int token) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_RESET) {
 			std::cout << "Reset!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Resetting token: " << token << std::endl;
 			std::cout << "Resetting clock: " << GetClockIndex(token) << std::endl;
 			std::cout << "resetting..." << std::endl;
@@ -193,17 +195,17 @@ namespace VerifyTAPN {
 		int clock[1] = { GetClockIndex(token) };
 		reset_with(poly, 0, clock, 1);
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_RESET) {
 			std::cout << "Marking AFTER:";
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	bool TPlibMPPMarking::IsEmpty() const {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_ISEMPTY) {
 			std::cout << "IsEmpty!" << std::endl << "Marking:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Is empty? " << is_bottom(poly) << std::endl << std::endl;
 			std::cout << "-----------------" << std::endl;
 		}
@@ -212,9 +214,9 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::Delay() {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_DELAY) {
 			std::cout << "Delay!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "delaying..." << std::endl;
 		}
 
@@ -227,17 +229,17 @@ namespace VerifyTAPN {
 			Constrain(i, invariant);
 		}
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_DELAY) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	void TPlibMPPMarking::Free(int token) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_FREE) {
 			std::cout << "Free!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Freeing token: " << token << std::endl;
 			std::cout << "Freeing clock: " << GetClockIndex(token) << std::endl;
 			std::cout << "freeing..." << std::endl;
@@ -245,20 +247,19 @@ namespace VerifyTAPN {
 
 		FreeClock(GetClockIndex(token));
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_FREE) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	void TPlibMPPMarking::Constrain(int token, const TAPN::TimeInterval& interval) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL) {
 			std::cout << "Constrain(TimeInteravl)!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
-					<< " <= clock <= " << interval.GetUpperBound() << std::endl;
-			std::cout << "constraining..." << std::endl;
+					<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 		}
 
 		if (interval.IsLowerBoundStrict()
@@ -269,17 +270,17 @@ namespace VerifyTAPN {
 		}
 		ConstrainClock(GetClockIndex(token), interval.GetUpperBound(), interval.GetLowerBound());
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	void TPlibMPPMarking::Constrain(int token, const TAPN::TimeInvariant& invariant) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Constrain(TimeInvariant)!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Constraining clock: " << GetClockIndex(token) << " on invariant: " << " clock <= "
 					<< invariant.GetBound() << std::endl;
 			std::cout << "constraining..." << std::endl;
@@ -293,17 +294,17 @@ namespace VerifyTAPN {
 			ConstrainClock(GetClockIndex(token), invariant.GetBound(), 0);
 		}
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	bool TPlibMPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "PotentiallySatisfies!" << std::endl << "Marking:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
 					<< " <= clock <= " << interval.GetUpperBound() << std::endl;
 		}
@@ -345,7 +346,7 @@ namespace VerifyTAPN {
 				matrix_set(cons, 0, d, interval.GetLowerBound());
 			}
 
-			if (DEBUG_PRINT_TP) {
+			if (DEBUG_PRINT) {
 				std::cout << "Cons matrix:" << std::endl;
 				matrix_print(cons);
 			}
@@ -353,7 +354,7 @@ namespace VerifyTAPN {
 			int sat = may_sat_cons(poly, cons);
 			matrix_free(cons);
 
-			if (DEBUG_PRINT_TP) {
+			if (DEBUG_PRINT) {
 				std::cout << "Pot sat? " << sat << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -361,7 +362,7 @@ namespace VerifyTAPN {
 			return sat;
 		}
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Pot sat? " << true << std::endl;
 			std::cout << "-----------------" << std::endl;
 		}
@@ -374,9 +375,9 @@ namespace VerifyTAPN {
 	 * TODO add full extrapolation when supported by TPlib
 	 */
 	void TPlibMPPMarking::Extrapolate(const int* maxConstants) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Extrapolate!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Max constants :";
 			for (unsigned int i = 0; i <= NumberOfTokens(); i++) {
 				std::cout << maxConstants[i] << ", ";
@@ -390,9 +391,9 @@ namespace VerifyTAPN {
 			}
 		}
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
@@ -404,26 +405,26 @@ namespace VerifyTAPN {
 	relation TPlibMPPMarking::Relation(const StoredMarking& other) const {
 		const TPlibMPPMarking &mpp = static_cast<const TPlibMPPMarking&>(other);
 
-		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+		if (DEBUG_PRINT || DEBUG_RELATION) {
 			std::cout << "Relation!" << std::endl;
 			std::cout << "Left marking:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << std::endl;
 			std::cout << "Right marking:" << std::endl;
-			mpp.PrintMarking();
+			mpp.Print(std::cout);
 			std::cout << std::endl;
 		}
 
 		bool sub = is_leq(poly, mpp.poly);
 		bool sup = is_leq(mpp.poly, poly);
 
-		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+		if (DEBUG_PRINT || DEBUG_RELATION) {
 			std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly, mpp.poly) << std::endl;
 			std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(mpp.poly, poly) << std::endl;
 		}
 
 		if (sup && sup) {
-			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+			if (DEBUG_PRINT || DEBUG_RELATION) {
 				std::cout << "Relation: EQUAL" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -431,7 +432,7 @@ namespace VerifyTAPN {
 			return EQUAL;
 		}
 		if (sup) {
-			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+			if (DEBUG_PRINT || DEBUG_RELATION) {
 				std::cout << "Relation: SUPERSET" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
@@ -439,14 +440,14 @@ namespace VerifyTAPN {
 			return SUPERSET;
 		}
 		if (sub) {
-			if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+			if (DEBUG_PRINT || DEBUG_RELATION) {
 				std::cout << "Relation: SUBSET" << std::endl;
 				std::cout << "-----------------" << std::endl;
 			}
 
 			return SUBSET;
 		}
-		if (DEBUG_PRINT_TP||DEBUG_RELATION) {
+		if (DEBUG_PRINT || DEBUG_RELATION) {
 			std::cout << "Relation: DIFFERENT" << std::endl;
 			std::cout << "-----------------" << std::endl;
 		}
@@ -455,9 +456,9 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::AddTokens(const std::list<int>& placeIndices) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "AddTokens!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Number of tokens to add: " << placeIndices.size() << std::endl;
 			std::cout << "Place incices: [ ";
 			for (std::list<int>::const_reverse_iterator it = placeIndices.rbegin(); it != placeIndices.rend(); ++it) {
@@ -484,17 +485,17 @@ namespace VerifyTAPN {
 		poly = polyAdd;
 		reset_with(poly, 0, newDim, placeIndices.size());
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
 	void TPlibMPPMarking::RemoveTokens(const std::set<int>& tokenIndices) {
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "RemoveTokens!" << std::endl << "Marking BEFORE:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "Number of tokens to remove: " << tokenIndices.size() << std::endl << "Tokens to remove: [ ";
 			for (std::set<int>::const_reverse_iterator it = tokenIndices.rbegin(); it != tokenIndices.rend(); ++it) {
 				std::cout << *it << " ";
@@ -528,11 +529,17 @@ namespace VerifyTAPN {
 		poly_free(poly);
 		poly = remPoly;
 
-		if (DEBUG_PRINT_TP) {
+		if (DEBUG_PRINT) {
 			std::cout << "Marking AFTER:" << std::endl;
-			PrintMarking();
+			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		}
 	}
 
+	void TPlibMPPMarking::ConvexHullUnion(AbstractMarking* marking){
+		TPlibMPPMarking* m = static_cast<TPlibMPPMarking*>(marking);
+		poly_t* unionPoly = join(poly, m->poly);
+		poly_free(poly);
+		poly = unionPoly;
+	}
 }
