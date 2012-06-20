@@ -30,7 +30,7 @@
 #define DEBUG_FREE false
 #endif
 #ifndef DEBUG_CONSTRAIN_INTERVAL
-#define DEBUG_CONSTRAIN_INTERVAL true
+#define DEBUG_CONSTRAIN_INTERVAL false
 #endif
 #ifndef DEBUG_RELATION
 #define DEBUG_RELATION false

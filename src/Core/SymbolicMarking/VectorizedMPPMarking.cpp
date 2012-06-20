@@ -14,10 +14,10 @@ namespace VerifyTAPN {
 		G = std::vector<int>(n, 0);
 		gens = 1;
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
-		}
+		#endif
 	}
 
 	void VectorizedMPPMarking::InitMapping() {
@@ -442,13 +442,13 @@ namespace VerifyTAPN {
 	 */
 
 	void VectorizedMPPMarking::Swap(int x, int y) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Swap!" << std::endl << "Marking BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "Swapping tokens: " << x << " and " << y << std::endl;
 			std::cout << "Swapping clocks: " << GetClockIndex(x) << " and " << GetClockIndex(y) << std::endl;
 			std::cout << "swapping..." << std::endl;
-		}
+		#endif
 
 		dp.Swap(x, y);
 		int xClock = mapping.GetMapping(x);
@@ -460,12 +460,12 @@ namespace VerifyTAPN {
 			G.at(i * n + yClock) = temp;
 		}
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
 			std::cout << std::endl;
 			std::cout << "-----------------" << std::endl;
-		}
+		#endif
 	}
 
 	bool VectorizedMPPMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const {
@@ -531,45 +531,45 @@ namespace VerifyTAPN {
 	 * Resets a tokens time to 0
 	 */
 	void VectorizedMPPMarking::Reset(int token) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Reset!" << std::endl << "BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "resetting.." << std::endl;
-		}
+		#endif
 
 		ResetClock(GetClockIndex(token));
 		Cleanup();
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "AFTER:" << std::endl;
 			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
-		}
+		#endif
 	}
 
 	/*
 	 * function assumes that no calculation bring us out of positive space (delay, intersection, reset etc.)
 	 */
 	bool VectorizedMPPMarking::IsEmpty() const {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "IsEmpty!" << std::endl << "Marking:" << std::endl;
 			Print(std::cout);
-		}
+		#endif
 
 		if (gens == 0 || G.size() == 0) {
-			if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 				std::cout << "is empty? " << true << std::endl;
 				std::cout << "-----------------" << std::endl;
-			}
+		#endif
 
 			return true;
 		}
 		for (unsigned int i = 0; i < gens; ++i) {
 			if (G.at(i * n) != INT_MIN) {
-				if (DEBUG_PRINT) {
+				#if DEBUG_PRINT
 					std::cout << "is empty? " << false << std::endl;
 					std::cout << "-----------------" << std::endl;
-				}
+				#endif
 
 				return false;
 			}
@@ -585,11 +585,11 @@ namespace VerifyTAPN {
 	 * Delay a polyhedra by making a linear copy of all convex generators
 	 */
 	void VectorizedMPPMarking::Delay() {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Delay!" << std::endl << "Marking BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "delaying..." << std::endl;
-		}
+		#endif
 
 		int addGens = 0;
 		for (unsigned int i = 0; i < gens; i++) {
@@ -610,31 +610,31 @@ namespace VerifyTAPN {
 		}
 		Cleanup();
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
-		}
+		#endif
 	}
 
 	/*
 	 * freeing the constraints on a token
 	 */
 	void VectorizedMPPMarking::Free(int token) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Free!" << std::endl << "BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "freeing.." << std::endl;
-		}
+		#endif
 
 		FreeClock(mapping.GetMapping(token));
 		Cleanup();
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "AFTER:" << std::endl;
 			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
-		}
+		#endif
 	}
 
 	/*
@@ -643,12 +643,12 @@ namespace VerifyTAPN {
 	 * with the same bound. This may cause incorrect behaviour.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInterval& interval) {
-		if (DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL) {
+		#if DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL
 			std::cout << "Constrain(TimeInterval)!" << std::endl << "Marking BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
 					<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
-		}
+		#endif
 
 		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != INT_MAX)) {
 			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict()
@@ -676,11 +676,11 @@ namespace VerifyTAPN {
 			Cleanup();
 		}
 
-		if(DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL){
+		#if DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
 			std::cout << "----------------------" << std::endl;
-		}
+		#endif
 	}
 	/*
 	 * Since we do not have a good representation for strct constraints with
@@ -689,9 +689,9 @@ namespace VerifyTAPN {
 	 * dealing with models contain strict constraints.
 	 */
 	void VectorizedMPPMarking::Constrain(int token, const TAPN::TimeInvariant& invariant) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Constrain(TimeInvariant)!" << std::endl;
-		}
+		#endif
 		if (invariant.IsBoundStrict() && invariant.GetBound() != INT_MAX) {
 			std::cout << "invariant: " << invariant.GetBound() << " - " << invariant.IsBoundStrict() << " == "
 					<< INT_MAX << " " << INF << " " << std::numeric_limits<int>::max();
@@ -709,9 +709,9 @@ namespace VerifyTAPN {
 	}
 
 	bool VectorizedMPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "PotentiallySatisfies!" << std::endl;
-		}
+		#endif
 		int clock = GetClockIndex(token);
 		bool lowerSat = false, upperSat = false;
 		if (interval.GetLowerBound() <= 0) {
@@ -746,7 +746,7 @@ namespace VerifyTAPN {
 	 * principles: freeing unbounded clocks, and theorems 4.9 and 4.11
 	 */
 	void VectorizedMPPMarking::Extrapolate(const int* maxConstants) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Extrapolate!" << std::endl << "Marking BEFORE:" << std::endl;
 			Print(std::cout);
 			std::cout << "Max constants: ";
@@ -754,7 +754,7 @@ namespace VerifyTAPN {
 				std::cout << maxConstants[i] << ", ";
 			}
 			std::cout << std::endl << "extrapolating..." << std::endl;
-		}
+		#endif
 
 		for (unsigned int j = 1; j < n; ++j) {
 			if (maxConstants[j] == -INF) {
@@ -797,11 +797,11 @@ namespace VerifyTAPN {
 		//Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "Marking AFTER: " << std::endl;
 			Print(std::cout);
 			std::cout << std::endl;
-		}
+		#endif
 	}
 
 	void VectorizedMPPMarking::ExtrapolateClaim(const int* maxConstants) {
@@ -955,12 +955,12 @@ namespace VerifyTAPN {
 	}
 
 	relation VectorizedMPPMarking::Relation(const StoredMarking& other) const {
-		if (DEBUG_PRINT || DEBUG_RELATION) {
+		#if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "Relation!" << std::endl << "Left poly:" << std::endl;
 			Print(std::cout);
 			std::cout << "Right poly:" << std::endl;
 			other.Print(std::cout);
-		}
+		#endif
 		const VectorizedMPPMarking &mpp = static_cast<const VectorizedMPPMarking&>(other);
 		bool sup = Contains(mpp);
 		bool sub = mpp.Contains(*this);
@@ -977,9 +977,9 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPPMarking::AddTokens(const std::list<int>& placeIndicies) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "AddTokens!" << std::endl;
-		}
+		#endif
 		unsigned int newToken = NumberOfTokens();
 		for (std::list<int>::const_reverse_iterator iter = placeIndicies.rbegin(); iter != placeIndicies.rend();
 				++iter) {
@@ -994,9 +994,9 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPPMarking::RemoveTokens(const std::set<int>& tokenIndices) {
-		if (DEBUG_PRINT) {
+		#if DEBUG_PRINT
 			std::cout << "RemoveTokens!" << std::endl;
-		}
+		#endif
 		//Since we have to remove clocks one at a time, we have to guarantee that we remove them in order.
 		std::vector<unsigned int> removeClocks;
 		for (std::set<int>::const_reverse_iterator it = tokenIndices.rbegin(); it != tokenIndices.rend(); ++it) {
