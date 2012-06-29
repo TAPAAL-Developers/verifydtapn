@@ -24,6 +24,9 @@
 
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
 //#include "Core/QueryParser/ToStringVisitor.hpp"
+
+#include "Core/SymbolicMarking/DebugTPlibMarkingFactory.hpp"
+
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
@@ -41,6 +44,8 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 		return new MPPMarkingFactory<MPVector>(tapn);
 	case MAXPLUS_TPLIB:
 		return new TPlibMPPMarkingFactory(tapn);
+	case DEBUG_TPLIB:
+		return new DebugTPlibMarkingFactory(tapn);
 	default:// Note that the constructor of DiscreteInclusionMarkingFactory automatically disables discrete inclusion
 		    // if DEFAULT is chosen
 		return new DiscreteInclusionMarkingFactory(tapn, options);

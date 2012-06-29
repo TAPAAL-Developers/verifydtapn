@@ -27,7 +27,8 @@ namespace VerifyTAPN {
 		friend class TPlibMPPMarkingFactory;
 	public:
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
-	private:
+	public:
+		//TODO should be private
 		//data
 		TokenMapping mapping;
 		id_type id;
@@ -52,9 +53,11 @@ namespace VerifyTAPN {
 		;
 		virtual ~TPlibMPPMarking() {
 			poly_free(poly);
-		};
+		}
+		;
 
-	private:
+	public:
+		//TODO should be private
 		//internal functions
 		void InitZero();
 		void InitMapping();
@@ -62,7 +65,8 @@ namespace VerifyTAPN {
 		void FreeClock(int clock);
 		void ConstrainClock(int clock, int upperBound, int lowerBound);
 
-	protected:
+	public:
+		//TODO should be protected
 		virtual void Swap(int i, int j);
 		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
@@ -83,9 +87,6 @@ namespace VerifyTAPN {
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::set<int>& tokenIndices);
 		virtual void ConvexHullUnion(AbstractMarking* marking);
-
-
-
 	};
 }
 

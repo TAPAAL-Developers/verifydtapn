@@ -6,48 +6,34 @@
 #include <vector>
 #include <cstring>
 
+#include "VectorizedMPP.hpp"
+
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
 
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-
 namespace VerifyTAPN {
-
 	class VectorizedMPPMarking: public DiscreteMarking, public StoredMarking {
 		friend class DiscreteInclusionMarkingFactory;
 		friend class VectorizedMPPMarkingFactory;
 	public:
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
-
 	private:
 		// data
 		TokenMapping mapping;
-		std::vector<int> G; /* array of generators */
-		unsigned int n; /*number of tokens + zero clock */
-		unsigned int gens; /* number of generators */
 		id_type id;
-
+		VectorizedMPP poly;
 	public:
 		//constructors
 		VectorizedMPPMarking(const DiscretePart &dp) :
-				DiscreteMarking(dp), mapping() {
+				DiscreteMarking(dp), mapping(){
 			InitMapping();
 		}
 		;
-		VectorizedMPPMarking(const DiscretePart &dp, const TokenMapping& mapping, std::vector<int> g, int generators) :
-				DiscreteMarking(dp), mapping(mapping), G(g), n(dp.size()+1), gens(generators) {
-		}
-		;
-		VectorizedMPPMarking(const VectorizedMPPMarking &mpp) :
-				DiscreteMarking(mpp), mapping(mpp.mapping), G(mpp.G), n(mpp.n), gens(mpp.gens) {
+		VectorizedMPPMarking(const VectorizedMPPMarking &mppm) :
+				DiscreteMarking(mppm.dp), mapping(mppm.mapping), poly(mppm.poly) {
 		}
 		;
 		virtual ~VectorizedMPPMarking() {
@@ -58,31 +44,6 @@ namespace VerifyTAPN {
 		//internal functions
 		void InitZero();
 		void InitMapping();
-
-		bool ContainsPoint(const std::vector<int>& x, int skipGen = -1) const;
-		bool Contains(const VectorizedMPPMarking& mpp) const;
-		void IntersectHalfspace(std::vector<int>& a, std::vector<int>& b);
-		void Cleanup();
-		int GetBound(int clock1, int clock2) const;
-
-		//experimenting
-		void CleanupOS();
-		void Norm();
-		int Lexmin(const std::vector<int>& C, unsigned int gens, unsigned int dim = 0) const;
-		bool ExSetContainsPoint(const std::vector<int>& C, int Cgens, const std::vector<int>& x) const;
-		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w,
-				int skipgent = -1) const;
-
-
-		void ResetClock(int clock, int resetVal = 0);
-		void FreeClock(int clock, int resetVal = 0);
-
-		void Extrapolate49(const int* maxConstants);
-		void Extrapolate411(const int* maxConstants);
-		void Extrapolate413(const int* maxConstants);
-		void ExtrapolateClaim(const int* maxConstants);
-
-		void AddUnitVec(unsigned int dim);
 
 	protected:
 		virtual void Swap(int i, int j);

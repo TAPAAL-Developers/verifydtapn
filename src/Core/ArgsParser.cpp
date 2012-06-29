@@ -298,6 +298,7 @@ namespace VerifyTAPN {
 		case 3: return MAXPLUS_VECTORIZED;
 		case 4: return MAXPLUS_OLD;
 		case 5: return MAXPLUS_TPLIB;
+		case 6: return DEBUG_TPLIB;
 		default:
 			std::cout << "Unkown factory specified." << std::endl;
 			exit(1);

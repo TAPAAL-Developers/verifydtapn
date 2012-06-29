@@ -162,7 +162,9 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPPMarking::Print(std::ostream& out) const {
-		out << "Marking id: " << id << std::endl << "Number of tokens: " << NumberOfTokens() << std::endl
+		out << "Marking id: " << id << std::endl;
+		print_canonical_type();
+		std::cout << "Number of tokens: " << NumberOfTokens() << std::endl
 				<< "Placement: ";
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			out << GetTokenPlacement(i) << ", ";
@@ -217,7 +219,7 @@ namespace VerifyTAPN {
 		#if DEBUG_PRINT || DEBUG_DELAY
 			std::cout << "Delay!" << std::endl << "Marking BEFORE:" << std::endl;
 			Print(std::cout);
-			std::cout << "delaying..." << std::endl;
+			std::cout << "delaying..." << std::endl << "^^^^^^^^^^^^^^^^^^^^" << std::endl;
 		#endif
 
 		poly_t *delayPoly = delay(poly, 0);
@@ -230,7 +232,7 @@ namespace VerifyTAPN {
 		}
 
 		#if DEBUG_PRINT || DEBUG_DELAY
-			std::cout << "Marking AFTER:" << std::endl;
+			std::cout << "^^^^^^^^^^^^^^^^^" << std::endl << "Marking AFTER Delay:" << std::endl;
 			Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		#endif
