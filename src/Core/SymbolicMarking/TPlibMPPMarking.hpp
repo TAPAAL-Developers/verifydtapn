@@ -18,8 +18,7 @@
 #include "TokenMapping.hpp"
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
-
-#include "tplib_double.h"
+#include "TPlibMPP.hpp"
 
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {
@@ -27,12 +26,11 @@ namespace VerifyTAPN {
 		friend class TPlibMPPMarkingFactory;
 	public:
 		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
-	public:
-		//TODO should be private
+	private:
 		//data
 		TokenMapping mapping;
 		id_type id;
-		poly_t *poly; /* struct containing ocaml chunk representing the polyhedron */
+		TPlibMPP poly;
 
 	public:
 		//constructors
@@ -41,32 +39,20 @@ namespace VerifyTAPN {
 			InitMapping();
 		}
 		;
-		TPlibMPPMarking(const DiscretePart &dp, const TokenMapping &mapping, poly_t &polyIn) :
-				DiscreteMarking(dp), mapping(mapping) {
-			poly = copy(&polyIn);
-		}
-		;
 		TPlibMPPMarking(const TPlibMPPMarking &mpp) :
-				DiscreteMarking(mpp), mapping(mpp.mapping) {
-			poly = copy(mpp.poly);
+				DiscreteMarking(mpp), mapping(mpp.mapping), poly(mpp.poly){
 		}
 		;
 		virtual ~TPlibMPPMarking() {
-			poly_free(poly);
 		}
 		;
 
-	public:
-		//TODO should be private
+	private:
 		//internal functions
 		void InitZero();
 		void InitMapping();
 
-		void FreeClock(int clock);
-		void ConstrainClock(int clock, int upperBound, int lowerBound);
-
-	public:
-		//TODO should be protected
+	protected:
 		virtual void Swap(int i, int j);
 		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 

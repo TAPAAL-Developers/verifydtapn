@@ -742,11 +742,13 @@ namespace VerifyTAPN {
 			}
 		}
 	}
+
 	void VectorizedMPP::ConvexHullUnion(VectorizedMPP* mpp) {
 		G.resize(G.size() + mpp->G.size());
 		memcpy(&G.at(n * gens), &mpp->G.at(0), sizeof(int) * n * mpp->gens);
 		gens += mpp->gens;
 	}
+
 	relation VectorizedMPP::Relation(const VectorizedMPP& other) const {
 		bool sup = Contains(other);
 		bool sub = other.Contains(*this);
@@ -761,12 +763,14 @@ namespace VerifyTAPN {
 		}
 		return DIFFERENT;
 	}
+
 	void VectorizedMPP::AddClock() {
 		for (int i = gens - 1; i >= 0; i--) {
 			G.insert(G.begin() + i * n + n, G.at(i * n));
 		}
 		n++;
 	}
+
 	void VectorizedMPP::RemoveClocks(const std::vector<unsigned int> removeClocks) {
 		for (unsigned int j = 0; j < removeClocks.size(); j++) {
 			for (int i = gens - 1; i >= 0; i--) {

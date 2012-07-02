@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include <assert.h>
 
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
@@ -20,7 +21,6 @@
 #include "../TAPN/TimedArcPetriNet.hpp"
 #include "VectorizedMPP.hpp"
 #include "TPlibMPPMarking.hpp"
-
 
 namespace VerifyTAPN {
 	class DebugTPlibMarking: public DiscreteMarking, public StoredMarking {
@@ -32,7 +32,7 @@ namespace VerifyTAPN {
 		TokenMapping mapping;
 		id_type id;
 		VectorizedMPP vmpp;
-		TPlibMPPMarking *tpmpp;
+		TPlibMPP tpmpp;
 	public:
 		DebugTPlibMarking(const DiscretePart &dp) :
 				DiscreteMarking(dp), mapping() {
@@ -51,11 +51,8 @@ namespace VerifyTAPN {
 		void InitZero(const std::vector<int>& tokenPlacement) {
 			vmpp = VectorizedMPP();
 			vmpp.InitZero(dp.size());
-			TPlibMPPMarking::tapn = tapn;
-			tpmpp = new TPlibMPPMarking(DiscretePart(tokenPlacement));
-			tpmpp->InitZero();
-			tpmpp->dp = dp;
-
+			tpmpp = TPlibMPP();
+			tpmpp.InitZero(dp.size());
 			Print(std::cout);
 		}
 		;
@@ -66,23 +63,21 @@ namespace VerifyTAPN {
 		}
 		;
 
-		void CompareMarkings() {
-			matrix_t *vmppMatrix = matrix_alloc(vmpp.NumberOfGens(), dp.size()+1);
+		void ComparePolies() {
+			matrix_t *vmppMatrix = matrix_alloc(vmpp.NumberOfGens(), dp.size() + 1);
 			for (int j = 0; j < vmpp.NumberOfGens(); j++) {
-				for (unsigned int i = 0; i < dp.size()+1; i++) {
-					if (vmpp.GetGIndex(j,i) == INT_MIN) {
+				for (unsigned int i = 0; i < dp.size() + 1; i++) {
+					if (vmpp.GetGIndex(j, i) == INT_MIN) {
 						matrix_set(vmppMatrix, j, i, -INFINITY);
 					} else {
-						matrix_set(vmppMatrix, j, i, vmpp.GetGIndex(j,i));
+						matrix_set(vmppMatrix, j, i, vmpp.GetGIndex(j, i));
 					}
 				}
 			}
-			poly_t *vmppOcaml = of_gen(dp.size()+1, vmppMatrix);
-			if (!(is_leq(vmppOcaml, tpmpp->poly) && is_leq(tpmpp->poly, vmppOcaml))) {
-				std::cout << "Markings not equal!" << std::endl;
-				std::cout << "vmppOcaml:" << std::endl;
+			poly_t *vmppOcaml = of_gen(dp.size() + 1, vmppMatrix);
+			if (!(is_leq(vmppOcaml, tpmpp.GetPoly()) && is_leq(tpmpp.GetPoly(), vmppOcaml))) {
+				std::cout << "Markings not equal!" << std::endl << "vmppOcaml:" << std::endl;
 				print_poly(vmppOcaml);
-
 				Print(std::cout);
 				assert(false);
 			}
@@ -91,34 +86,28 @@ namespace VerifyTAPN {
 		}
 	protected:
 		virtual void Swap(int i, int j) {
-			std::cout << "Swap" << std::endl;
-			std::cout << "i: " << i << " - j: " << j << std::endl;
-			std::cout << "Mapping:";
-			for (unsigned int k = 0; k < mapping.size(); k++) {
-				std::cout << " " << mapping.GetMapping(k);
-			}
-			std::cout << std::endl;
+			std::cout << std::endl << "Swap" << std::endl;
+			std::cout << "i: " << i << " - j: " << j << std::endl << "Before:" << std::endl;
 			Print(std::cout);
-			tpmpp->dp = dp;
-
+			std::cout << std::endl << "swapping..." << std::endl;
 			dp.Swap(i, j);
 			vmpp.SwapClocks(GetClockIndex(i), GetClockIndex(j));
-			tpmpp->Swap(i, j);
-
-			CompareMarkings();
+			tpmpp.SwapClocks(GetClockIndex(i), GetClockIndex(j));
+			std::cout << "After:" << std::endl;
+			ComparePolies();
 		}
 		;
-/*		virtual bool IsUpperPositionGreatherThanPivot(int upper, int pivotIndex) const {
-			std::cout << "IsUpperPositionGreatherThanPivot" << std::endl;
-			tpmpp->dp = dp;
-			Print(std::cout);
+		/*		virtual bool IsUpperPositionGreatherThanPivot(int upper, int pivotIndex) const {
+		 std::cout << "IsUpperPositionGreatherThanPivot" << std::endl;
+		 tpmpp->dp = dp;
+		 Print(std::cout);
 
-			bool vmppIsU = vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-			bool tpmppIsU = tpmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-			std::cout << "vmpp is upper: " << vmppIsU << " - tpmpp is upper: " << tpmppIsU << std::endl;
-			return vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-		}
-		;*/
+		 bool vmppIsU = vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
+		 bool tpmppIsU = tpmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
+		 std::cout << "vmpp is upper: " << vmppIsU << " - tpmpp is upper: " << tpmppIsU << std::endl;
+		 return vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
+		 }
+		 ;*/
 	public:
 		virtual void Print(std::ostream& out) const {
 			out << std::endl << "Marking: " << id << std::endl;
@@ -136,7 +125,7 @@ namespace VerifyTAPN {
 			out << "C++ (vectorized)" << std::endl;
 			vmpp.Print(out);
 			out << "OCaml" << std::endl;
-			tpmpp->Print(out);
+			tpmpp.Print(out);
 		}
 		;
 		virtual id_type UniqueId() const {
@@ -149,114 +138,103 @@ namespace VerifyTAPN {
 		;
 		virtual void Reset(int token) {
 			std::cout << "Reset" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
-
 			vmpp.ResetClock(GetClockIndex(token));
-			tpmpp->Reset(token);
-
-			CompareMarkings();
+			tpmpp.ResetClock(GetClockIndex(token));
+			ComparePolies();
 		}
 		;
 		virtual bool IsEmpty() const {
 			std::cout << "IsEmpty" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
 			bool vmppEmpty = vmpp.IsEmpty();
-			bool tpmppEmpty = tpmpp->IsEmpty();
-			std::cout << "vmpp empty? " << vmppEmpty << " - tpmpp empty? " << tpmppEmpty << std::endl;
-
+			bool tpmppEmpty = tpmpp.IsEmpty();
+			assert(vmppEmpty == tpmppEmpty);
 			return vmppEmpty;
 		}
 		;
 		virtual void Delay() {
 			std::cout << "Delay" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
 			vmpp.Delay();
-			tpmpp->Delay();
-
-			CompareMarkings();
+			tpmpp.Delay();
+			ComparePolies();
 		}
 		;
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval) {
 			std::cout << "Constrain Interval" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
 			vmpp.Constrain(GetClockIndex(token), interval);
-			tpmpp->Constrain(token, interval);
-
-			CompareMarkings();
+			tpmpp.Constrain(GetClockIndex(token), interval);
+			ComparePolies();
 		}
 		;
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant) {
 			std::cout << "Constrain Invariant" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
 			vmpp.Constrain(GetClockIndex(token), invariant);
-			tpmpp->Constrain(token, invariant);
-
-			CompareMarkings();
+			tpmpp.Constrain(GetClockIndex(token), invariant);
+			ComparePolies();
 		}
 		;
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
 			std::cout << "PotentiallySatisfies:" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
 			bool vmppPot = vmpp.PotentiallySatisfies(GetClockIndex(token), interval);
-			bool tpmppPot = tpmpp->PotentiallySatisfies(token, interval);
-			std::cout << "vmpp potentially sat: " << vmppPot << " - tpmpp: " << tpmppPot << std::endl;
-
+			bool tpmppPot = tpmpp.PotentiallySatisfies(GetClockIndex(token), interval);
+			assert(vmppPot == tpmppPot);
 			return vmppPot;
 		}
 		;
 		virtual void Extrapolate(const int* maxConstants) {
 			std::cout << "Extrapolate" << std::endl;
-			tpmpp->dp = dp;
 			std::cout << "Mapping:";
 			for (unsigned int k = 0; k < mapping.size(); k++) {
 				std::cout << " " << mapping.GetMapping(k);
 			}
 			Print(std::cout);
 			vmpp.Extrapolate(maxConstants);
-			tpmpp->Extrapolate(maxConstants);
-
-			CompareMarkings();
+			tpmpp.Extrapolate(maxConstants);
+			ComparePolies();
 		}
 		;
 		virtual void AddTokens(const std::list<int>& placeIndices) {
 			std::cout << "AddTokens" << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
-			unsigned int newToken = NumberOfTokens();
+			int clockArray[placeIndices.size()];
+			int newDimArray[placeIndices.size()];
+			int i = 0;
+			int oldDim = NumberOfTokens() + 1;
 			for (std::list<int>::const_reverse_iterator iter = placeIndices.rbegin(); iter != placeIndices.rend();
 					++iter) {
-				mapping.SetMapping(newToken, NumberOfTokens() + 1);
+				mapping.SetMapping(NumberOfTokens(), NumberOfTokens() + 1);
 				dp.AddTokenInPlace(*iter);
-				newToken++;
+				vmpp.AddClock();
+				newDimArray[i] = oldDim + i;
+				clockArray[i] = oldDim;
+				i++;
 			}
+			tpmpp.AddClocks(clockArray, newDimArray, placeIndices.size());
 
-			vmpp.AddClock();
-			tpmpp->AddTokens(placeIndices);
-
-			CompareMarkings();
+			ComparePolies();
 		}
 		;
 		virtual void RemoveTokens(const std::set<int>& tokenIndices) {
 			std::cout << "RemoveTokens" << std::endl;
-			tpmpp->dp = dp;
-
 			Print(std::cout);
-
 			std::vector<unsigned int> removeClocks;
+			int clockArray[tokenIndices.size()];
+			int i = 0;
 			for (std::set<int>::const_reverse_iterator it = tokenIndices.rbegin(); it != tokenIndices.rend(); ++it) {
-				removeClocks.push_back(mapping.GetMapping(*it));
+				removeClocks.push_back(GetClockIndex(*it));
+				clockArray[i] = GetClockIndex(*it);
+				i++;
 				mapping.RemoveToken(*it);
 				dp.RemoveToken(*it);
 			}
 			for (unsigned int j = 0; j < mapping.size(); ++j) {
 				int offset = 0;
-				unsigned int currentMapping = mapping.GetMapping(j);
+				unsigned int currentMapping = GetClockIndex(j);
 				for (std::vector<unsigned int>::iterator it = removeClocks.begin(); it != removeClocks.end(); ++it) {
 					if (currentMapping > *it) {
 						offset++;
@@ -266,21 +244,19 @@ namespace VerifyTAPN {
 			}
 			std::cout << "removing tokens..." << std::endl;
 			vmpp.RemoveClocks(removeClocks);
-			tpmpp->RemoveTokens(tokenIndices);
+			tpmpp.RemoveClocks(clockArray, tokenIndices.size());
 			Print(std::cout);
 
-			CompareMarkings();
+			ComparePolies();
 		}
 		;
-		/* TODO broken */
+
 		virtual void ConvexHullUnion(AbstractMarking* marking) {
 			std::cout << "ConvexHullMarking" << std::endl;
-			tpmpp->dp = dp;
-			Print(std::cout);
-			//vmpp.ConvexHullUnion(marking);
-			tpmpp->ConvexHullUnion(marking);
-
-			CompareMarkings();
+			DebugTPlibMarking* other = static_cast<DebugTPlibMarking*>(marking);
+			vmpp.ConvexHullUnion(&(other->vmpp));
+			tpmpp.ConvexHullUnion(&(other->tpmpp));
+			ComparePolies();
 		}
 		;
 		virtual size_t HashKey() const {
@@ -289,19 +265,11 @@ namespace VerifyTAPN {
 		;
 		virtual relation Relation(const StoredMarking& marking) const {
 			std::cout << "Relation: " << std::endl;
-			tpmpp->dp = dp;
 			Print(std::cout);
-
-			const DebugTPlibMarking *dbt = static_cast<const DebugTPlibMarking*>(&marking);
-			TPlibMPPMarking *tMarking = new TPlibMPPMarking(dp, mapping, *(dbt->tpmpp->poly));
-			relation vmppRel = vmpp.Relation(dbt->vmpp);
-			relation tpmppRel = tpmpp->Relation(*tMarking);
-			std::cout << "vmpp relation: " << vmppRel << " - tpmpp relation " << tpmppRel << std::endl;
-
-			//delete(dbt);
-			//delete(vMarking);
-			//delete(tMarking);
-
+			const DebugTPlibMarking &other = static_cast<const DebugTPlibMarking&>(marking);
+			relation vmppRel = vmpp.Relation(other.vmpp);
+			relation tpmppRel = tpmpp.Relation(other.tpmpp);
+			assert(vmppRel == tpmppRel);
 			return vmppRel;
 		}
 		;

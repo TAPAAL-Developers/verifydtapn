@@ -10,7 +10,7 @@ namespace VerifyTAPN {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> VectorizedMPPMarking::tapn;
 
 	void VectorizedMPPMarking::InitZero(){
-		poly.InitZero(dp.size());
+		poly.InitZero(NumberOfTokens());
 	}
 
 	void VectorizedMPPMarking::InitMapping() {
@@ -158,7 +158,7 @@ namespace VerifyTAPN {
 		std::cout << "Constrain(TimeInterval)!" << std::endl << "Marking BEFORE:" << std::endl;
 		Print(std::cout);
 		std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
-		<< " <= clock <= " << interval.GetUpperDiffBound() << std::endl << "constraining..." << std::endl;
+		<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 #endif
 		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != INT_MAX)) {
 			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict()
@@ -210,7 +210,7 @@ namespace VerifyTAPN {
 		std::cout << "Extrapolate!" << std::endl << "Marking BEFORE:" << std::endl;
 		Print(std::cout);
 		std::cout << "Max constants: ";
-		for (unsigned int i = 1; i < n; i++) {
+		for (unsigned int i = 1; i < dp.size(); i++) {
 			std::cout << maxConstants[i] << ", ";
 		}
 		std::cout << std::endl << "extrapolating..." << std::endl;

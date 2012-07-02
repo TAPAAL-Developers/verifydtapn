@@ -16,16 +16,9 @@ namespace VerifyTAPN {
 	boost::shared_ptr<TAPN::TimedArcPetriNet> TPlibMPPMarking::tapn;
 
 	void TPlibMPPMarking::InitZero() {
-		matrix_t *initGen = matrix_alloc(1, 1 + NumberOfTokens());
-		for (unsigned int i = 0; i <= NumberOfTokens(); i++) {
-			matrix_set(initGen, 0, i, 0.);
-		}
-		poly = of_gen(1 + NumberOfTokens(), initGen);
-		matrix_free(initGen);
-		set_canonical(POLY,0);
-
+		poly.InitZero(NumberOfTokens());
 		#if DEBUG_PRINT || DEBUG_INIT
-			Print(std::cout);
+			poly.Print(std::cout);
 			std::cout << "-----------------" << std::endl;
 		#endif
 	}
@@ -33,59 +26,6 @@ namespace VerifyTAPN {
 	void TPlibMPPMarking::InitMapping() {
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			mapping.SetMapping(i, i + 1);
-		}
-	}
-
-	void TPlibMPPMarking::FreeClock(int j) {
-		int clock[1] = { j };
-		semi_project_with(poly, 0, clock, 1);
-	}
-
-	/*
-	 * constrains the polyhedron such that lb <= clock <= ub
-	 */
-	void TPlibMPPMarking::ConstrainClock(int clock, int ub, int lb) {
-		if (lb > 0 || (ub != INT_MAX && ub != INF)) {
-			unsigned int numberOfCons = 0;
-			bool isUBreal = false;
-			bool isLBreal = false;
-			if (ub != INT_MAX && ub != INF) {
-				numberOfCons++;
-				isUBreal = true;
-			}
-			if (lb > 0) {
-				numberOfCons++;
-				isLBreal = true;
-			}
-			if (numberOfCons) {
-				unsigned int d = NumberOfTokens() + 1;
-				matrix_t *cons = matrix_alloc(numberOfCons, d * 2);
-				for (unsigned int j = 0; j < numberOfCons; j++) {
-					for (unsigned int i = 0; i < d * 2; i++) {
-						matrix_set(cons, j, i, -INFINITY);
-					}
-				}
-				if (isUBreal) {
-					matrix_set(cons, 0, 0, 0);
-					matrix_set(cons, 0, d + clock, -ub);
-					if (isLBreal) {
-						matrix_set(cons, 1, clock, 0);
-						matrix_set(cons, 1, d, lb);
-					}
-				} else {
-					matrix_set(cons, 0, clock, 0);
-					matrix_set(cons, 0, d, lb);
-				}
-				#if DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL
-					std::cout << "cons matrix:" << std::endl;
-					matrix_print(cons);
-					std::cout << std::endl;
-				#endif
-				poly_t *consPoly = meet_cons(poly, cons);
-				matrix_free(cons);
-				poly_free(poly);
-				poly = consPoly;
-			}
 		}
 	}
 
@@ -97,32 +37,8 @@ namespace VerifyTAPN {
 			std::cout << "Swapping clocks: " << GetClockIndex(i) << " and " << GetClockIndex(j) << std::endl;
 			std::cout << "swapping..." << std::endl;
 		#endif
-
 		dp.Swap(i, j);
-		int perm[NumberOfTokens() + 1];
-		perm[0] = 0;
-		for (unsigned int k = 0; k < NumberOfTokens(); k++) {
-			if (k == i) {
-				perm[GetClockIndex(k)] = GetClockIndex(j);
-			} else if (k == j) {
-				perm[GetClockIndex(k)] = GetClockIndex(i);
-			} else {
-				perm[GetClockIndex(k)] = GetClockIndex(k);
-			}
-		}
-
-		#if DEBUG_PRINT || DEBUG_SWAP
-			std::cout << "Permutation array [ ";
-			for (unsigned int i = 0; i <= NumberOfTokens(); i++) {
-				std::cout << perm[i] << " ";
-			}
-			std::cout << "]" << std::endl;
-		#endif
-
-		poly_t *permPoly = permute_dimensions(poly, perm);
-		poly_free(poly);
-		poly = permPoly;
-
+		poly.SwapClocks(GetClockIndex(i),GetClockIndex(j));
 		#if DEBUG_PRINT || DEBUG_SWAP
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -142,18 +58,18 @@ namespace VerifyTAPN {
 		if (DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)) {
 			return true;
 		} else if (placeUpper == pivot) {
-			double zeroUpper = lower_difference_bound(poly, mapUpper, 0);
-			double zeroPivot = lower_difference_bound(poly, mapPivot, 0);
+			double zeroUpper = poly.GetLowerDiffBound(mapUpper, 0);
+			double zeroPivot = poly.GetLowerDiffBound(mapPivot, 0);
 			if (zeroUpper > zeroPivot) {
 				return true;
 			} else if (zeroUpper == zeroPivot) {
-				double upperZero = lower_difference_bound(poly, 0, mapUpper);
-				double pivotZero = lower_difference_bound(poly, 0, mapPivot);
+				double upperZero = poly.GetLowerDiffBound(0, mapUpper);
+				double pivotZero = poly.GetLowerDiffBound(0, mapPivot);
 				if (upperZero > pivotZero) {
 					return true;
 				} else if (upperZero == pivotZero) {
-					double pivotUpper = lower_difference_bound(poly, mapUpper, mapPivot);
-					double upperPivot = lower_difference_bound(poly, mapPivot, mapUpper);
+					double pivotUpper = poly.GetLowerDiffBound(mapUpper, mapPivot);
+					double upperPivot = poly.GetLowerDiffBound(mapPivot, mapUpper);
 					return mapPivot > mapUpper ? pivotUpper > upperPivot : upperPivot > pivotUpper;
 				}
 			}
@@ -174,7 +90,7 @@ namespace VerifyTAPN {
 			out << i << ":" << GetClockIndex(i) << ", ";
 		}
 		out << std::endl << "Poly:" << std::endl;
-		print_poly(poly);
+		poly.Print(out);
 	}
 
 	id_type TPlibMPPMarking::UniqueId() const {
@@ -193,10 +109,7 @@ namespace VerifyTAPN {
 			std::cout << "Resetting clock: " << GetClockIndex(token) << std::endl;
 			std::cout << "resetting..." << std::endl;
 		#endif
-
-		int clock[1] = { GetClockIndex(token) };
-		reset_with(poly, 0, clock, 1);
-
+			poly.ResetClock(GetClockIndex(token));
 		#if DEBUG_PRINT || DEBUG_RESET
 			std::cout << "Marking AFTER:";
 			Print(std::cout);
@@ -208,11 +121,10 @@ namespace VerifyTAPN {
 		#if DEBUG_PRINT || DEBUG_ISEMPTY
 			std::cout << "IsEmpty!" << std::endl << "Marking:" << std::endl;
 			Print(std::cout);
-			std::cout << "Is empty? " << is_bottom(poly) << std::endl << std::endl;
+			std::cout << "Is empty? " << poly.IsEmpty() << std::endl << std::endl;
 			std::cout << "-----------------" << std::endl;
 		#endif
-
-		return is_bottom(poly);
+			return poly.IsEmpty();
 	}
 
 	void TPlibMPPMarking::Delay() {
@@ -221,16 +133,11 @@ namespace VerifyTAPN {
 			Print(std::cout);
 			std::cout << "delaying..." << std::endl << "^^^^^^^^^^^^^^^^^^^^" << std::endl;
 		#endif
-
-		poly_t *delayPoly = delay(poly, 0);
-		poly_free(poly);
-		poly = delayPoly;
-
+			poly.Delay();
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
-			Constrain(i, invariant);
+			poly.Constrain(GetClockIndex(i), invariant);
 		}
-
 		#if DEBUG_PRINT || DEBUG_DELAY
 			std::cout << "^^^^^^^^^^^^^^^^^" << std::endl << "Marking AFTER Delay:" << std::endl;
 			Print(std::cout);
@@ -246,9 +153,7 @@ namespace VerifyTAPN {
 			std::cout << "Freeing clock: " << GetClockIndex(token) << std::endl;
 			std::cout << "freeing..." << std::endl;
 		#endif
-
-		FreeClock(GetClockIndex(token));
-
+		poly.FreeClock(GetClockIndex(token));
 		#if DEBUG_PRINT || DEBUG_FREE
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -263,15 +168,7 @@ namespace VerifyTAPN {
 			std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
 					<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 		#endif
-
-		if (interval.IsLowerBoundStrict()
-				|| (interval.IsUpperBoundStrict()
-						&& (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF))) {
-			std::cout
-					<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
-		}
-		ConstrainClock(GetClockIndex(token), interval.GetUpperBound(), interval.GetLowerBound());
-
+			poly.Constrain(GetClockIndex(token),interval);
 		#if DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -287,15 +184,7 @@ namespace VerifyTAPN {
 					<< invariant.GetBound() << std::endl;
 			std::cout << "constraining..." << std::endl;
 		#endif
-
-		if (invariant.GetBound() != INT_MAX && invariant.GetBound() != INF) {
-			if (invariant.IsBoundStrict()) {
-				std::cout
-						<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
-			}
-			ConstrainClock(GetClockIndex(token), invariant.GetBound(), 0);
-		}
-
+			poly.Constrain(GetClockIndex(token),invariant);
 		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -310,66 +199,7 @@ namespace VerifyTAPN {
 			std::cout << "clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
 					<< " <= clock <= " << interval.GetUpperBound() << std::endl;
 		#endif
-
-		if (interval.IsLowerBoundStrict()
-				|| (interval.IsUpperBoundStrict()
-						&& (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF))) {
-			std::cout
-					<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
-		}
-		unsigned int numberOfCons = 0;
-		bool ub = false;
-		bool lb = false;
-		if (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF) {
-			numberOfCons++;
-			ub = true;
-		}
-		if (interval.GetLowerBound() > 0) {
-			numberOfCons++;
-			lb = true;
-		}
-		if (numberOfCons) {
-			unsigned int d = NumberOfTokens() + 1;
-			matrix_t *cons = matrix_alloc(numberOfCons, d * 2);
-			for (unsigned int j = 0; j < numberOfCons; j++) {
-				for (unsigned int i = 0; i < d * 2; i++) {
-					matrix_set(cons, j, i, -INFINITY);
-				}
-			}
-			if (ub) {
-				matrix_set(cons, 0, 0, 0);
-				matrix_set(cons, 0, d + GetClockIndex(token), -interval.GetUpperBound());
-				if (lb) {
-					matrix_set(cons, 1, GetClockIndex(token), 0);
-					matrix_set(cons, 1, d, interval.GetLowerBound());
-				}
-			} else {
-				matrix_set(cons, 0, GetClockIndex(token), 0);
-				matrix_set(cons, 0, d, interval.GetLowerBound());
-			}
-
-			#if DEBUG_PRINT
-				std::cout << "Cons matrix:" << std::endl;
-				matrix_print(cons);
-			#endif
-
-			int sat = may_sat_cons(poly, cons);
-			matrix_free(cons);
-
-			#if DEBUG_PRINT
-				std::cout << "Pot sat? " << sat << std::endl;
-				std::cout << "-----------------" << std::endl;
-			#endif
-
-			return sat;
-		}
-
-		#if DEBUG_PRINT
-			std::cout << "Pot sat? " << true << std::endl;
-			std::cout << "-----------------" << std::endl;
-		#endif
-
-		return true;
+			return poly.PotentiallySatisfies(GetClockIndex(token),interval);
 	}
 
 	/*
@@ -386,13 +216,7 @@ namespace VerifyTAPN {
 			}
 			std::cout << std::endl << "extrapolating..." << std::endl;
 		#endif
-
-		for (unsigned int j = 1; j <= NumberOfTokens(); ++j) {
-			if (maxConstants[j] == -INF) {
-				FreeClock(j);
-			}
-		}
-
+			poly.Extrapolate(maxConstants);
 		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -405,56 +229,17 @@ namespace VerifyTAPN {
 	}
 
 	relation TPlibMPPMarking::Relation(const StoredMarking& other) const {
-		const TPlibMPPMarking &mpp = static_cast<const TPlibMPPMarking&>(other);
-
+		const TPlibMPPMarking &mppm = static_cast<const TPlibMPPMarking&>(other);
 		#if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "Relation!" << std::endl;
 			std::cout << "Left marking:" << std::endl;
 			Print(std::cout);
 			std::cout << std::endl;
 			std::cout << "Right marking:" << std::endl;
-			mpp.Print(std::cout);
+			mppm.Print(std::cout);
 			std::cout << std::endl;
 		#endif
-
-		bool sub = is_leq(poly, mpp.poly);
-		bool sup = is_leq(mpp.poly, poly);
-
-		#if DEBUG_PRINT || DEBUG_RELATION
-			std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly, mpp.poly) << std::endl;
-			std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(mpp.poly, poly) << std::endl;
-		#endif
-
-		if (sup && sup) {
-			#if DEBUG_PRINT || DEBUG_RELATION
-				std::cout << "Relation: EQUAL" << std::endl;
-				std::cout << "-----------------" << std::endl;
-			#endif
-
-			return EQUAL;
-		}
-		if (sup) {
-			#if DEBUG_PRINT || DEBUG_RELATION
-				std::cout << "Relation: SUPERSET" << std::endl;
-				std::cout << "-----------------" << std::endl;
-			#endif
-
-			return SUPERSET;
-		}
-		if (sub) {
-			#if DEBUG_PRINT || DEBUG_RELATION
-				std::cout << "Relation: SUBSET" << std::endl;
-				std::cout << "-----------------" << std::endl;
-			#endif
-
-			return SUBSET;
-		}
-		#if DEBUG_PRINT || DEBUG_RELATION
-			std::cout << "Relation: DIFFERENT" << std::endl;
-			std::cout << "-----------------" << std::endl;
-		#endif
-
-		return DIFFERENT;
+			return poly.Relation(mppm.poly);
 	}
 
 	void TPlibMPPMarking::AddTokens(const std::list<int>& placeIndices) {
@@ -468,7 +253,6 @@ namespace VerifyTAPN {
 			}
 			std::cout << "]" << std::endl << "adding tokens..." << std::endl;
 		#endif
-
 		unsigned int newToken = NumberOfTokens();
 		int oldDim = NumberOfTokens() + 1;
 		int addDim[placeIndices.size()];
@@ -480,12 +264,9 @@ namespace VerifyTAPN {
 			newToken++;
 			addDim[i] = oldDim;
 			newDim[i] = oldDim + i;
+			i++;
 		}
-		poly_t * polyAdd = add_dimensions(poly, addDim, placeIndices.size(), 1);
-		poly_free(poly);
-		poly = polyAdd;
-		reset_with(poly, 0, newDim, placeIndices.size());
-
+		poly.AddClocks(addDim,newDim,placeIndices.size());
 		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -526,10 +307,7 @@ namespace VerifyTAPN {
 			}
 			mapping.SetMapping(j, currentMapping - offset);
 		}
-		poly_t *remPoly = remove_dimensions(poly, remDims, tokenIndices.size());
-		poly_free(poly);
-		poly = remPoly;
-
+		poly.RemoveClocks(remDims, tokenIndices.size());
 		#if DEBUG_PRINT
 			std::cout << "Marking AFTER:" << std::endl;
 			Print(std::cout);
@@ -539,8 +317,6 @@ namespace VerifyTAPN {
 
 	void TPlibMPPMarking::ConvexHullUnion(AbstractMarking* marking){
 		TPlibMPPMarking* m = static_cast<TPlibMPPMarking*>(marking);
-		poly_t* unionPoly = join(poly, m->poly);
-		poly_free(poly);
-		poly = unionPoly;
+		poly.ConvexHullUnion(&(m->poly));
 	}
 }
