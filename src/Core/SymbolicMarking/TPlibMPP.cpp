@@ -15,7 +15,7 @@ namespace VerifyTAPN {
 		}
 		poly = of_gen(1 + numberOfTokens, initGen);
 		matrix_free(initGen);
-		set_canonical(POLY, 0);
+		set_canonical(0);
 	}
 
 	void TPlibMPP::FreeClock(int clock) {
