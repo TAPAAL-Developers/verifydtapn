@@ -8,12 +8,11 @@
 #ifndef TPLIBMPP_HPP_
 #define TPLIBMPP_HPP_
 
-#include "SymbolicMarking.hpp"
-#include "StoredMarking.hpp"
+#include "SymbolicMarking.hpp" // for the INF value
+#include "StoredMarking.hpp" // for the RELATION enum
 #include <tplib_double.h>
 #include <climits>
-#include <math.h>
-#include <limits>
+#include <cmath>
 #include <cstdio>
 
 

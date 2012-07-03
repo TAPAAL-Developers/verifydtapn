@@ -102,6 +102,10 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPP::Print(std::ostream& out) const {
+		std::cout << "TPlibMPP" << std::endl;
+		std::cout << "Dim: " << dimension(poly) << std::endl;
+		std::cout << "Canonical type: ";
+		print_canonical_type();
 		print_poly(poly);
 	}
 
@@ -212,6 +216,9 @@ namespace VerifyTAPN {
 	}
 
 	relation TPlibMPP::Relation(const TPlibMPP& other) const {
+#if DEBUG_PRINT || DEBUG_RELATION
+		std::cout << "TPlibMPP::Relation" << std::endl << "relating..." << std::endl;
+#endif
 		bool sub = is_leq(poly, other.poly);
 		bool sup = is_leq(other.poly, poly);
 
@@ -219,7 +226,7 @@ namespace VerifyTAPN {
 		std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly, other.poly) << std::endl;
 		std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(other.poly, poly) << std::endl;
 #endif
-		if (sup && sup) {
+		if (sub && sup) {
 #if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "Relation: EQUAL" << std::endl;
 			std::cout << "-----------------" << std::endl;

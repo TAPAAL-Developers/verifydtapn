@@ -467,7 +467,7 @@ namespace VerifyTAPN {
 		std::cout << "IsEmpty!" << std::endl << "Marking:" << std::endl;
 		Print(std::cout);
 #endif
-		if (gens == 0 || G.size() == 0) {
+		if (gens <= 0 || G.size() == 0) {
 #if DEBUG_PRINT
 			std::cout << "is empty? " << true << std::endl;
 			std::cout << "-----------------" << std::endl;
@@ -483,10 +483,11 @@ namespace VerifyTAPN {
 				return false;
 			}
 		}
-
+#if DEBUG_PRINT
 		Print(std::cout);
 		std::cout << "all tests failed, returning empty\n";
 		std::cout << "-----------------" << std::endl;
+#endif
 		return true;
 	}
 
@@ -750,17 +751,35 @@ namespace VerifyTAPN {
 	}
 
 	relation VectorizedMPP::Relation(const VectorizedMPP& other) const {
+#if DEBUG_PRINT || DEBUG_RELATION
+		std::cout << "VectorizedMPP::Relation" << std::endl << "relating..." << std::endl;
+#endif
 		bool sup = Contains(other);
 		bool sub = other.Contains(*this);
+#if DEBUG_PRINT || DEBUG_RELATION
+		std::cout << "Contains(other) = " << sup << " and other.Contains(*this) = " << sub << std::endl;
+#endif
 		if (sub && sup) {
+#if DEBUG_PRINT || DEBUG_RELATION
+			std::cout << "relation = EQUAL" << std::endl;
+#endif
 			return EQUAL;
 		}
 		if (sub) {
+#if DEBUG_PRINT || DEBUG_RELATION
+			std::cout << "relation = SUBSET" << std::endl;
+#endif
 			return SUBSET;
 		}
 		if (sup) {
+#if DEBUG_PRINT || DEBUG_RELATION
+			std::cout << "relation = SUPERSET" << std::endl;
+#endif
 			return SUPERSET;
 		}
+#if DEBUG_PRINT || DEBUG_RELATION
+		std::cout << "relation = DIFFERENT" << std::endl;
+#endif
 		return DIFFERENT;
 	}
 

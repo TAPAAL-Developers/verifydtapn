@@ -79,7 +79,6 @@ namespace VerifyTAPN {
 
 	void TPlibMPPMarking::Print(std::ostream& out) const {
 		out << "Marking id: " << id << std::endl;
-		print_canonical_type();
 		std::cout << "Number of tokens: " << NumberOfTokens() << std::endl
 				<< "Placement: ";
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {

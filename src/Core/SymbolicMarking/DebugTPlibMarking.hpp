@@ -13,6 +13,8 @@
 #include <vector>
 #include <cstring>
 #include <assert.h>
+#include <cmath>
+#include <float.h>
 
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
@@ -97,17 +99,56 @@ namespace VerifyTAPN {
 			ComparePolies();
 		}
 		;
-		/*		virtual bool IsUpperPositionGreatherThanPivot(int upper, int pivotIndex) const {
-		 std::cout << "IsUpperPositionGreatherThanPivot" << std::endl;
-		 tpmpp->dp = dp;
-		 Print(std::cout);
-
-		 bool vmppIsU = vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-		 bool tpmppIsU = tpmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-		 std::cout << "vmpp is upper: " << vmppIsU << " - tpmpp is upper: " << tpmppIsU << std::endl;
-		 return vmpp->IsUpperPositionGreaterThanPivot(upper, pivotIndex);
-		 }
-		 ;*/
+		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const {
+#if DEBUG_PRINT || DEBUG_ISUPP
+			std::cout << "IsUpperPositionGreatherThanPivot" << std::endl;
+#endif
+			int placeUpper = dp.GetTokenPlacement(upper);
+			int placePivot = dp.GetTokenPlacement(pivotIndex);
+			unsigned int clockUpper = GetClockIndex(upper);
+			unsigned int clockPivot = GetClockIndex(pivotIndex);
+#if DEBUG_PRINT || DEBUG_ISUPP
+			std::cout << "clockUpper: " << clockUpper << " - clockPivot: " << clockPivot << std::endl;
+#endif
+			if (DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)) {
+				return true;
+			} else if (placeUpper == placePivot) {
+				int VMPP_zero_upper = vmpp.GetUpperDiffBound(0, clockUpper);
+				int VMPP_zero_pivot = vmpp.GetUpperDiffBound(0, clockPivot);
+				int TPMPP_zero_upper = tpmpp.GetLowerDiffBound(clockUpper, 0);
+				int TPMPP_zero_pivot = tpmpp.GetLowerDiffBound(clockPivot, 0);
+				Print(std::cout);
+				assert(VMPP_zero_upper == TPMPP_zero_upper);
+				assert(VMPP_zero_pivot == TPMPP_zero_pivot);
+				if (VMPP_zero_upper > VMPP_zero_pivot) {
+					return true;
+				} else if (VMPP_zero_upper == VMPP_zero_pivot) {
+					int VMPP_upper_zero = vmpp.GetUpperDiffBound(clockUpper, 0);
+					int VMPP_pivot_zero = vmpp.GetUpperDiffBound(clockPivot, 0);
+					int TPMPP_upper_zero = tpmpp.GetLowerDiffBound(0, clockUpper);
+					int TPMPP_pivot_zero = tpmpp.GetLowerDiffBound(0, clockPivot);
+#if DEBUG_PRINT || DEBUG_ISUPP
+				std::cout << "VMPP_upper_zero = " << VMPP_upper_zero << " - TPMPP_upper_zero" << TPMPP_upper_zero << std::endl;
+				std::cout << "VMPP_pivot_zero = " << VMPP_pivot_zero << " - TPMPP_pivot_zero" << TPMPP_pivot_zero << std::endl;
+#endif
+					assert(VMPP_upper_zero == TPMPP_upper_zero);
+					assert(VMPP_pivot_zero == TPMPP_pivot_zero);
+					if(VMPP_upper_zero > VMPP_pivot_zero){
+						return true;
+					}else if(VMPP_upper_zero == VMPP_pivot_zero){
+						int VMPP_pivot_upper = vmpp.GetUpperDiffBound(clockPivot,clockUpper);
+						int VMPP_upper_pivot = vmpp.GetUpperDiffBound(clockUpper,clockPivot);
+						int TPMPP_pivot_upper = tpmpp.GetLowerDiffBound(clockUpper,clockPivot);
+						int TPMPP_upper_pivot = tpmpp.GetLowerDiffBound(clockPivot,clockUpper);
+						assert(VMPP_upper_pivot == TPMPP_upper_pivot);
+						assert(VMPP_pivot_upper == TPMPP_pivot_upper);
+						return clockPivot > clockUpper ? VMPP_pivot_upper > VMPP_upper_pivot : VMPP_upper_pivot > VMPP_pivot_upper;
+					}
+				}
+			}
+			return false;
+		}
+		;
 	public:
 		virtual void Print(std::ostream& out) const {
 			out << std::endl << "Marking: " << id << std::endl;
@@ -267,8 +308,11 @@ namespace VerifyTAPN {
 			std::cout << "Relation: " << std::endl;
 			Print(std::cout);
 			const DebugTPlibMarking &other = static_cast<const DebugTPlibMarking&>(marking);
+			std::cout << "Other:" << std::endl;
+			other.Print(std::cout);
 			relation vmppRel = vmpp.Relation(other.vmpp);
 			relation tpmppRel = tpmpp.Relation(other.tpmpp);
+			std::cout << "vmppRel: " << vmppRel << " - tpmppRel: " << tpmppRel << std::endl;
 			assert(vmppRel == tpmppRel);
 			return vmppRel;
 		}
