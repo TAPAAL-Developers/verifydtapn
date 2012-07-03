@@ -8,10 +8,10 @@
 #include "VectorizedMPP.hpp"
 
 namespace VerifyTAPN {
-	void VectorizedMPP::InitZero(int numberOfTokens){
-		n = numberOfTokens+1;
+	void VectorizedMPP::InitZero(int numberOfTokens) {
+		n = numberOfTokens + 1;
 		gens = 1;
-		G = std::vector<int>(n,0);
+		G = std::vector<int>(n, 0);
 	}
 
 	/* Function to calculate whether 1 arbitrary point is contained in (can be
@@ -505,6 +505,19 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPP::Constrain(int clock, const TAPN::TimeInterval& interval) {
+		if ((interval.IsLowerBoundStrict() && interval.GetLowerBound() >= 0)) {
+			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict() << std::endl;
+			std::cout
+					<< "Model includes strict constraint(s) which is currently not supported by max-plus polyhedra - might incur incorrect behaviour\n"
+					<< std::endl;
+		}
+		if (interval.IsUpperBoundStrict() && (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF)) {
+			std::cout << "upperbound: " << interval.GetUpperBound() << " - " << interval.IsUpperBoundStrict()
+					<< std::endl;
+			std::cout
+					<< "Model includes strict constraint(s) which is currently not supported by max-plus polyhedra - might incur incorrect behaviour\n"
+					<< std::endl;
+		}
 		std::vector<int> a = std::vector<int>(n, INT_MIN);
 		std::vector<int> b = std::vector<int>(n, INT_MIN);
 		if (interval.GetUpperBound() != INT_MAX) {
@@ -524,7 +537,12 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPP::Constrain(int clock, const TAPN::TimeInvariant& invariant) {
-		if (invariant.GetBound() != std::numeric_limits<int>::max() && invariant.GetBound() != INF) {
+		if (invariant.GetBound() != INT_MAX && invariant.GetBound() != INF) {
+			if (invariant.IsBoundStrict()) {
+				std::cout
+						<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n"
+						<< std::endl;
+			}
 			std::vector<int> a = std::vector<int>(n, INT_MIN);
 			std::vector<int> b = std::vector<int>(n, INT_MIN);
 			a.at(clock) = 0;
@@ -543,6 +561,8 @@ namespace VerifyTAPN {
 		}
 		if (interval.GetUpperBound() >= INF) {
 			upperSat = true;
+		} else if (interval.IsUpperBoundStrict()) {
+			std::cout << "Strict bound might incur incorrect result\n";
 		}
 		if (upperSat && lowerSat) {
 			return true;

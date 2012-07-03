@@ -169,15 +169,7 @@ namespace VerifyTAPN {
 		std::cout << "Constraining clock: " << GetClockIndex(token) << " on interval: " << interval.GetLowerBound()
 		<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 #endif
-		if (interval.IsLowerBoundStrict() || (interval.IsUpperBoundStrict() && interval.GetUpperBound() != INT_MAX)) {
-			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict()
-					<< std::endl;
-			std::cout << "upperbound: " << interval.GetUpperBound() << " - " << interval.IsUpperBoundStrict()
-					<< std::endl;
-			std::cout << "Model includes strict constraint(s) - might incur incorrect behaviour\n";
-		}
 		poly.Constrain(GetClockIndex(token), interval);
-
 #if DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL
 		std::cout << "Marking AFTER:" << std::endl;
 		Print(std::cout);
@@ -194,12 +186,6 @@ namespace VerifyTAPN {
 #if DEBUG_PRINT
 		std::cout << "Constrain(TimeInvariant)!" << std::endl;
 #endif
-		if (invariant.IsBoundStrict() && invariant.GetBound() != INT_MAX) {
-			std::cout << "invariant: " << invariant.GetBound() << " - " << invariant.IsBoundStrict() << " == "
-					<< INT_MAX << " " << INF << " " << std::numeric_limits<int>::max();
-			std::cout << std::endl;
-			std::cout << "Model includes strict invariant(s) - might incur incorrect behaviour\n";
-		}
 		poly.Constrain(GetClockIndex(token), invariant);
 	}
 

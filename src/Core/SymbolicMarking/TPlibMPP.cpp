@@ -102,9 +102,16 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPP::Print(std::ostream& out) const {
-		std::cout << "TPlibMPP" << std::endl;
-		std::cout << "Dim: " << dimension(poly) << std::endl;
-		print_canonical_type();
+		out << "TPlibMPP" << std::endl;
+		out << "Dim: " << dimension(poly) << std::endl;
+		out << "Canonical type is: ";
+		int c = get_canonical_type();
+		if (c < 0) {
+			out << "CONE" << std::endl;
+		} else {
+			out << "POLYHEDRON with affine dimension: " << c << std::endl;
+		}
+		out << "Generators" << std::endl;
 		print_poly(poly);
 	}
 
@@ -124,11 +131,19 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPP::Constrain(int clock, const TAPN::TimeInterval& interval) {
-		if (interval.IsLowerBoundStrict()
-				|| (interval.IsUpperBoundStrict()
-						&& (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF))) {
+		if ((interval.IsLowerBoundStrict() && interval.GetLowerBound() >= 0)) {
+			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict()
+					<< std::endl;
 			std::cout
-					<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
+					<< "Model includes strict constraint(s) which is currently not supported by max-plus polyhedra - might incur incorrect behaviour\n"
+					<< std::endl;
+		}
+		if (interval.IsUpperBoundStrict() && (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF)) {
+			std::cout << "upperbound: " << interval.GetUpperBound() << " - " << interval.IsUpperBoundStrict()
+					<< std::endl;
+			std::cout
+					<< "Model includes strict constraint(s) which is currently not supported by max-plus polyhedra - might incur incorrect behaviour\n"
+					<< std::endl;
 		}
 		ConstrainClock(clock, interval.GetUpperBound(), interval.GetLowerBound());
 	}
@@ -137,27 +152,32 @@ namespace VerifyTAPN {
 		if (invariant.GetBound() != INT_MAX && invariant.GetBound() != INF) {
 			if (invariant.IsBoundStrict()) {
 				std::cout
-						<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
+						<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n"
+						<< std::endl;
 			}
 			ConstrainClock(clock, invariant.GetBound(), 0);
 		}
 	}
 
 	bool TPlibMPP::PotentiallySatisfies(int clock, const TAPN::TimeInterval& interval) const {
-		if (interval.IsLowerBoundStrict()
-				|| (interval.IsUpperBoundStrict()
-						&& (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF))) {
-			std::cout
-					<< "Model contains strictness which is not supported by Max-Plus Polyhedra.\nBound converted to non-strict equivalent which may incur incorrect behaviour.\n";
-		}
 		unsigned int numberOfCons = 0;
 		bool ub = false;
 		bool lb = false;
 		if (interval.GetUpperBound() != INT_MAX && interval.GetUpperBound() != INF) {
+			if (interval.IsUpperBoundStrict()) {
+				std::cout
+						<< "model includes strictness which is not supported by max-plus polyhedra. May incur incorrectness"
+						<< std::endl;
+			}
 			numberOfCons++;
 			ub = true;
 		}
 		if (interval.GetLowerBound() > 0) {
+			if (interval.IsLowerBoundStrict()) {
+				std::cout
+						<< "model includes strictness which is not supported by max-plus polyhedra. May incur incorrectness"
+						<< std::endl;
+			}
 			numberOfCons++;
 			lb = true;
 		}
@@ -260,19 +280,19 @@ namespace VerifyTAPN {
 		reset_with(poly, 0, newDimArray, numberOfClocks);
 	}
 
-	void TPlibMPP::RemoveClocks(int* clockArray, int numberOfClocks){
+	void TPlibMPP::RemoveClocks(int* clockArray, int numberOfClocks) {
 		poly_t *remPoly = remove_dimensions(poly, clockArray, numberOfClocks);
 		poly_free(poly);
 		poly = remPoly;
 	}
 
-	void TPlibMPP::ConvexHullUnion(TPlibMPP* other){
+	void TPlibMPP::ConvexHullUnion(TPlibMPP* other) {
 		poly_t* unionPoly = join(poly, other->poly);
 		poly_free(poly);
 		poly = unionPoly;
 	}
 
-	double TPlibMPP::GetLowerDiffBound(int clock1, int clock2) const{
-		return lower_difference_bound(poly,clock1,clock2);
+	double TPlibMPP::GetLowerDiffBound(int clock1, int clock2) const {
+		return lower_difference_bound(poly, clock1, clock2);
 	}
 }
