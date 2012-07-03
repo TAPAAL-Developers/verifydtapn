@@ -42,18 +42,26 @@ namespace VerifyTAPN {
 		int pivot = dp.GetTokenPlacement(pivotIndex);
 		unsigned int mapUpper = GetClockIndex(upper);
 		unsigned int mapPivot = GetClockIndex(pivotIndex);
-		if (mapPivot > NumberOfTokens() + 1) {
-			std::cout << "*";
+		if( DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)){
+			return true;
+		} else if(placeUpper == pivot){
+			int zeroUpper = poly.GetUpperDiffBound(0, mapUpper);
+			int zeroPivot = poly.GetUpperDiffBound(0, mapPivot);
+			if (zeroUpper > zeroPivot){
+				return true;
+			} else if (zeroUpper == zeroPivot){
+				int upperZero = poly.GetUpperDiffBound(mapUpper,0);
+				int pivotZero = poly.GetUpperDiffBound(mapPivot,0);
+				if (upperZero > pivotZero){
+					return true;
+				} else if (upperZero == pivotZero){
+					int pivotUpper = poly.GetUpperDiffBound(mapPivot,mapUpper);
+					int upperPivot = poly.GetUpperDiffBound(mapUpper,mapPivot);
+					return mapPivot > mapUpper ? pivotUpper > upperPivot : upperPivot > pivotUpper;
+				}
+			}
 		}
-		return DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)
-				|| (placeUpper == pivot && poly.GetUpperDiffBound(0, mapUpper) > poly.GetUpperDiffBound(0, mapPivot))
-				|| (placeUpper == pivot && poly.GetUpperDiffBound(0, mapUpper) == poly.GetUpperDiffBound(0, mapPivot)
-						&& poly.GetUpperDiffBound(mapUpper, 0) > poly.GetUpperDiffBound(mapPivot, 0))
-				|| (placeUpper == pivot && poly.GetUpperDiffBound(0, mapUpper) == poly.GetUpperDiffBound(0, mapPivot)
-						&& poly.GetUpperDiffBound(mapUpper, 0) == poly.GetUpperDiffBound(mapPivot, 0)
-						&& (mapPivot > mapUpper ? poly.GetUpperDiffBound(mapPivot, mapUpper)
-								> poly.GetUpperDiffBound(mapUpper, mapPivot) :
-								poly.GetUpperDiffBound(mapUpper, mapPivot) > poly.GetUpperDiffBound(mapPivot, mapUpper)));
+		return false;
 	}
 
 	void VectorizedMPPMarking::Print(std::ostream& out) const {
@@ -67,6 +75,7 @@ namespace VerifyTAPN {
 		for (unsigned int i = 0; i < NumberOfTokens(); i++) {
 			out << i << ":" << GetClockIndex(i) << ", ";
 		}
+		out << "Poly:" << std::endl;
 		poly.Print(out);
 		out << std::endl;
 	}

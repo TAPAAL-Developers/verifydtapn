@@ -104,7 +104,6 @@ namespace VerifyTAPN {
 	void TPlibMPP::Print(std::ostream& out) const {
 		std::cout << "TPlibMPP" << std::endl;
 		std::cout << "Dim: " << dimension(poly) << std::endl;
-		std::cout << "Canonical type: ";
 		print_canonical_type();
 		print_poly(poly);
 	}

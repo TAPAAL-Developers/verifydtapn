@@ -441,7 +441,7 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPP::Print(std::ostream& out) const {
-		out << std::endl << "Poly:" << std::endl;
+		out << "VectorizedMPP:" << std::endl;
 		out << "gens: " << gens << std::endl;
 		out << "n: " << n << std::endl;
 		out << "G:" << std::endl;

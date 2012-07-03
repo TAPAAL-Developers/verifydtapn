@@ -33,10 +33,10 @@
 #define DEBUG_CONSTRAIN_INTERVAL false
 #endif
 #ifndef DEBUG_RELATION
-#define DEBUG_RELATION fakse
+#define DEBUG_RELATION false
 #endif
 #ifndef DEBUG_ISUPP
-#define DEBUG_ISUPP true
+#define DEBUG_ISUPP false
 #endif
 
 namespace VerifyTAPN {

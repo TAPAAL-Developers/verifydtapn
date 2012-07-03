@@ -52,10 +52,12 @@ namespace VerifyTAPN {
 
 		void InitZero(const std::vector<int>& tokenPlacement) {
 			vmpp = VectorizedMPP();
-			vmpp.InitZero(dp.size());
+			vmpp.InitZero(NumberOfTokens());
 			tpmpp = TPlibMPP();
-			tpmpp.InitZero(dp.size());
+			tpmpp.InitZero(NumberOfTokens());
+#if DEBUG_PRINT || DEBUG_INIT
 			Print(std::cout);
+#endif
 		}
 		;
 		void InitMapping() {
@@ -88,20 +90,22 @@ namespace VerifyTAPN {
 		}
 	protected:
 		virtual void Swap(int i, int j) {
+#if DEBUG_PRINT || DEBUG_SWAP
 			std::cout << std::endl << "Swap" << std::endl;
 			std::cout << "i: " << i << " - j: " << j << std::endl << "Before:" << std::endl;
 			Print(std::cout);
 			std::cout << std::endl << "swapping..." << std::endl;
+#endif
 			dp.Swap(i, j);
 			vmpp.SwapClocks(GetClockIndex(i), GetClockIndex(j));
 			tpmpp.SwapClocks(GetClockIndex(i), GetClockIndex(j));
-			std::cout << "After:" << std::endl;
 			ComparePolies();
 		}
 		;
 		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const {
 #if DEBUG_PRINT || DEBUG_ISUPP
 			std::cout << "IsUpperPositionGreatherThanPivot" << std::endl;
+			Print(std::cout);
 #endif
 			int placeUpper = dp.GetTokenPlacement(upper);
 			int placePivot = dp.GetTokenPlacement(pivotIndex);
@@ -117,9 +121,12 @@ namespace VerifyTAPN {
 				int VMPP_zero_pivot = vmpp.GetUpperDiffBound(0, clockPivot);
 				int TPMPP_zero_upper = tpmpp.GetLowerDiffBound(clockUpper, 0);
 				int TPMPP_zero_pivot = tpmpp.GetLowerDiffBound(clockPivot, 0);
-				Print(std::cout);
-				assert(VMPP_zero_upper == TPMPP_zero_upper);
-				assert(VMPP_zero_pivot == TPMPP_zero_pivot);
+#if DEBUG_PRINT || DEBUG_ISUPP
+				std::cout << "VMPP_zero_upper = " << VMPP_zero_upper << " - TPMPP_zero_upper = " << TPMPP_zero_upper << std::endl;
+				std::cout << "VMPP_zero_pivot = " << VMPP_zero_pivot << " - TPMPP_zero_pivot = " << TPMPP_zero_pivot << std::endl;
+#endif
+				assert((VMPP_zero_upper > VMPP_zero_pivot) == (TPMPP_zero_upper < TPMPP_zero_pivot));
+				assert((VMPP_zero_upper == VMPP_zero_pivot) == (TPMPP_zero_upper == TPMPP_zero_pivot));
 				if (VMPP_zero_upper > VMPP_zero_pivot) {
 					return true;
 				} else if (VMPP_zero_upper == VMPP_zero_pivot) {
@@ -128,27 +135,33 @@ namespace VerifyTAPN {
 					int TPMPP_upper_zero = tpmpp.GetLowerDiffBound(0, clockUpper);
 					int TPMPP_pivot_zero = tpmpp.GetLowerDiffBound(0, clockPivot);
 #if DEBUG_PRINT || DEBUG_ISUPP
-				std::cout << "VMPP_upper_zero = " << VMPP_upper_zero << " - TPMPP_upper_zero" << TPMPP_upper_zero << std::endl;
-				std::cout << "VMPP_pivot_zero = " << VMPP_pivot_zero << " - TPMPP_pivot_zero" << TPMPP_pivot_zero << std::endl;
+					std::cout << "VMPP_upper_zero = " << VMPP_upper_zero << " - TPMPP_upper_zero = " << TPMPP_upper_zero << std::endl;
+					std::cout << "VMPP_pivot_zero = " << VMPP_pivot_zero << " - TPMPP_pivot_zero = " << TPMPP_pivot_zero << std::endl;
 #endif
-					assert(VMPP_upper_zero == TPMPP_upper_zero);
-					assert(VMPP_pivot_zero == TPMPP_pivot_zero);
-					if(VMPP_upper_zero > VMPP_pivot_zero){
+					assert((VMPP_upper_zero > VMPP_pivot_zero) == (TPMPP_upper_zero < TPMPP_pivot_zero));
+					assert((VMPP_upper_zero == VMPP_pivot_zero) == (TPMPP_upper_zero == TPMPP_pivot_zero));
+					if (VMPP_upper_zero > VMPP_pivot_zero) {
 						return true;
-					}else if(VMPP_upper_zero == VMPP_pivot_zero){
-						int VMPP_pivot_upper = vmpp.GetUpperDiffBound(clockPivot,clockUpper);
-						int VMPP_upper_pivot = vmpp.GetUpperDiffBound(clockUpper,clockPivot);
-						int TPMPP_pivot_upper = tpmpp.GetLowerDiffBound(clockUpper,clockPivot);
-						int TPMPP_upper_pivot = tpmpp.GetLowerDiffBound(clockPivot,clockUpper);
-						assert(VMPP_upper_pivot == TPMPP_upper_pivot);
-						assert(VMPP_pivot_upper == TPMPP_pivot_upper);
-						return clockPivot > clockUpper ? VMPP_pivot_upper > VMPP_upper_pivot : VMPP_upper_pivot > VMPP_pivot_upper;
+					} else if (VMPP_upper_zero == VMPP_pivot_zero) {
+						int VMPP_pivot_upper = vmpp.GetUpperDiffBound(clockPivot, clockUpper);
+						int VMPP_upper_pivot = vmpp.GetUpperDiffBound(clockUpper, clockPivot);
+						int TPMPP_pivot_upper = tpmpp.GetLowerDiffBound(clockUpper, clockPivot);
+						int TPMPP_upper_pivot = tpmpp.GetLowerDiffBound(clockPivot, clockUpper);
+#if DEBUG_PRINT || DEBUG_ISUPP
+						std::cout << "VMPP_upper_pivot = " << VMPP_upper_pivot << " - TPMPP_upper_pivot = " << TPMPP_upper_pivot << std::endl;
+						std::cout << "VMPP_pivot_upper = " << VMPP_pivot_upper << " - TPMPP_pivot_upper = " << TPMPP_pivot_upper << std::endl;
+#endif
+						assert((VMPP_pivot_upper > VMPP_upper_pivot) == (TPMPP_pivot_upper < TPMPP_upper_pivot));
+						assert((VMPP_upper_pivot > VMPP_pivot_upper) == ( TPMPP_upper_pivot < TPMPP_pivot_upper));
+						return clockPivot > clockUpper ? VMPP_pivot_upper > VMPP_upper_pivot :
+								VMPP_upper_pivot > VMPP_pivot_upper;
 					}
 				}
 			}
 			return false;
 		}
 		;
+
 	public:
 		virtual void Print(std::ostream& out) const {
 			out << std::endl << "Marking: " << id << std::endl;
@@ -178,16 +191,20 @@ namespace VerifyTAPN {
 		}
 		;
 		virtual void Reset(int token) {
+#if DEBUG_PRINT || DEBUG_RESET
 			std::cout << "Reset" << std::endl;
 			Print(std::cout);
+#endif
 			vmpp.ResetClock(GetClockIndex(token));
 			tpmpp.ResetClock(GetClockIndex(token));
 			ComparePolies();
 		}
 		;
 		virtual bool IsEmpty() const {
+#if DEBUG_PRINT || DEBUG_ISEMPTY
 			std::cout << "IsEmpty" << std::endl;
 			Print(std::cout);
+#endif
 			bool vmppEmpty = vmpp.IsEmpty();
 			bool tpmppEmpty = tpmpp.IsEmpty();
 			assert(vmppEmpty == tpmppEmpty);
@@ -195,32 +212,47 @@ namespace VerifyTAPN {
 		}
 		;
 		virtual void Delay() {
+#if DEBUG_PRINT || DEBUG_DELAY
 			std::cout << "Delay" << std::endl;
 			Print(std::cout);
+#endif
 			vmpp.Delay();
 			tpmpp.Delay();
+			for (unsigned int i = 0; i < NumberOfTokens(); i++) {
+				const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
+				if (invariant.GetBound() < INF) {
+					Constrain(i, invariant);
+				}
+			}
+			vmpp.Cleanup();
 			ComparePolies();
 		}
 		;
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval) {
+#if DEBUG_PRINT || DEBUG_CONSTRAIN_INTERVAL
 			std::cout << "Constrain Interval" << std::endl;
 			Print(std::cout);
+#endif
 			vmpp.Constrain(GetClockIndex(token), interval);
 			tpmpp.Constrain(GetClockIndex(token), interval);
 			ComparePolies();
 		}
 		;
 		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant) {
+#if DEBUG_PRINT
 			std::cout << "Constrain Invariant" << std::endl;
 			Print(std::cout);
+#endif
 			vmpp.Constrain(GetClockIndex(token), invariant);
 			tpmpp.Constrain(GetClockIndex(token), invariant);
 			ComparePolies();
 		}
 		;
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
+#if DEBUG_PRINT
 			std::cout << "PotentiallySatisfies:" << std::endl;
 			Print(std::cout);
+#endif
 			bool vmppPot = vmpp.PotentiallySatisfies(GetClockIndex(token), interval);
 			bool tpmppPot = tpmpp.PotentiallySatisfies(GetClockIndex(token), interval);
 			assert(vmppPot == tpmppPot);
@@ -228,20 +260,24 @@ namespace VerifyTAPN {
 		}
 		;
 		virtual void Extrapolate(const int* maxConstants) {
+#if DEBUG_PRINT
 			std::cout << "Extrapolate" << std::endl;
 			std::cout << "Mapping:";
 			for (unsigned int k = 0; k < mapping.size(); k++) {
 				std::cout << " " << mapping.GetMapping(k);
 			}
 			Print(std::cout);
+#endif
 			vmpp.Extrapolate(maxConstants);
 			tpmpp.Extrapolate(maxConstants);
 			ComparePolies();
 		}
 		;
 		virtual void AddTokens(const std::list<int>& placeIndices) {
+#if DEBUG_PRINT
 			std::cout << "AddTokens" << std::endl;
 			Print(std::cout);
+#endif
 			int clockArray[placeIndices.size()];
 			int newDimArray[placeIndices.size()];
 			int i = 0;
@@ -256,13 +292,14 @@ namespace VerifyTAPN {
 				i++;
 			}
 			tpmpp.AddClocks(clockArray, newDimArray, placeIndices.size());
-
 			ComparePolies();
 		}
 		;
 		virtual void RemoveTokens(const std::set<int>& tokenIndices) {
+#if DEBUG_PRINT
 			std::cout << "RemoveTokens" << std::endl;
 			Print(std::cout);
+#endif
 			std::vector<unsigned int> removeClocks;
 			int clockArray[tokenIndices.size()];
 			int i = 0;
@@ -283,17 +320,19 @@ namespace VerifyTAPN {
 				}
 				mapping.SetMapping(j, currentMapping - offset);
 			}
+#if DEBUG_PRINT
 			std::cout << "removing tokens..." << std::endl;
+#endif
 			vmpp.RemoveClocks(removeClocks);
 			tpmpp.RemoveClocks(clockArray, tokenIndices.size());
-			Print(std::cout);
-
 			ComparePolies();
 		}
 		;
 
 		virtual void ConvexHullUnion(AbstractMarking* marking) {
+#if DEBUG_PRINT
 			std::cout << "ConvexHullMarking" << std::endl;
+#endif
 			DebugTPlibMarking* other = static_cast<DebugTPlibMarking*>(marking);
 			vmpp.ConvexHullUnion(&(other->vmpp));
 			tpmpp.ConvexHullUnion(&(other->tpmpp));
@@ -305,14 +344,20 @@ namespace VerifyTAPN {
 		}
 		;
 		virtual relation Relation(const StoredMarking& marking) const {
+#if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "Relation: " << std::endl;
 			Print(std::cout);
+#endif
 			const DebugTPlibMarking &other = static_cast<const DebugTPlibMarking&>(marking);
+#if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "Other:" << std::endl;
 			other.Print(std::cout);
+#endif
 			relation vmppRel = vmpp.Relation(other.vmpp);
 			relation tpmppRel = tpmpp.Relation(other.tpmpp);
+#if DEBUG_PRINT || DEBUG_RELATION
 			std::cout << "vmppRel: " << vmppRel << " - tpmppRel: " << tpmppRel << std::endl;
+#endif
 			assert(vmppRel == tpmppRel);
 			return vmppRel;
 		}
