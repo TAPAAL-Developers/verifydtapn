@@ -5,11 +5,19 @@
 
 //#include <xmmintrin.h>
 
+#ifndef CLEANUP_ON_STORAGE
+#define CLEANUP_ON_STOREAGE false
+#endif
+#ifndef CLEANUP_AFTER_PRIM
+#define CLEANUP_AFTER_PRIM true
+#endif
+
+
 namespace VerifyTAPN {
 
 	boost::shared_ptr<TAPN::TimedArcPetriNet> VectorizedMPPMarking::tapn;
 
-	void VectorizedMPPMarking::InitZero(){
+	void VectorizedMPPMarking::InitZero() {
 		poly.InitZero(NumberOfTokens());
 	}
 
@@ -42,21 +50,21 @@ namespace VerifyTAPN {
 		int pivot = dp.GetTokenPlacement(pivotIndex);
 		unsigned int mapUpper = GetClockIndex(upper);
 		unsigned int mapPivot = GetClockIndex(pivotIndex);
-		if( DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)){
+		if (DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)) {
 			return true;
-		} else if(placeUpper == pivot){
+		} else if (placeUpper == pivot) {
 			int zeroUpper = poly.GetUpperDiffBound(0, mapUpper);
 			int zeroPivot = poly.GetUpperDiffBound(0, mapPivot);
-			if (zeroUpper > zeroPivot){
+			if (zeroUpper > zeroPivot) {
 				return true;
-			} else if (zeroUpper == zeroPivot){
-				int upperZero = poly.GetUpperDiffBound(mapUpper,0);
-				int pivotZero = poly.GetUpperDiffBound(mapPivot,0);
-				if (upperZero > pivotZero){
+			} else if (zeroUpper == zeroPivot) {
+				int upperZero = poly.GetUpperDiffBound(mapUpper, 0);
+				int pivotZero = poly.GetUpperDiffBound(mapPivot, 0);
+				if (upperZero > pivotZero) {
 					return true;
-				} else if (upperZero == pivotZero){
-					int pivotUpper = poly.GetUpperDiffBound(mapPivot,mapUpper);
-					int upperPivot = poly.GetUpperDiffBound(mapUpper,mapPivot);
+				} else if (upperZero == pivotZero) {
+					int pivotUpper = poly.GetUpperDiffBound(mapPivot, mapUpper);
+					int upperPivot = poly.GetUpperDiffBound(mapUpper, mapPivot);
 					return mapPivot > mapUpper ? pivotUpper > upperPivot : upperPivot > pivotUpper;
 				}
 			}
@@ -98,6 +106,9 @@ namespace VerifyTAPN {
 		std::cout << "resetting.." << std::endl;
 #endif
 		poly.ResetClock(GetClockIndex(token));
+#if CLEANUP_AFTER_PRIM
+		poly.Cleanup();
+#endif
 #if DEBUG_PRINT
 		std::cout << "AFTER:" << std::endl;
 		Print(std::cout);
@@ -128,8 +139,9 @@ namespace VerifyTAPN {
 				Constrain(i, invariant);
 			}
 		}
+#if CLEANUP_AFTER_PRIM
 		poly.Cleanup();
-
+#endif
 #if DEBUG_PRINT
 		std::cout << "Marking AFTER:" << std::endl;
 		Print(std::cout);
@@ -146,11 +158,11 @@ namespace VerifyTAPN {
 		Print(std::cout);
 		std::cout << "freeing.." << std::endl;
 #endif
-
 		poly.FreeClock(GetClockIndex(token));
+#if CLEANUP_AFTER_PRIM
 		poly.Cleanup();
-
-#if DEBUG_PRINT
+#endif
+		#if DEBUG_PRINT
 		std::cout << "AFTER:" << std::endl;
 		Print(std::cout);
 		std::cout << "-----------------" << std::endl;
@@ -170,6 +182,9 @@ namespace VerifyTAPN {
 		<< " <= clock <= " << interval.GetUpperBound() << std::endl << "constraining..." << std::endl;
 #endif
 		poly.Constrain(GetClockIndex(token), interval);
+#if CLEANUP_AFTER_PRIM
+		poly.Cleanup();
+#endif
 #if DEBUG_PRINT||DEBUG_CONSTRAIN_INTERVAL
 		std::cout << "Marking AFTER:" << std::endl;
 		Print(std::cout);
@@ -187,6 +202,9 @@ namespace VerifyTAPN {
 		std::cout << "Constrain(TimeInvariant)!" << std::endl;
 #endif
 		poly.Constrain(GetClockIndex(token), invariant);
+#if CLEANUP_AFTER_PRIM
+		poly.Cleanup();
+#endif
 	}
 
 	bool VectorizedMPPMarking::PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const {
@@ -211,8 +229,10 @@ namespace VerifyTAPN {
 		std::cout << std::endl << "extrapolating..." << std::endl;
 #endif
 		poly.Extrapolate(maxConstants);
+#if CLEANUP_AFTER_PRIM
 		poly.Cleanup();
-#if DEBUG_PRINT
+#endif
+		#if DEBUG_PRINT
 		std::cout << "Marking AFTER: " << std::endl;
 		Print(std::cout);
 		std::cout << std::endl;
@@ -222,8 +242,10 @@ namespace VerifyTAPN {
 	void VectorizedMPPMarking::ConvexHullUnion(AbstractMarking* marking) {
 		VectorizedMPPMarking* mppm = static_cast<VectorizedMPPMarking*>(marking);
 		poly.ConvexHullUnion(&(mppm->poly));
+#if CLEANUP_AFTER_PRIM
 		poly.Cleanup();
-	}
+#endif
+		}
 
 	size_t VectorizedMPPMarking::HashKey() const {
 		return VerifyTAPN::hash()(dp);
@@ -273,6 +295,9 @@ namespace VerifyTAPN {
 			mapping.SetMapping(j, currentMapping - offset);
 		}
 		poly.RemoveClocks(removeClocks);
+#if CLEANUP_AFTER_PRIM
+		poly.Cleanup();
+#endif
 	}
 }
 

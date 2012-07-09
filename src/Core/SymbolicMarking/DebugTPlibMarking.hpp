@@ -152,7 +152,7 @@ namespace VerifyTAPN {
 						std::cout << "VMPP_pivot_upper = " << VMPP_pivot_upper << " - TPMPP_pivot_upper = " << TPMPP_pivot_upper << std::endl;
 #endif
 						assert((VMPP_pivot_upper > VMPP_upper_pivot) == (TPMPP_pivot_upper < TPMPP_upper_pivot));
-						assert((VMPP_upper_pivot > VMPP_pivot_upper) == ( TPMPP_upper_pivot < TPMPP_pivot_upper));
+						assert((VMPP_upper_pivot > VMPP_pivot_upper) == (TPMPP_upper_pivot < TPMPP_pivot_upper));
 						return clockPivot > clockUpper ? VMPP_pivot_upper > VMPP_upper_pivot :
 								VMPP_upper_pivot > VMPP_pivot_upper;
 					}

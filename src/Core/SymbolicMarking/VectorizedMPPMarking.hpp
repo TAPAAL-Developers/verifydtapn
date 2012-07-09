@@ -53,7 +53,6 @@ namespace VerifyTAPN {
 		virtual void Print(std::ostream& out) const;
 		virtual id_type UniqueId() const;
 		virtual unsigned int GetClockIndex(unsigned int token) const;
-
 		virtual void Reset(int token);
 		virtual bool IsEmpty() const;
 		virtual void Delay();

@@ -416,7 +416,7 @@ namespace VerifyTAPN {
 				G.at(i * n + clock) = G.at(i * n) + resetVal;
 			}
 		}
-		Cleanup();
+//		Cleanup();
 	}
 
 	/*
@@ -506,7 +506,8 @@ namespace VerifyTAPN {
 
 	void VectorizedMPP::Constrain(int clock, const TAPN::TimeInterval& interval) {
 		if ((interval.IsLowerBoundStrict() && interval.GetLowerBound() >= 0)) {
-			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict() << std::endl;
+			std::cout << "lowerbound: " << interval.GetLowerBound() << " - " << interval.IsLowerBoundStrict()
+					<< std::endl;
 			std::cout
 					<< "Model includes strict constraint(s) which is currently not supported by max-plus polyhedra - might incur incorrect behaviour\n"
 					<< std::endl;
@@ -524,7 +525,7 @@ namespace VerifyTAPN {
 			a.at(clock) = 0;
 			b.at(0) = interval.GetUpperBound();
 			IntersectHalfspace(a, b);
-			Cleanup();
+//			Cleanup();
 		}
 		if (interval.GetLowerBound() > 0) {
 			a.at(clock) = INT_MIN;
@@ -532,7 +533,7 @@ namespace VerifyTAPN {
 			a.at(0) = 0;
 			b.at(clock) = -interval.GetLowerBound();
 			IntersectHalfspace(a, b);
-			Cleanup();
+//			Cleanup();
 		}
 	}
 
@@ -582,14 +583,14 @@ namespace VerifyTAPN {
 	}
 
 	/*
-	 * extrapolation - not compleate but sound
+	 * extrapolation - not complete but sound
 	 * principles: freeing unbounded clocks, and theorems 4.9 and 4.11
 	 */
 	void VectorizedMPP::Extrapolate(const int* maxConstants) {
 		for (unsigned int j = 1; j < n; ++j) {
 			if (maxConstants[j] == -INF) {
 				FreeClock(j);
-			} /*else if (maxConstants[j] >= 0) {
+			}/*else if (maxConstants[j] >= 0) {
 			 bool addUnitVec = false; //should we add a new unit vector for the given dimension  (j)?
 			 bool resetExtra = true; //is all generators above maxConstant[j] thus we should apply 4.9?
 			 for (unsigned int i = 0; i < gens; i++) {
@@ -600,7 +601,6 @@ namespace VerifyTAPN {
 			 if (i == gens - 1 && resetExtra) {
 			 FreeClock(j, maxConstants[j] + 1);
 			 break;
-			 resetExtra = false;
 			 }
 			 }
 			 if (!addUnitVec && G.at(i * n + j) != INT_MIN) { //generator has an actual value for concerned dimension
@@ -629,45 +629,60 @@ namespace VerifyTAPN {
 
 	void VectorizedMPP::ExtrapolateClaim(const int* maxConstants) {
 		std::vector<int> topCorner = std::vector<int>(n, INT_MIN);
-		std::vector<int> infSupp = std::vector<int>(n, 0);
 		for (unsigned int i = 0; i < gens; i++) {
 			if (G.at(i * n) != INT_MIN) {
-				for (unsigned int j = 0; j < n; j++) {
-					topCorner.at(j) = MAX(topCorner.at(j), G.at(i*n+j)-G.at(i*n));
+				for (unsigned int j = 1; j < n; j++) {
+					if (topCorner.at(j) != INT_MAX) {
+						if (G.at(i * n + j) - G.at(i * n) > maxConstants[j]) {
+							topCorner.at(j) = INT_MAX;
+						} else {
+							topCorner.at(j) = MAX(topCorner.at(j), G.at(i*n+j)-G.at(i*n));
+						}
+					}
 				}
 			} else {
 				for (unsigned int j = 1; j < n; j++) {
-					if (G.at(i * n + j) != INT_MIN) {
-						infSupp.at(j) = 1;
+					if (topCorner.at(j) != INT_MAX && G.at(i * n + j) != INT_MIN) {
+						topCorner.at(j) = INT_MAX;
 					}
 				}
 			}
 		}
-		for (unsigned int j = 1; j < n; j++) {
-			bool infSuppAllDim = true;
-			for (unsigned int k = 1; k < n; k++) {
-				if (k != j && !infSupp.at(k)) {
-					infSuppAllDim = false;
-					break;
-				}
-			}
-			for (unsigned int i = 1; i < gens; i++) {
-				if (infSuppAllDim) {
-					gens++;
-					G.resize(gens * n);
-					std::memcpy(&G.at((gens - 1) * n), &G.at(i * n), sizeof(int) * n);
-					G.at((gens - 1) * n) = INT_MIN;
-				} else if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) > maxConstants[j]) {
-					int minDif = INF;
-					for (unsigned int k = 1; k < n; k++) {
-						if (k != j) {
-							minDif = MIN(minDif, topCorner.at(k) - (G.at(i*n+k) - G.at(i*n)));
+		int oldGens = gens;
+		for(int i = 0; i < oldGens; i++){
+			for(int j = 1; j < n; j++){
+				if(G.at(i*n) != INT_MIN && G.at(i*n+j)-G.at(i*n) > maxConstants[j] && maxConstants[j] >= 0){
+					int minDiff = INT_MAX;
+					for(int k = 1; k < n; k++){
+						if(k!=j){
+							if(topCorner.at(j)!=INT_MAX){
+								minDiff = MIN(minDiff, G.at(i*n+k)-G.at(i*n)-topCorner.at(k));
+							}
 						}
 					}
-					if (topCorner.at(j) != G.at(i * n + j) - G.at(i * n)) {
-						topCorner.at(j) += minDif;
+					if(minDiff < 0){
+						std::cout << "what the heck!!" << std::endl;
+					} else if (minDiff == INT_MAX) {
+						//std::cout << "adding delay extra" << std::endl;
+						G.resize(G.size()+n*sizeof(int));
+						memcpy(&G.at(gens * n), &G.at(i * n), sizeof(int) * n);
+						G.at(gens*n) = INT_MIN;
+						gens++;
+						for(int k = 1; k < n; k++){
+							topCorner.at(k) = INT_MAX;
+						}
+					} else {
+						//std::cout << "adding modify extra" << std::endl;
+						G.resize(G.size()+n*sizeof(int));
+						memcpy(&G.at(gens*n),&G.at(i*n),sizeof(int)*n);
+						for(int k = 1; k < n; k++){
+							G.at(gens*n+k) += minDiff;
+							if(topCorner.at(k)!=INT_MAX){
+								topCorner.at(k) = MAX(topCorner.at(k), G.at(gens*n+k)+minDiff);
+							}
+						}
+						gens++;
 					}
-					G.at(i * n) -= minDif;
 				}
 			}
 		}

@@ -57,7 +57,7 @@ namespace VerifyTAPN {
 		void Extrapolate49(const int* maxConstants);
 		void Extrapolate411(const int* maxConstants);
 		void Extrapolate413(const int* maxConstants);
-		void ExtrapolateClaim(const int* maxConstants); //expreriment
+		void ExtrapolateClaim(const int* maxConstants); //experiment
 
 		//experimenting
 		void CleanupOS();

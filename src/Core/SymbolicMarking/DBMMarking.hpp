@@ -98,6 +98,11 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants) {
+		/*	for(int i = 0; i<NumberOfTokens();i++){
+				if(maxConstants[i] == -INF){
+					dbm.freeClock(i);
+				}
+			}*/
 			dbm.diagonalExtrapolateMaxBounds(maxConstants);
 		}
 		;

@@ -35,7 +35,14 @@ namespace VerifyTAPN{
 		};
 
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const {
+#if CLEANUP_ON_STORAGE
+			VectorizedMPPMarking* m = static_cast<VectorizedMPPMarking*>(marking);
+			m->poly.Cleanup();
+			return m;
+#endif
+#if !CLEANUP_ON_STORAGE
 			return static_cast<VectorizedMPPMarking*>(marking);
+#endif
 		};
 
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const {

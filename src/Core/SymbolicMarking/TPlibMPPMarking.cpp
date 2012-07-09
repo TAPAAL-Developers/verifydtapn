@@ -54,18 +54,18 @@ namespace VerifyTAPN {
 		if (DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)) {
 			return true;
 		} else if (placeUpper == pivot) {
-			double zeroUpper = -poly.GetLowerDiffBound(mapUpper, 0);
-			double zeroPivot = -poly.GetLowerDiffBound(mapPivot, 0);
+			double zeroUpper = poly.GetLowerDiffBound(mapUpper, 0);
+			double zeroPivot = poly.GetLowerDiffBound(mapPivot, 0);
 			if (zeroUpper < zeroPivot) {
 				return true;
 			} else if (zeroUpper == zeroPivot) {
-				double upperZero = -poly.GetLowerDiffBound(0, mapUpper);
-				double pivotZero = -poly.GetLowerDiffBound(0, mapPivot);
+				double upperZero = poly.GetLowerDiffBound(0, mapUpper);
+				double pivotZero = poly.GetLowerDiffBound(0, mapPivot);
 				if (upperZero < pivotZero) {
 					return true;
 				} else if (upperZero == pivotZero) {
-					double pivotUpper = -poly.GetLowerDiffBound(mapUpper, mapPivot);
-					double upperPivot = -poly.GetLowerDiffBound(mapPivot, mapUpper);
+					double pivotUpper = poly.GetLowerDiffBound(mapUpper, mapPivot);
+					double upperPivot = poly.GetLowerDiffBound(mapPivot, mapUpper);
 					return mapPivot > mapUpper ? pivotUpper < upperPivot : upperPivot < pivotUpper;
 				}
 			}

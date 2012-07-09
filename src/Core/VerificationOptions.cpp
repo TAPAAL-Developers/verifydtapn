@@ -39,7 +39,7 @@ namespace VerifyTAPN {
 		case MAXPLUS_TPLIB:
 			return "max-plus pilyhedra TPlib bind";
 		case DEBUG_TPLIB:
-			return "debug tplib";
+			return "debug TPlib";
 		default:
 			return "default";
 		}

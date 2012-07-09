@@ -221,17 +221,9 @@ namespace VerifyTAPN {
 
 	void TPlibMPP::Extrapolate(const int* maxConstants) {
 #if DEBUG_PRINT || DEBUG_EXTRAPOLATE
-		std::cout << "before getting dimensions ";
+		std::cout << "Extrapolate" << std::endl;
 #endif
-		unsigned int d = dimension(poly);
-#if DEBUG_PRINT || DEBUG_EXTRAPOLATE
-		std::cout << "after getting dim - d = " << d << std::endl;
-#endif
-		for (unsigned int j = 1; j < d; ++j) {
-			if (maxConstants[j] == -INF) {
-				FreeClock(j);
-			}
-		}
+		extrapolate_free_dim_with(poly,0,maxConstants);
 	}
 
 	relation TPlibMPP::Relation(const TPlibMPP& other) const {
