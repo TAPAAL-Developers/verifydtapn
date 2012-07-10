@@ -220,10 +220,8 @@ namespace VerifyTAPN {
 	}
 
 	void TPlibMPP::Extrapolate(const int* maxConstants) {
-#if DEBUG_PRINT || DEBUG_EXTRAPOLATE
-		std::cout << "Extrapolate" << std::endl;
-#endif
 		extrapolate_free_dim_with(poly,0,maxConstants);
+		extrapolate411_with(poly,0,maxConstants);
 	}
 
 	relation TPlibMPP::Relation(const TPlibMPP& other) const {
@@ -232,7 +230,6 @@ namespace VerifyTAPN {
 #endif
 		bool sub = is_leq(poly, other.poly);
 		bool sup = is_leq(other.poly, poly);
-
 #if DEBUG_PRINT || DEBUG_RELATION
 		std::cout << "sub: " << sub << " - is_leq (this,other): " << is_leq(poly, other.poly) << std::endl;
 		std::cout << "sup: " << sup << " - is_leq (other,this): " << is_leq(other.poly, poly) << std::endl;

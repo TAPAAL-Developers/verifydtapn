@@ -621,9 +621,10 @@ namespace VerifyTAPN {
 			 }
 			 }*/
 		}
+		Cleanup();
 		//ExtrapolateClaim(maxConstants);
 		//Extrapolate49(maxConstants);
-		//Extrapolate411(maxConstants);
+		Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 	}
 
@@ -690,15 +691,15 @@ namespace VerifyTAPN {
 	}
 
 	void VectorizedMPP::Extrapolate411(const int* maxConstants) {
+		unsigned int oldGens = gens;
 		for (unsigned int j = 1; j < n; j++) {
 			if (maxConstants[j] >= 0) {
-				for (unsigned int i = 0; i < gens; i++) {
+				for (unsigned int i = 0; i < oldGens; i++) {
 					if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) <= maxConstants[j]) {
 						break;
 					}
-					if (i == gens - 1) {
+					if (i == oldGens - 1) {
 						FreeClock(j, maxConstants[j] + 1);
-						break;
 					}
 				}
 			}

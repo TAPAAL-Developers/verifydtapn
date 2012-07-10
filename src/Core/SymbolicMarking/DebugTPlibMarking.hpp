@@ -176,9 +176,9 @@ namespace VerifyTAPN {
 				out << " " << i << ":" << GetClockIndex(i) << ",";
 			}
 			out << std::endl;
-			out << "C++ (vectorized)" << std::endl;
+			out << "C++ (vectorized):" << std::endl;
 			vmpp.Print(out);
-			out << "OCaml" << std::endl;
+			out << "OCaml:" << std::endl;
 			tpmpp.Print(out);
 		}
 		;
@@ -260,13 +260,18 @@ namespace VerifyTAPN {
 		}
 		;
 		virtual void Extrapolate(const int* maxConstants) {
-#if DEBUG_PRINT
+#if DEBUG_PRINT || DEBUG_EXTRAPOLATE
 			std::cout << "Extrapolate" << std::endl;
 			std::cout << "Mapping:";
 			for (unsigned int k = 0; k < mapping.size(); k++) {
 				std::cout << " " << mapping.GetMapping(k);
 			}
+			std::cout << std::endl << "maxConstants:";
+			for(unsigned int k = 0; k < NumberOfTokens()+1; k++){
+				std::cout << " " << maxConstants[k];
+			}
 			Print(std::cout);
+			std::cout << "extrapolating..." << std::endl;
 #endif
 			vmpp.Extrapolate(maxConstants);
 			tpmpp.Extrapolate(maxConstants);

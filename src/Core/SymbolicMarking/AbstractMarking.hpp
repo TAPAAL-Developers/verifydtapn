@@ -38,6 +38,9 @@
 #ifndef DEBUG_ISUPP
 #define DEBUG_ISUPP false
 #endif
+#ifndef DEBUG_EXTRAPOLATE
+#define DEBUG_EXTRAPOLATE false
+#endif
 
 namespace VerifyTAPN {
 	class AbstractMarking {
