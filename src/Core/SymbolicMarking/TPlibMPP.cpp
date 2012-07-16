@@ -221,6 +221,7 @@ namespace VerifyTAPN {
 
 	void TPlibMPP::Extrapolate(const int* maxConstants) {
 		extrapolate_free_dim_with(poly,0,maxConstants);
+		extrapolate49_with(poly,0,maxConstants);
 		extrapolate411_with(poly,0,maxConstants);
 	}
 

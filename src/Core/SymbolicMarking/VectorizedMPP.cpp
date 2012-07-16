@@ -623,7 +623,8 @@ namespace VerifyTAPN {
 		}
 		Cleanup();
 		//ExtrapolateClaim(maxConstants);
-		//Extrapolate49(maxConstants);
+		Extrapolate49(maxConstants);
+		//Extrapolate49_2(maxConstants);
 		Extrapolate411(maxConstants);
 		//Extrapolate413(maxConstants);
 	}
@@ -649,36 +650,36 @@ namespace VerifyTAPN {
 				}
 			}
 		}
-		int oldGens = gens;
-		for(int i = 0; i < oldGens; i++){
-			for(int j = 1; j < n; j++){
-				if(G.at(i*n) != INT_MIN && G.at(i*n+j)-G.at(i*n) > maxConstants[j] && maxConstants[j] >= 0){
+		unsigned int oldGens = gens;
+		for (unsigned int i = 0; i < oldGens; i++) {
+			for (unsigned int j = 1; j < n; j++) {
+				if (G.at(i * n) != INT_MIN && G.at(i * n + j) - G.at(i * n) > maxConstants[j] && maxConstants[j] >= 0) {
 					int minDiff = INT_MAX;
-					for(int k = 1; k < n; k++){
-						if(k!=j){
-							if(topCorner.at(j)!=INT_MAX){
+					for (unsigned int k = 1; k < n; k++) {
+						if (k != j) {
+							if (topCorner.at(j) != INT_MAX) {
 								minDiff = MIN(minDiff, G.at(i*n+k)-G.at(i*n)-topCorner.at(k));
 							}
 						}
 					}
-					if(minDiff < 0){
+					if (minDiff < 0) {
 						std::cout << "what the heck!!" << std::endl;
 					} else if (minDiff == INT_MAX) {
 						//std::cout << "adding delay extra" << std::endl;
-						G.resize(G.size()+n*sizeof(int));
+						G.resize(G.size() + n * sizeof(int));
 						memcpy(&G.at(gens * n), &G.at(i * n), sizeof(int) * n);
-						G.at(gens*n) = INT_MIN;
+						G.at(gens * n) = INT_MIN;
 						gens++;
-						for(int k = 1; k < n; k++){
+						for (unsigned int k = 1; k < n; k++) {
 							topCorner.at(k) = INT_MAX;
 						}
 					} else {
 						//std::cout << "adding modify extra" << std::endl;
-						G.resize(G.size()+n*sizeof(int));
-						memcpy(&G.at(gens*n),&G.at(i*n),sizeof(int)*n);
-						for(int k = 1; k < n; k++){
-							G.at(gens*n+k) += minDiff;
-							if(topCorner.at(k)!=INT_MAX){
+						G.resize(G.size() + n * sizeof(int));
+						memcpy(&G.at(gens * n), &G.at(i * n), sizeof(int) * n);
+						for (unsigned int k = 1; k < n; k++) {
+							G.at(gens * n + k) += minDiff;
+							if (topCorner.at(k) != INT_MAX) {
 								topCorner.at(k) = MAX(topCorner.at(k), G.at(gens*n+k)+minDiff);
 							}
 						}
@@ -730,6 +731,38 @@ namespace VerifyTAPN {
 							break;
 						}
 					}
+				}
+			}
+		}
+		Cleanup();
+	}
+
+	void VectorizedMPP::Extrapolate49_2(const int* maxConstants) {
+		//std::cout << "Extrapolate49_2" << std::endl;
+		for (unsigned int j = 1; j < n; j++) {
+			if (maxConstants[j] >= 0) {
+				bool aboveDia = true;
+				for (unsigned int k = 1; k < n; k++) {
+					if (k != j) {
+						for (unsigned int i = 0; i < gens; i++) {
+							if (G.at(i * n + j) != INT_MIN) {
+								if (G.at(i * n + k) == INT_MIN) {
+									break;
+								} else if (G.at(i * n + j) - G.at(i * n + k) > maxConstants[j]) {
+									break;
+								} else if (i == gens - 1) {
+									aboveDia = false;
+								}
+							}
+						}
+						if(!aboveDia){
+							break;
+						}
+					}
+				}
+				if (aboveDia) {
+					//std::cout << "aboveDia - j = " << j << std::endl;
+					AddUnitVec(j);
 				}
 			}
 		}
