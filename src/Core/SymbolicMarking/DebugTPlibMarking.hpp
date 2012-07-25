@@ -215,6 +215,7 @@ namespace VerifyTAPN {
 #if DEBUG_PRINT || DEBUG_DELAY
 			std::cout << "Delay" << std::endl;
 			Print(std::cout);
+			std::cout << "delaying..." << std::endl;
 #endif
 			vmpp.Delay();
 			tpmpp.Delay();

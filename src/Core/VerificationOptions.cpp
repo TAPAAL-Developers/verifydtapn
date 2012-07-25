@@ -45,6 +45,14 @@ namespace VerifyTAPN {
 		}
 	}
 
+	std::string CleanupEnumToString(Cleanup cleanup){
+		switch(cleanup){
+		case OUTPUT_SENSITIVE:
+			return "output sensitive";
+		default:
+			return "default";
+		}
+	}
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options)
 	{
@@ -72,6 +80,7 @@ namespace VerifyTAPN {
 			}
 			out << " for discrete inclusion." << std::endl;
 		}
+		out << "Using " << CleanupEnumToString(options.GetCleanup()) << " cleanup method for max-plus polyhedra" << std::endl;
 		out << "Convex hull overapproximation is " << (options.CHOverApproxEnabled() ? "ON" : "OFF") << std::endl;
 		out << "Model file is: " << options.GetInputFile() << std::endl;
 		out << "Query file is: " << options.QueryFile() << std::endl;

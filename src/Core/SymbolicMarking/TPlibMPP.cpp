@@ -8,7 +8,7 @@
 #include "TPlibMPP.hpp"
 
 namespace VerifyTAPN {
-	void TPlibMPP::InitZero(int numberOfTokens) {
+	void TPlibMPP::InitZero(unsigned int numberOfTokens) {
 		matrix_t *initGen = matrix_alloc(1, 1 + numberOfTokens);
 		for (unsigned int i = 0; i <= numberOfTokens; i++) {
 			matrix_set(initGen, 0, i, 0.);

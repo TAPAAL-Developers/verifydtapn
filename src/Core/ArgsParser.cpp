@@ -18,6 +18,7 @@ namespace VerifyTAPN {
 	static const std::string XML_TRACE_OPTION = "xml-trace";
 	static const std::string INCLUSION_PLACES = "inc-places";
 	static const std::string CHOVER_APPROX = "chover-approx";
+	static const std::string CLEANUP_OPTION = "cleanup";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -152,6 +153,7 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory\n - 3: Max-plus polyhedra vectorized\n - 4: Max-plus old (set impl)\n - 5: Max-plus polyhedra (TPlib impl)\n - 6: Comparison of C++ and TPlib MPP; debug purpose",0));
 		parsers.push_back(boost::make_shared<SwitchWithStringArg>("i", INCLUSION_PLACES, "Specify a list of places to consider \nfor discrete inclusion. No spaces after\nthe commas!\nSpecial values: *ALL*, *NONE*", "*ALL*"));
 		parsers.push_back(boost::make_shared<Switch>("c",CHOVER_APPROX, "Use convex hull overapproximation."));
+		parsers.push_back(boost::make_shared<SwitchWithArg>("w", CLEANUP_OPTION, "Specify the desired cleanup methond for tplib max-plus polyhedra.\n 0: Defrault\n 1: Output sensitiv",0));
 	};
 
 	void ArgsParser::Help() const
@@ -305,6 +307,13 @@ namespace VerifyTAPN {
 		}
 	}
 
+	Cleanup intToCleanup(unsigned int i){
+		switch(i){
+		case 0: return DEFAULT_CL;
+		case 1: return OUTPUT_SENSITIVE;
+		}
+	}
+
 	unsigned int ArgsParser::TryParseInt(const option& option) const
 	{
 		unsigned int result = 0;
@@ -358,6 +367,10 @@ namespace VerifyTAPN {
 
 		assert(map.find(CHOVER_APPROX) != map.end());
 		bool enable_ch_over_approx = boost::lexical_cast<bool>(map.find(CHOVER_APPROX)->second);
-		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places, enable_ch_over_approx);
+
+		assert(map.find(CLEANUP_OPTION) != map.end());
+		Cleanup cleanup = intToCleanup(TryParseInt(*map.find(CLEANUP_OPTION)));
+
+		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places, enable_ch_over_approx, cleanup);
 	}
 }

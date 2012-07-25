@@ -26,8 +26,9 @@ namespace VerifyTAPN {
 	private:
 		static id_type nextId;
 	public:
-		DebugTPlibMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) {
+		DebugTPlibMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, Cleanup cleanup) {
 			init();
+			set_weakbasis_type(cleanup);
 			DebugTPlibMarking::tapn = tapn;
 		}
 		;

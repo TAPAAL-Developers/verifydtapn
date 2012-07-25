@@ -36,7 +36,7 @@ namespace VerifyTAPN {
 		}
 		;
 	public:
-		void InitZero(int numberOfTokens);
+		void InitZero(unsigned int numberOfTokens);
 		void Print(std::ostream& out) const;
 		void SwapClocks(int clock1, int clock2);
 		void ResetClock(int clock);

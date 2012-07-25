@@ -9,6 +9,7 @@ namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST };
 	enum Factory { DEFAULT, DISCRETE_INCLUSION, OLD_FACTORY, MAXPLUS_VECTORIZED, MAXPLUS_OLD, MAXPLUS_TPLIB, DEBUG_TPLIB };
+	enum Cleanup { DEFAULT_CL, OUTPUT_SENSITIVE };
 
 	class VerificationOptions {
 		public:
@@ -24,7 +25,8 @@ namespace VerifyTAPN {
 				bool useGlobalMaxConstants,
 				Factory factory,
 				const std::vector<std::string>& inc_places,
-				bool useChOverApprox
+				bool useChOverApprox,
+				Cleanup cleanup
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
@@ -36,7 +38,8 @@ namespace VerifyTAPN {
 				useGlobalMaxConstants(useGlobalMaxConstants),
 				factory(factory),
 				inc_places(inc_places),
-				useChOverApprox(useChOverApprox)
+				useChOverApprox(useChOverApprox),
+				cleanup(cleanup)
 			{ };
 
 		public: // inspectors
@@ -54,6 +57,7 @@ namespace VerifyTAPN {
 			inline const std::vector<std::string>& GetIncPlaces() const { return inc_places; };
 			inline std::vector<std::string>& GetIncPlaces(){ return inc_places; };
 			inline const bool CHOverApproxEnabled() const { return useChOverApprox; };
+			inline Cleanup GetCleanup() const {return cleanup; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
@@ -67,6 +71,7 @@ namespace VerifyTAPN {
 			Factory factory;
 			std::vector<std::string> inc_places;
 			bool useChOverApprox;
+			Cleanup cleanup;
 	};
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

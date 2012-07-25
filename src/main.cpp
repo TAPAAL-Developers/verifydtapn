@@ -43,9 +43,9 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	case MAXPLUS_OLD:
 		return new MPPMarkingFactory<MPVector>(tapn);
 	case MAXPLUS_TPLIB:
-		return new TPlibMPPMarkingFactory(tapn);
+		return new TPlibMPPMarkingFactory(tapn,options.GetCleanup());
 	case DEBUG_TPLIB:
-		return new DebugTPlibMarkingFactory(tapn);
+		return new DebugTPlibMarkingFactory(tapn,options.GetCleanup());
 	default:// Note that the constructor of DiscreteInclusionMarkingFactory automatically disables discrete inclusion
 		    // if DEFAULT is chosen
 		return new DiscreteInclusionMarkingFactory(tapn, options);
