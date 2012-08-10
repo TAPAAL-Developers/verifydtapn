@@ -9,20 +9,14 @@
 #define DEBUGTPLIBMARKINGFACTORY_HPP_
 
 #include "MarkingFactory.hpp"
-//#include "VectorizedMPPMarking.hpp"
-//#include "TPlibMPPMarking.hpp"
 #include "../VerificationOptions.hpp"
 #include "DebugTPlibMarking.hpp"
 
 namespace VerifyTAPN {
 	class SymbolicMarking;
 	class StoredMarking;
-	//class DebugTPlibMarking;
 
 	class DebugTPlibMarkingFactory: public MarkingFactory {
-//		friend class DebugTPlibMarking;
-//		friend class VectorizedMPPMarking;
-//		friend class TPlibMPPMarking;
 	private:
 		static id_type nextId;
 	public:

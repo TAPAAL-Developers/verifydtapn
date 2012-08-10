@@ -7,7 +7,6 @@
 #include <cstring>
 
 #include "VectorizedMPP.hpp"
-
 #include "DiscreteMarking.hpp"
 #include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
@@ -28,8 +27,12 @@ namespace VerifyTAPN {
 	public:
 		//constructors
 		VectorizedMPPMarking(const DiscretePart &dp) :
-				DiscreteMarking(dp), mapping(){
+				DiscreteMarking(dp), mapping() {
 			InitMapping();
+		}
+		;
+		VectorizedMPPMarking(const DiscretePart &dp, TokenMapping mp, std::vector<int> G, int gens) :
+				DiscreteMarking(dp), mapping(mp), poly(G, gens, dp.size() + 1) {
 		}
 		;
 		VectorizedMPPMarking(const VectorizedMPPMarking &mppm) :

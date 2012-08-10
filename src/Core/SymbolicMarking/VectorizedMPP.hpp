@@ -54,19 +54,32 @@ namespace VerifyTAPN {
 		void IntersectHalfspace(std::vector<int>& a, std::vector<int>& b);
 		void AddUnitVec(unsigned int dim);
 
+		/*
+		 * Extrapolation principle that adds a unit vector for each dimension that have a generator above the max diagonal.
+		 * Sound, not complete.
+		 */
 		void Extrapolate49(const int* maxConstants);
+		/*
+		 * Principle that resets a dimension to max constant + 1 whenever the entire polyhedron is above the max constant.
+		 * Sound, not complete.
+		 */
 		void Extrapolate411(const int* maxConstants);
+		/*
+		 * Principle that delays a single generator if it above the max constant for all dimensions.
+		 * Sound, not complete.
+		 */
 		void Extrapolate413(const int* maxConstants);
-		void ExtrapolateClaim(const int* maxConstants); //experiment
-		void Extrapolate49_2(const int* maxConstants); //experiment
+		/*
+		 * Principle that removes upper single clock bounds when above the max constant.
+		 * Sound, not complete.
+		 */
+		void ExtrapolateNew(const int* maxConstants); //experiment
 
-		//experimenting
-		void CleanupOS();
+		/*
+		 * Fucntion to normalize the generators of the polyhedron.
+		 * Not currently used.
+		 */
 		void Norm();
-		int Lexmin(const std::vector<int>& C, unsigned int gens, unsigned int dim = 0) const;
-		bool ExSetContainsPoint(const std::vector<int>& C, int Cgens, const std::vector<int>& x) const;
-		std::vector<int> ArgmaxPsi(const std::vector<int>& P, int Pgens, int dim, const std::vector<int> w,
-				int skipgent = -1) const;
 
 	public:
 		void InitZero(int numberOfTokens);
@@ -80,6 +93,9 @@ namespace VerifyTAPN {
 		void Constrain(int clock, const TAPN::TimeInterval& interval);
 		void Constrain(int clock, const TAPN::TimeInvariant& invariant);
 		bool PotentiallySatisfies(int clock, const TAPN::TimeInterval& interval) const;
+		/*
+		 * Sound, not complete.
+		 */
 		void Extrapolate(const int* maxConstants);
 		void ConvexHullUnion(VectorizedMPP* mpp);
 		relation Relation(const VectorizedMPP& other) const;

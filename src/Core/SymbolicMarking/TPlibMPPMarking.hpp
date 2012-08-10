@@ -19,6 +19,7 @@
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
 #include "TPlibMPP.hpp"
+#include "VectorizedMPPMarking.hpp"
 
 namespace VerifyTAPN {
 	class TPlibMPPMarking: public DiscreteMarking, public StoredMarking {

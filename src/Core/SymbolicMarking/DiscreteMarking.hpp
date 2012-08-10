@@ -117,7 +117,7 @@ namespace VerifyTAPN {
 				assert(success.second);
 			}
 		}
-	public: // data TODO prvate
+	protected:
 		DiscretePart dp;
 	};
 }

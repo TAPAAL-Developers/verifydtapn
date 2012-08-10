@@ -8,6 +8,7 @@
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
 #include <iosfwd>
+#include "VectorizedMPPMarking.hpp"
 
 namespace VerifyTAPN {
 
@@ -87,7 +88,7 @@ namespace VerifyTAPN {
 		}
 		;
 
-		virtual void ConvexHullUnion(AbstractMarking* marking){
+		virtual void ConvexHullUnion(AbstractMarking* marking) {
 			DBMMarking* m = static_cast<DBMMarking*>(marking);
 			dbm_convexUnion(dbm.getDBM(), m->dbm.getDBM(), dbm.getDimension());
 		}
@@ -98,11 +99,11 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants) {
-		/*	for(int i = 0; i<NumberOfTokens();i++){
-				if(maxConstants[i] == -INF){
-					dbm.freeClock(i);
-				}
-			}*/
+			/*	for(int i = 0; i<NumberOfTokens();i++){
+			 if(maxConstants[i] == -INF){
+			 dbm.freeClock(i);
+			 }
+			 }*/
 			dbm.diagonalExtrapolateMaxBounds(maxConstants);
 		}
 		;
