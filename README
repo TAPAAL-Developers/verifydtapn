@@ -24,6 +24,17 @@ c. Download UPPAAL DBM library (we use version 2.0.7)
 d. Install google-sparsehash library.
 	- On Ubuntu you can install this from the software center, otherwise you have
 	  to get it from http://code.google.com/p/google-sparsehash/
+e. Install ocaml. (We have been using v. 3.12.1)
+	- On Ubunty it can be installed thorugh the software center.
+	- For other platforms go to caml.inria.fr/ocaml/release.en.html
+f. Install zarith
+	- svn checkout svn://scm.ocamlcore.org/svn/zarith/trunk
+	- (followed by the usual ./configure, make, make install)
+e. Download and install tplib (tropical polyhedron library)
+	- Clone a the source code using: git clone https://gforge.inria.fr/git/tplib/tplib.git
+	- In the directory tplib get the brach soren: git pull origin soren
+		- Some bindings are already in the master branch, but not all yet as of August 10 2012.
+	- (followed by the usual ./configure, make, make install)
 
 1. Create a branch of the code, e.g. "bzr branch lp:verifytapn" (replace with 
    the branch you want to checkout)
@@ -42,12 +53,16 @@ d. Install google-sparsehash library.
 		  or /usr/local/include) you must also add a path to the the 
 		  folder containing the boost include files (.h files)
 		- The same applies to the google-sparsehash header files.
+	2.1 Add paths to include ocaml and zarith.
+		- If intructions was above was followed use: "/usr/lib/ocaml" and "/usr/local/lib/ocaml/3.12.1/zarith".
 	3. under "GCC C++ linker" -> "Libraries":
 		- add a path to the DBM library's "lib" folder (per the instructions
 		  above, you need to add the path "/usr/local/uppaal/lib") to the 
 		  "Library search path"
 		- The same MAY apply to the google-sparsehash code, depending on whether
 		  it compiles to a library or its a header-only library.
+	3.1 Add the zarith library path: /usr/local/lib/ocaml/3.12.1/zarith
+	3.2 Add the libraries -l: tplib_double, m, dl, zarith, gmp
 4. Setup configuration "Release": Same as "Debug".
 6. The project should now be compilable in both debug and release versions.
 
